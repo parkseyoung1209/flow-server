@@ -1,4 +1,7 @@
 package com.master.flow.model.dao;
 
-public interface VoteDAO {
+import com.master.flow.model.vo.Vote;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface VoteDAO extends JpaRepository<Vote, Integer> {
 }

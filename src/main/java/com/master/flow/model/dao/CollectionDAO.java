@@ -1,4 +1,7 @@
 package com.master.flow.model.dao;
 
-public interface CollectionDAO {
+import com.master.flow.model.vo.Collection;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface CollectionDAO extends JpaRepository<Collection, Integer> {
 }

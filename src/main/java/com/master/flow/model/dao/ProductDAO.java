@@ -1,4 +1,7 @@
 package com.master.flow.model.dao;
 
-public interface ProductDAO {
+import com.master.flow.model.vo.Product;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface ProductDAO extends JpaRepository<Product, Integer> {
 }

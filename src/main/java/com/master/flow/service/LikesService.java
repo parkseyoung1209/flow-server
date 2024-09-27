@@ -27,24 +27,24 @@ public class LikesService {
         // Post가 데이터베이스에 저장되지 않았다면 저장
         if (!postDAO.existsById(post.getPostCode())) {
             throw new IllegalArgumentException("Post가 존재하지 않습니다.");}
-        Optional<Likes> existingLike = likesdao.findByUserAndPost(user, post);
+        Optional<Likes> existingLike = likesDAO.findByUserAndPost(user, post);
 
         if (existingLike.isPresent()) {
             // 이미 좋아요가 눌러져 있는 경우 삭제
-            likesdao.delete(existingLike.get());
+            likesDAO.delete(existingLike.get());
             return false;
         } else {
             Likes like = Likes.builder()
                     .user(user)
                     .post(post)
                     .build();
-            likesdaodao.save(like);
+            likesDAO.save(like);
             return true;
         }
     }
     public int countLikesByPost(Post post) {
-        return likesdaodao.countByPost(post);
-    
+        return likesDAO.countByPost(post);
+    }
 
     // 좋아요한 게시물 조회
     public List<Post> getLikedPosts(int userCode) {

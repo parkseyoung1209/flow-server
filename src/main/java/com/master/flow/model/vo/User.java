@@ -29,9 +29,9 @@ public class User {
     @Column(name = "user_gender")
     private String userGender;
     @Column(name = "user_height")
-    private Integer userHeight;
+    private int userHeight;
     @Column(name = "user_weight")
-    private Integer userWeight;
+    private int userWeight;
     @Column(name = "user_body_spec_yn")
     private String userBodySpecYn;
     @Column(name = "user_profile_url")
@@ -43,5 +43,5 @@ public class User {
     @Column(name = "user_ban_date")
     private Date userBanDate;
     @Column(name = "user_ban_count")
-    private Integer userBanCount;
+    private int userBanCount;
 }

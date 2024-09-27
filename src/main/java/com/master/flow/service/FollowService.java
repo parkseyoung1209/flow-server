@@ -15,11 +15,23 @@ public class FollowService {
     private FollowDAO followDAO;
 
     // 추가 및 중복방지 로직
+
+    // 비교를 위한 모든 팔로우 관계가 있는 테이블 가져오기
     public List<Follow> viewAllFollowList() {
         return followDAO.findAll();
-    }   // 비교를 위한 모든 팔로우 관계가 있는 테이블 가져오기
+    }
 
-    public boolean addFollowingRelative(Follow value) {
+    // 유저가 새로 넣은 데이터를 바탕으로 만든 임의 관계도
+    private String getUserRelative(Follow value) {
+        return value.getFollowingUser() + "_" + value.getFollowerUser();
+    }
+    /* 해쉬셋에 같은 관계도 문자열이 포함되어있으면 true인데 이걸 부정해서 false로 만듦
+           반대로 포함이 안되어있다면 false 발사 후 부정처리해서 check를 true로 */
+    private boolean checkFollowing(Set<String> followingSet, String value) {
+        return !followingSet.contains(value);
+    }
+    //팔로우 전체 테이블을 가져와서 스트링 데이터를 넣은 해쉬셋으로 변환
+    public Set<String> getAllFollowSet() {
         List<Follow> list = viewAllFollowList();
         Set<String> followingSet = new HashSet<>(); // 관계를 더할 해쉬셋
         for(Follow follow : list) {
@@ -27,13 +39,13 @@ public class FollowService {
             String code = follow.getFollowingUser() + "_" + follow.getFollowerUser();
             followingSet.add(code); //다 넣음
         }
-        // 유저가 새로 넣은 데이터를 바탕으로 만든 임의 관계도
-        String newCode = value.getFollowingUser() + "_" + value.getFollowerUser();
-
-        /* 해쉬셋에 같은 관계도 문자열이 포함되어있으면 true인데 이걸 부정해서 false로 만듦
-            반대로 포함이 안되어있다면 false 발사 후 부정처리해서 check를 true로
-        */
-        boolean check = !followingSet.contains(newCode);
+        return followingSet;
+    }
+    // 추가 메서드
+    public boolean addFollowingRelative(Follow value) {
+        Set<String> followingSet = getAllFollowSet();
+        String newCode = getUserRelative(value);
+        boolean check = checkFollowing(followingSet, newCode);
 
         if(value.getFollowingUser() != value.getFollowerUser() && check) {
             followDAO.save(value);

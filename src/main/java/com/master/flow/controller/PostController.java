@@ -31,18 +31,18 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK).body(posts);
     }
     // 좋아요한 게시물 조회
+//    @GetMapping("/post/ordered-by-likes")
+//    public ResponseEntity<List<Post>> getPostsOrderedByLikes() {
+//        List<Post> likedPosts = postService.getPostsOrderedByLikes();
+//        return ResponseEntity.status(HttpStatus.OK).body(likedPosts);
+//    }
+
     @GetMapping("/post/liked/{userCode}")
     public ResponseEntity<List<Post>> getLikedPosts(@PathVariable("userCode") int userCode) {
         List<Post> likedPosts = likesService.getLikedPosts(userCode);
         return ResponseEntity.status(HttpStatus.OK).body(likedPosts);
     }
-
     // 게시물 좋아요 순으로 조회
-    @GetMapping("/post/ordered-by-likes")
-    public ResponseEntity<List<Post>> getPostsOrderedByLikes() {
-        List<Post> likedPosts = postService.getPostsOrderedByLikes();
-        return ResponseEntity.status(HttpStatus.OK).body(likedPosts);
-    }
     /*
     *  전송하는 방법이..!
     * 자바스크립트에서 보내는 방법!

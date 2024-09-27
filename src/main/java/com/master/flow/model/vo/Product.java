@@ -26,7 +26,7 @@ public class Product {
 
 //    사이즈
     @Column(name="PRODUCT_SIZE")
-    private int productSize;
+    private String productSize;
 
 //    구매처
     @Column(name="PRODUCT_BUY_FROM")

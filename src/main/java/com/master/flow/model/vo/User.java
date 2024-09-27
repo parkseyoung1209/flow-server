@@ -14,34 +14,61 @@ import java.util.Date;
 @Data @AllArgsConstructor
 @NoArgsConstructor @Builder
 public class User {
-
     @Id
-    @Column(name = "user_code")
+    @Column(name="USER_CODE")
     private int userCode;
-    @Column(name = "user_email")
+
+//    이메일
+    @Column(name="USER_EMAIL")
     private String userEmail;
-    @Column(name = "user_platform")
+
+//    가입 채널 (카카오, 네이버, 구글)
+    @Column(name="USER_PLATFORM")
     private String userPlatform;
-    @Column(name = "user_nickname")
+
+//    닉네임
+    @Column(name="USER_NICKNAME")
     private String userNickname;
-    @Column(name = "user_job")
+
+//    직종
+    @Column(name="USER_JOB")
     private String userJob;
-    @Column(name = "user_gender")
+
+//    성별
+    @Column(name="USER_GENDER")
     private String userGender;
-    @Column(name = "user_height")
+
+//    키
+    @Column(name="USER_HEIGHT")
     private int userHeight;
-    @Column(name = "user_weight")
+
+//    체중
+    @Column(name="USER_WEIGHT")
     private int userWeight;
-    @Column(name = "user_body_spec_yn")
+
+//    신체 스펙 공개 여부
+    @Column(name="USER_BODY_SPEC_YN")
     private String userBodySpecYn;
-    @Column(name = "user_profile_url")
+
+//    프로필 사진
+    @Column(name="USER_PROFILE_URL")
     private String userProfileUrl;
-    @Column(name = "user_manager_code")
+
+//    관리자 유무
+    @Column(name="USER_MANAGER_CODE")
     private String userManagerCode;
-    @Column(name = "user_ban_status")
+
+//    제재 상태
+    @Column(name="USER_BAN_STATUS")
     private String userBanStatus;
-    @Column(name = "user_ban_date")
+
+//  java.util 인지 java.sql인지 모름
+//    제재 날짜
+    @Column(name="USER_BAN_DATE")
     private Date userBanDate;
-    @Column(name = "user_ban_count")
+
+//    제재 횟수
+    @Column(name="USER_BAN_COUNT")
     private int userBanCount;
+
 }

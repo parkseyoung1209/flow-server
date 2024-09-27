@@ -1,4 +1,7 @@
 package com.master.flow.model.dao;
 
-public interface PostImgDAO {
+import com.master.flow.model.vo.PostImg;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface PostImgDAO extends JpaRepository<PostImg, Integer> {
 }

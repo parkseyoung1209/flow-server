@@ -10,12 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
-
+import java.util.List;
 @Service
 public class LikesService {
-
-    @Autowired
-    private LikesDAO dao;
 
     @Autowired
     private PostDAO postDAO;
@@ -23,26 +20,40 @@ public class LikesService {
     @Autowired
     private UserDAO userDAO;
 
+    @Autowired
+    private LikesDAO likesDAO;
+
     public boolean toggleLikeWithoutUser(User user, Post post) {
         // Post가 데이터베이스에 저장되지 않았다면 저장
         if (!postDAO.existsById(post.getPostCode())) {
             throw new IllegalArgumentException("Post가 존재하지 않습니다.");}
-        Optional<Likes> existingLike = dao.findByUserAndPost(user, post);
+        Optional<Likes> existingLike = likesdao.findByUserAndPost(user, post);
 
         if (existingLike.isPresent()) {
             // 이미 좋아요가 눌러져 있는 경우 삭제
-            dao.delete(existingLike.get());
+            likesdao.delete(existingLike.get());
             return false;
         } else {
             Likes like = Likes.builder()
                     .user(user)
                     .post(post)
                     .build();
-            dao.save(like);
+            likesdaodao.save(like);
             return true;
         }
     }
     public int countLikesByPost(Post post) {
-        return dao.countByPost(post);
+        return likesdaodao.countByPost(post);
+    
+
+    // 좋아요한 게시물 조회
+    public List<Post> getLikedPosts(int userCode) {
+        List<Likes> likes = likesDAO.findByUser_UserCode(userCode);
+        return likes.stream().map(like -> like.getPost()).toList();
+    }
+
+    // 좋아요 수 카운트
+    public int countLikes(int postCode) {
+        return (int) likesDAO.countByPost_PostCode(postCode);
     }
 }

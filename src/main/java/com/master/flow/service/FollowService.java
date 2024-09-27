@@ -13,7 +13,9 @@ public class FollowService {
 
     @Autowired UserDAO userDAO;
 
-    public void followingUser(Follow value) {
-
+    public void addFollowingRelative(Follow value) {
+        if(!(value.getFollowerUser() == value.getFollowingUser())) {
+            followDAO.save(value);
+        }
     }
 }

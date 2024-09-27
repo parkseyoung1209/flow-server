@@ -16,7 +16,7 @@ public class CommentController {
     @Autowired
     private CommentService commentService;
 
-    @PostMapping
+    @PostMapping("/mm")
     public ResponseEntity<Comment> createComment(@RequestBody Comment comment) {
         Comment savedComment = commentService.saveComment(comment);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedComment);

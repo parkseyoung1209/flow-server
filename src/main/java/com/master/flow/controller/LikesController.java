@@ -1,11 +1,35 @@
 package com.master.flow.controller;
 
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.master.flow.model.vo.Post;
+import com.master.flow.model.vo.User;
+import com.master.flow.service.LikesService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/*")
+@RequestMapping("/api/likes")
 @CrossOrigin(origins = {"*"}, maxAge=6000)
 public class LikesController {
+
+    @Autowired
+    private LikesService service;
+
+    @PostMapping("/toggle/{postCode}")
+    public ResponseEntity<Boolean> toggleLike(@PathVariable int postCode, @RequestBody User user) {
+        Post post = new Post();
+        post.setPostCode(postCode); // Post ID를 설정
+        boolean isLiked = service.toggleLikeWithoutUser(user, post);
+        return ResponseEntity.status(HttpStatus.OK).body(isLiked);
+    }
+
+    @GetMapping("/{postCode}/count")
+    public ResponseEntity<Integer> getLikeCount(@PathVariable int postCode) {
+        Post post = new Post();
+        post.setPostCode(postCode); // Post ID를 설정
+
+        int likeCount = service.countLikesByPost(post); // 게시물의 좋아요 수 카운트
+        return ResponseEntity.status(HttpStatus.OK).body(likeCount);
+    }
 }

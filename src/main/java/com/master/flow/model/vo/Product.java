@@ -1,8 +1,6 @@
 package com.master.flow.model.vo;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -39,6 +37,7 @@ public class Product {
     private String productLink;
 
 //    게시물 번호
-    @Column(name="POST_CODE")
-    private int postCode;
+    @ManyToOne
+    @JoinColumn(name="POST_CODE")
+    private Post post;
 }

@@ -1,8 +1,6 @@
 package com.master.flow.model.vo;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,10 +17,12 @@ public class PostTag {
     private int postTagCode;
 
 //    게시물 번호
-    @Column(name="POST_CODE")
-    private int postCode;
+    @ManyToOne
+    @JoinColumn(name="POST_CODE")
+    private Post post;
 
 //    태그 코드
-    @Column(name="TAG_CODE")
-    private int tagCode;
+    @ManyToOne
+    @JoinColumn(name="TAG_CODE")
+    private Tag tag;
 }

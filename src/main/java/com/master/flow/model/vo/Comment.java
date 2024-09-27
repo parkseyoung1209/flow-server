@@ -1,8 +1,6 @@
 package com.master.flow.model.vo;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -38,10 +36,12 @@ public class Comment {
     private String commentDelYn;
 
 //    게시물 번호
-    @Column(name="POST_CODE")
-    private String postCode;
+    @ManyToOne
+    @JoinColumn(name="POST_CODE")
+    private Post post;
 
 //    유저 코드
-    @Column(name="USER_CODE")
-    private String userCode;
+    @ManyToOne
+    @JoinColumn(name="USER_CODE")
+    private User user;
 }

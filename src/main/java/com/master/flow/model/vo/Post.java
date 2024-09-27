@@ -1,8 +1,6 @@
 package com.master.flow.model.vo;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -37,6 +35,7 @@ public class Post {
     private String postPublicYn;
 
 //    유저 코드
-    @Column(name="USER_CODE")
-    private int userCode;
+    @ManyToOne
+    @JoinColumn(name="USER_CODE")
+    private User user;
 }

@@ -14,12 +14,21 @@ import java.util.List;
 @Data @NoArgsConstructor
 @AllArgsConstructor @Builder
 public class PostDTO {
+    // user 관련?
+
+    // post 관련
     private String postType;
     private String postDesc;
     private String postPublicYn;
     private int userCode;
 
+    // postImg 관련
     // private List<MultipartFile> files;
+
+    // product 관련
     private List<Product> products;
+
+    // Tag 관련 (多:多 관련 확인 필요)
+    private int TagCode;
 
 }

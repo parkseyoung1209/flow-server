@@ -24,7 +24,7 @@ public class Comment {
     private String commentDesc;
 
 //    사진 URL
-    @Column(name="COMMNET_IMG_URL")
+    @Column(name="COMMENT_IMG_URL")
     private String commentImgUrl;
 
 //    작성 날짜 (데이터 타입 수정 필요할지도)

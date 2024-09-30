@@ -1,7 +1,66 @@
 package com.master.flow.service;
 
+import com.master.flow.model.dao.CommentDAO;
+import com.master.flow.model.dao.LikesDAO;
+import com.master.flow.model.dao.PostReportDAO;
+import com.master.flow.model.vo.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class PostReportService {
+    @Autowired
+    private PostReportDAO postReportDao;
+
+    @Autowired
+    private CommentService commentService;
+
+    @Autowired
+    private CommentDAO commentDao;
+
+    @Autowired
+    private CommentReportService commentReportService;
+
+    @Autowired
+    private LikesDAO likesDao;
+    @Autowired
+    private LikesService likesService;
+
+    //    신고한 글 전부 보여주기
+    public List<PostReport> showAllPostReport() {return postReportDao.findAll();}
+
+//    신고한 글 한개 선택해서 삭제하기
+    public int delPostReport(int postReportCode) {
+//        신고한 글 객체
+        int postCode = postReportDao.findById(postReportCode).get().getPost().getPostCode();
+
+//        신고한 글에 있는 모든 댓글들
+        List<Comment> comments = commentDao.findByPostCode(postCode);
+        List<CommentReport> commentsReport = commentReportService.showAllCommentReport();
+
+//        신고하려는 글에 있는 좋아요 테이블 조회 및 삭제
+        List<Likes> likesList = likesDao.findByPostCode(postCode);
+        for(Likes like : likesList) {
+            likesService.delLike(like.getLikesCode());
+        }
+
+//        신고한 글에 있는 댓글들 삭제
+        for(Comment comment : comments) {
+            for(CommentReport commentReport : commentsReport) {
+                if(commentReport.getComment().getCommentCode() == comment.getCommentCode()) {
+                    commentReportService.delCommentReport(commentReport.getCommentReportCode());
+                }
+            }
+            commentService.deleteComment(comment.getCommentCode());
+        }
+
+//        신고한 글 내역 삭제
+        postReportDao.deleteById(postReportCode);
+
+//        최종적으로 신고한 글 코드 리턴
+        return postCode;
+    }
 }

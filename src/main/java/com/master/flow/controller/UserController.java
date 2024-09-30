@@ -34,9 +34,6 @@ public class UserController {
     @GetMapping("/duplicateCheck")
     public ResponseEntity duplicateCheck(@RequestParam(name="userEmail") String userEmail, @RequestParam(name="userPlatform") String userPlatform){
         boolean check = userService.duplicateCheck(userEmail, userPlatform);
-
-        System.err.println(check);
-
         return ResponseEntity.status(HttpStatus.OK).body(check);
     }
 }

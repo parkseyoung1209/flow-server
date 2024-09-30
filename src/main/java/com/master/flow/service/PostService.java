@@ -30,12 +30,12 @@ public class PostService {
         if ("newest".equalsIgnoreCase(sort)) {
             // 최신 순 정렬
             return allPosts.stream()
-                    .sorted((p1, p2) -> p2.getPostDate().compareTo(p1.getPostDate())) // assuming getCreatedDate() returns a date
+                    .sorted((p1, p2) -> p2.getPostDate().compareTo(p1.getPostDate()))
                     .collect(Collectors.toList());
         } else if ("oldest".equalsIgnoreCase(sort)) {
             // 오래된 순 정렬
             return allPosts.stream()
-                    .sorted(Comparator.comparing(Post::getPostDate)) // assuming getCreatedDate() returns a date
+                    .sorted(Comparator.comparing(Post::getPostDate))
                     .collect(Collectors.toList());
         }
 
@@ -43,13 +43,6 @@ public class PostService {
         return allPosts;
     }
 
-    // 게시물 좋아요순으로 조회
-    // public List<Post> getPostsOrderedByLikes() {
-    //     List<Post> allPosts = postDao.findAll();
-
-    //     return allPosts.stream()
-    //             .sorted((p1, p2) -> Integer.compare(likesService.countLikes(p2.getPostCode()), likesService.countLikes(p1.getPostCode())))
-    //             .collect(Collectors.toList());
     private PostImgDAO postImgDao;
     private ProductDAO productDao;
 

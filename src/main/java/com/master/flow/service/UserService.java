@@ -37,4 +37,9 @@ public class UserService {
         return false;
     }
 
+    // 로그인
+    public User login(String userEmail, String userPlatform){
+        return userDao.duplicateCheck(userEmail, userPlatform).get();
+    }
+
 }

@@ -1,5 +1,6 @@
 package com.master.flow.controller;
 
+import com.master.flow.config.TokenProvider;
 import com.master.flow.model.vo.User;
 import com.master.flow.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +17,9 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private TokenProvider tokenProvider;
 
     // 테스트용 코드
     @GetMapping("/showAllUser")
@@ -35,5 +39,19 @@ public class UserController {
     public ResponseEntity duplicateCheck(@RequestParam(name="userEmail") String userEmail, @RequestParam(name="userPlatform") String userPlatform){
         boolean check = userService.duplicateCheck(userEmail, userPlatform);
         return ResponseEntity.status(HttpStatus.OK).body(check);
+    }
+
+    // 로그인
+    @PostMapping("/login")
+    public ResponseEntity login(@RequestBody User vo){
+
+
+        User user = userService.login(vo.getUserEmail(), vo.getUserPlatform());
+
+        System.err.println("user: " + user);
+
+        String token = tokenProvider.create(user);
+
+        return ResponseEntity.status(HttpStatus.OK).body(token);
     }
 }

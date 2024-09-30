@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 public class FollowController {
 
     @Autowired
+
     private FollowService followService;
 
     @PostMapping("/follow")
@@ -26,6 +27,18 @@ public class FollowController {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
+    @DeleteMapping("/follow")
+    public ResponseEntity unFollow(Follow value) {
+        followService.unFollow(value);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @PutMapping("/follow")
+    public ResponseEntity followBack(Follow value) {
+        boolean logic = followService.FollowBack(value);
+        if(logic) return ResponseEntity.status(HttpStatus.OK).build();
+        else return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
     @GetMapping("/follow")
     public ResponseEntity viewAllFollowList() {
         return ResponseEntity.status(HttpStatus.OK).body(followService.viewAllFollowList());

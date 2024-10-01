@@ -8,6 +8,7 @@ import com.master.flow.model.dto.PostDTO;
 import com.master.flow.model.vo.Post;
 import com.master.flow.model.vo.PostImg;
 import com.master.flow.model.vo.Product;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,6 +19,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class PostService {
 
@@ -41,6 +43,12 @@ public class PostService {
 
         // 기본적으로는 기존 순서 유지
         return allPosts;
+    }
+
+    // 투표 게시물 전체 조회
+    public List<Post> postVoteViewAll(Post vo) {
+        log.info("vote : " + postDao.findByPostTypesVote());
+        return postDao.findByPostTypesVote();
     }
 
     // 게시물 좋아요순으로 조회

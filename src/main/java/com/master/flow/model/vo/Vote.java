@@ -21,8 +21,9 @@ public class Vote {
     private String voteYn;
 
 //    게시물 번호
-    @Column(name="POST_CODE")
-    private int postCode;
+    @ManyToOne
+    @JoinColumn(name="POST_CODE")
+    private Post post;
 
 //    유저 코드
     @ManyToOne

@@ -8,6 +8,6 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface PostDAO extends JpaRepository<Post, Integer> {
-    @Query("SELECT post.postType FROM Post post WHERE post.postType = :vote")
-    List<Post> findPostTypesByVote(@Param("vote") String vote);
+    @Query(value = "SELECT * FROM post WHERE post_type = 'vote'", nativeQuery = true)
+    List<Post> findByPostTypesVote();
 }

@@ -6,6 +6,7 @@ import com.master.flow.model.vo.Post;
 import com.master.flow.model.vo.PostImg;
 import com.master.flow.model.vo.Product;
 import com.master.flow.service.PostService;
+import com.master.flow.service.VoteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,12 +25,23 @@ public class PostController {
     @Autowired
     private LikesService likesService;
 
+    @Autowired
+    private VoteService voteService;
+
     // 게시물 전체 조회
     @GetMapping("/post")
     public ResponseEntity<List<Post>> viewAll(@RequestParam(required = false) String sort) {
         List<Post> posts = postService.viewAll(sort);
         return ResponseEntity.status(HttpStatus.OK).body(posts);
     }
+
+    // 투표 게시판 게시물 전체 조회
+    @GetMapping("/vote")
+    public ResponseEntity postVoteViewAll(Post vo){
+        // 추후 post_type = vote 만 조회 하도록 변경
+        return ResponseEntity.status(HttpStatus.OK).body(postService.postVoteViewAll(vo));
+    }
+
     // 좋아요한 게시물 조회
 //    @GetMapping("/post/ordered-by-likes")
 //    public ResponseEntity<List<Post>> getPostsOrderedByLikes() {

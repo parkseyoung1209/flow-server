@@ -23,9 +23,6 @@ public class LikesService {
     private PostDAO postDAO;
 
     @Autowired
-    private UserDAO userDAO;
-
-    @Autowired
     private LikesDAO likesDAO;
 
     @Autowired
@@ -61,9 +58,9 @@ public class LikesService {
     }
 
     // 좋아요 수에 따라 게시물 조회
-//    public List<Post> viewAllOrderByLikes() {
-//        return likesDAO.findAllOrderByLikes();
-//    }
+    public List<Post> viewAllOrderByLikes() {
+        return likesDAO.findAllOrderByLikes();
+    }
 
     // 좋아요 수 카운트
     public int countLikes(int postCode) {

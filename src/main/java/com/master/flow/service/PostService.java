@@ -5,15 +5,16 @@ import com.master.flow.model.dto.PostDTO;
 import com.master.flow.model.dto.PostInfoDTO;
 import com.master.flow.model.dto.UserPostSummaryDTO;
 import com.master.flow.model.vo.*;
+import com.querydsl.core.BooleanBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 import java.util.Comparator;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -33,24 +34,16 @@ public class PostService {
     @Autowired
     private CollectionDAO collectionDAO;
 
+    @Autowired
+    private PostImgDAO postImgDao;
+
+    @Autowired
+    private ProductDAO productDao;
+
+
     // 게시물 전체 조회
-    public List<Post> viewAll(String sort) {
-        List<Post> allPosts = postDAO.findAll();
-
-        if ("newest".equalsIgnoreCase(sort)) {
-            // 최신 순 정렬
-            return allPosts.stream()
-                    .sorted((p1, p2) -> p2.getPostDate().compareTo(p1.getPostDate()))
-                    .collect(Collectors.toList());
-        } else if ("oldest".equalsIgnoreCase(sort)) {
-            // 오래된 순 정렬
-            return allPosts.stream()
-                    .sorted(Comparator.comparing(Post::getPostDate))
-                    .collect(Collectors.toList());
-        }
-
-        // 기본적으로는 기존 순서 유지
-        return allPosts;
+    public Page<Post> viewAll(BooleanBuilder builder, Pageable pageable) {
+        return postDAO.findAll(builder, pageable);
     }
 
     // 투표 게시물 전체 조회
@@ -58,17 +51,7 @@ public class PostService {
         log.info("vote : " + postDAO.findByPostTypesVote());
         return postDAO.findByPostTypesVote();
     }
-
-    // 게시물 좋아요순으로 조회
-    // public List<Post> getPostsOrderedByLikes() {
-    //     List<Post> allPosts = postDao.findAll();
-
-    //     return allPosts.stream()
-    //             .sorted((p1, p2) -> Integer.compare(likesService.countLikes(p2.getPostCode()), likesService.countLikes(p1.getPostCode())))
-    //             .collect(Collectors.toList());
-
-
-
+    
     // 게시물 업로드&수정
     public Post save(Post post) {
         // save : postCode(primary key)가 없으면 추가/ id가 있으면 수정으로 사용

@@ -21,7 +21,7 @@ public class CommentService {
     private CommentDAO commentDao;
 
     public CommentService(CommentDAO commentDAO) {
-        this.commentDAO = commentDAO;
+        this.commentDao = commentDAO;
     }
 
     public Comment saveComment(Comment comment) {
@@ -40,7 +40,7 @@ public class CommentService {
             String fileName = uploadFile(file);
             comment.setCommentImgUrl(fileName);
         }
-        return commentDAO.save(comment);
+        return commentDao.save(comment);
     }
 
     // 댓글 사진 첨부
@@ -53,17 +53,12 @@ public class CommentService {
 
     // 모든 댓글 조회
     public List<Comment> getAllComment() {
-        return commentDAO.findAll();
-    }
-
-    // 댓글 삭제
-    public void deleteComment(int commentCode) {
-        commentDAO.deleteById(commentCode);
+        return commentDao.findAll();
     }
 
     // 댓글 신고
     public void reportComment(int commentCode, String reprotDesc) {
-        Comment comment = commentDAO.findById(commentCode).get();
+        Comment comment = commentDao.findById(commentCode).get();
     }
 
 }

@@ -27,6 +27,7 @@ public class CommentController {
         Comment comment = new ObjectMapper().readValue(commentJson, Comment.class);
         Comment savedComment = commentService.addComment(comment, file);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedComment);
+    }
 
 //    댓글 한개 삭제(대댓글 미고려)
     @DeleteMapping("/delComment")

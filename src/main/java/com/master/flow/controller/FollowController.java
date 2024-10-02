@@ -20,6 +20,21 @@ public class FollowController {
     private FollowService followService;
 
     @PostMapping("/follow")
+    public ResponseEntity addFollowRelative(int followingUserCode, int followerUserCode) {
+        boolean check = followService.addFollowRelative(followingUserCode, followerUserCode);
+        if(check)
+        return ResponseEntity.status(HttpStatus.OK).build();
+        else return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    }
+
+    @DeleteMapping("follow")
+    public ResponseEntity unFollow(int followingUserCode, int followerUserCode) {
+        boolean check = followService.unFollow(followingUserCode, followerUserCode);
+        if(check) return ResponseEntity.status(HttpStatus.OK).build();
+        else return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    }
+    /*
+    @PostMapping("/follow")
     public ResponseEntity addFollowingRelative(Follow value) {
         boolean logic = followService.addFollowingRelative(value);
         // 서비스의 불리언 값에 따라서 200인지 400인지 판단
@@ -42,5 +57,5 @@ public class FollowController {
     @GetMapping("/follow")
     public ResponseEntity viewAllFollowList() {
         return ResponseEntity.status(HttpStatus.OK).body(followService.viewAllFollowList());
-    }
+    }*/
 }

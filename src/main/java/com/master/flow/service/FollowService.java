@@ -1,11 +1,19 @@
 package com.master.flow.service;
 
 import com.master.flow.model.dao.FollowDAO;
+import com.master.flow.model.dao.UserDAO;
 import com.master.flow.model.vo.Follow;
+import com.master.flow.model.vo.QFollow;
+import com.master.flow.model.vo.User;
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -13,8 +21,59 @@ public class FollowService {
     @Autowired
     private FollowDAO followDAO;
 
-    // 추가 및 중복방지 로직
+    @Autowired
+    private UserDAO userDAO;
 
+
+    public Follow existFollow(int followingUserCode, int followerUserCode) {
+        User followingUser = userDAO.findById(followingUserCode).orElse(null);
+        User followerUser = userDAO.findById(followerUserCode).orElse(null);
+
+        Follow follow = Follow.builder()
+                .followingUser(followingUser)
+                .followerUser(followerUser)
+                .build();
+        return follow;
+    }
+
+    public boolean checkLogic(int followingUserCode, int followerUserCode) {
+        return followDAO.findAllFollowSet().contains(existFollow(followingUserCode,followerUserCode));
+    }
+
+    public boolean addFollowRelative(int followingUserCode, int followerUserCode) {
+        if(checkLogic(followingUserCode,followerUserCode)) {
+            return false;
+        } else {
+            followDAO.save(existFollow(followingUserCode, followerUserCode));
+            return true;
+        }
+    }
+
+    public boolean unFollow(int followingUserCode, int followerUserCode) {
+        if(checkLogic(followingUserCode,followerUserCode)) {
+            followDAO.delete(existFollow(followingUserCode,followerUserCode));
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public void viewMyFollower(int followingUserCode) {
+        BooleanBuilder booleanBuilder = new BooleanBuilder();
+
+        QFollow qFollow = QFollow.follow;
+
+        BooleanExpression expression = qFollow.followingUser.userCode.eq(followingUserCode);
+        booleanBuilder.and(expression);
+
+        List<Follow> follows = (List<Follow>) followDAO.findAll(booleanBuilder);
+        List<User> list = follows.stream()
+                .map(Follow :: getFollowerUser)
+                .collect(Collectors.toList());
+    }
+
+    // 추가 및 중복방지 로직
+    /*
     // 비교를 위한 모든 팔로우 관계가 있는 테이블 가져오기
     public ArrayList<Follow> viewAllFollowList() {
         return (ArrayList<Follow>) followDAO.findAll();
@@ -25,9 +84,10 @@ public class FollowService {
     }
     /* 해쉬셋에 같은 관계도 문자열이 포함되어있으면 true인데 이걸 부정해서 false로 만듦
            반대로 포함이 안되어있다면 false 발사 후 부정처리해서 check를 true로 */
-    private boolean checkFollowing(Set<String> followingSet, String value) {
-        return !followingSet.contains(value);
-    }
+//    private boolean checkFollowing(Set<String> followingSet, String value) {
+//        return !followingSet.contains(value);
+//    }
+    /*
     //팔로우 전체 테이블을 가져와서 스트링 데이터를 넣은 해쉬셋으로 변환
     public Set<String> getAllFollowSet() {
         ArrayList<Follow> list = viewAllFollowList();
@@ -119,4 +179,5 @@ public class FollowService {
         map.put(count, followerUser);
         return map;
     }
+    */
 }

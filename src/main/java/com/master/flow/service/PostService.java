@@ -61,11 +61,6 @@ public class PostService {
     //             .collect(Collectors.toList());
 
 
-    // 멀티 파트 파일 받으려면 아예 DTO 추가
-    // DTO 하나에 받고자 하는 것들 다!
-    // List<Multipartfile>
-    // files[0]
-    // files[1]
 
     // 게시물 업로드&수정
     public Post save(Post post) {

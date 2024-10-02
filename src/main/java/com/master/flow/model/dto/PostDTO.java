@@ -24,6 +24,11 @@ public class PostDTO {
     private int userCode;
 
     // postImg 관련
+    // 멀티 파트 파일 받으려면 아예 DTO 추가
+    // DTO 하나에 받고자 하는 것들 다!
+    // List<Multipartfile>
+    // files[0]
+    // files[1]
     private List<MultipartFile> imageFiles;
 
     // product 관련

@@ -190,6 +190,8 @@ public class PostController {
     public ResponseEntity delPost(@PathVariable("postCode") int postCode) {
         //log.info("POST_CODE : "+ postCode);
 
+        // 조건필요 - USER가 동일할 경우 (postCode로 userCode 가져오기)
+
         // 태그삭제
         postTagService.deleteAll(postCode);
 

@@ -1,8 +1,11 @@
 package com.master.flow.service;
 
+import com.master.flow.model.dao.CollectionDAO;
 import com.master.flow.model.dao.LikesDAO;
 import com.master.flow.model.dao.PostDAO;
 import com.master.flow.model.dao.UserDAO;
+import com.master.flow.model.dto.PostInfoDTO;
+import com.master.flow.model.dto.UserPostSummaryDTO;
 import com.master.flow.model.vo.Likes;
 import com.master.flow.model.vo.Post;
 import com.master.flow.model.vo.User;
@@ -11,6 +14,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class LikesService {
 
@@ -22,6 +27,9 @@ public class LikesService {
 
     @Autowired
     private LikesDAO likesDAO;
+
+    @Autowired
+    private CollectionDAO collectionDAO;
 
     public boolean toggleLikeWithoutUser(User user, Post post) {
         // Post가 데이터베이스에 저장되지 않았다면 저장
@@ -65,5 +73,26 @@ public class LikesService {
 
     public void delLike(int likesCode) {
         likesDAO.deleteById(likesCode);
+    }
+
+    // 유저가 좋아요한 게시물 조회
+    public UserPostSummaryDTO getPostListByUser (int userCode) {
+
+        Optional<User> user = userDAO.findById(userCode);
+
+        List<Likes> likes = likesDAO.findByUser_UserCode(userCode);
+
+        List<PostInfoDTO> postInfoList = likes.stream().map(like -> {
+            Post post = like.getPost();
+            int likeCount = likesDAO.countByPost(post);
+            int collectionCount = collectionDAO.countByPost(post);
+
+            return new PostInfoDTO(post, likeCount, collectionCount);
+        }).collect(Collectors.toList());
+
+        int totalSavedPost = postInfoList.size();
+
+        return new UserPostSummaryDTO(postInfoList, totalSavedPost);
+
     }
 }

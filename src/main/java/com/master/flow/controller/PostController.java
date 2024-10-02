@@ -1,5 +1,6 @@
 package com.master.flow.controller;
 
+import com.master.flow.model.dto.UserPostSummaryDTO;
 import com.master.flow.service.LikesService;
 import com.master.flow.model.dto.PostDTO;
 import com.master.flow.model.vo.Post;
@@ -57,6 +58,13 @@ public class PostController {
     public ResponseEntity<List<Post>> getLikedPosts(@PathVariable("userCode") int userCode) {
         List<Post> likedPosts = likesService.getLikedPosts(userCode);
         return ResponseEntity.status(HttpStatus.OK).body(likedPosts);
+    }
+
+    // 해당 유저가 만든 게시물 조회
+    @GetMapping("/{userCode}/post")
+    public ResponseEntity<UserPostSummaryDTO> getPostListByUser(@PathVariable("userCode") int userCode){
+        UserPostSummaryDTO userPostSummaryDTO = postService.getPostListByUser(userCode);
+        return ResponseEntity.status(HttpStatus.OK).body(userPostSummaryDTO);
     }
 
     // 좋아요 수 높은 순으로 게시물 조회

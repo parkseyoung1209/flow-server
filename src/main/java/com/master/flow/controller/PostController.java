@@ -79,4 +79,9 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK).build();
     };
 
+    @DeleteMapping("/delPost")
+    public ResponseEntity delPost(int postCode) {
+        postService.delPost(postCode);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
 }

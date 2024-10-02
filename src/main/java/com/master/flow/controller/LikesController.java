@@ -14,13 +14,13 @@ import org.springframework.web.bind.annotation.*;
 public class LikesController {
 
     @Autowired
-    private LikesService service;
+    private LikesService likesService;
 
     @PostMapping("/toggle/{postCode}")
     public ResponseEntity<Boolean> toggleLike(@PathVariable int postCode, @RequestBody User user) {
         Post post = new Post();
         post.setPostCode(postCode); // Post ID를 설정
-        boolean isLiked = service.toggleLikeWithoutUser(user, post);
+        boolean isLiked = likesService.toggleLikeWithoutUser(user, post);
         return ResponseEntity.status(HttpStatus.OK).body(isLiked);
     }
 
@@ -29,7 +29,15 @@ public class LikesController {
         Post post = new Post();
         post.setPostCode(postCode); // Post ID를 설정
 
-        int likeCount = service.countLikesByPost(post); // 게시물의 좋아요 수 카운트
+        int likeCount = likesService.countLikesByPost(post); // 게시물의 좋아요 수 카운트
         return ResponseEntity.status(HttpStatus.OK).body(likeCount);
+    }
+
+
+//    좋아요 한개 삭제
+    @DeleteMapping("/delLike")
+    public ResponseEntity delLike(@RequestParam("postCode") int postCode) {
+        likesService.delLike(postCode);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

@@ -79,6 +79,9 @@ public class PostService {
         for(Product p : pd){
             System.out.println(p);
         }
+    }
 
+    public void delPost(int postCode){
+        postDao.deleteById(postCode);
     }
 }

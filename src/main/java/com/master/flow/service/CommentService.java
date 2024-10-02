@@ -10,9 +10,13 @@ public class CommentService {
 
     /* 댓글 작성 */
     @Autowired
-    private CommentDAO commentDAO;
+    private CommentDAO commentDao;
 
     public Comment saveComment(Comment comment) {
-        return commentDAO.save(comment);
+        return commentDao.save(comment);
+
+//    댓글 한개 삭제(대댓글 미고려)
+    public void deleteComment(int commentId) {
+        commentDao.deleteById(commentId);
     }
 }

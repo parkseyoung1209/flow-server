@@ -20,5 +20,11 @@ public class CommentController {
     public ResponseEntity<Comment> createComment(@RequestBody Comment comment) {
         Comment savedComment = commentService.saveComment(comment);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedComment);
+
+//    댓글 한개 삭제(대댓글 미고려)
+    @DeleteMapping("/delComment")
+    public ResponseEntity delete (int commentId) {
+        commentService.deleteComment(commentId);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

@@ -56,4 +56,9 @@ public class LikesService {
     public int countLikes(int postCode) {
         return (int) likesDAO.countByPost_PostCode(postCode);
     }
+    public List<Likes> showAllLikes() {return likesDAO.findAll();}
+
+    public void delLike(int likesCode) {
+        likesDAO.deleteById(likesCode);
+    }
 }

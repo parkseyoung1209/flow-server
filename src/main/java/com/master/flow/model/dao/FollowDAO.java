@@ -1,15 +1,14 @@
 package com.master.flow.model.dao;
 
+import com.master.flow.model.dto.FollowDTO;
 import com.master.flow.model.vo.Follow;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 
-import java.util.List;
+import java.util.HashSet;
 
-public interface FollowDAO extends JpaRepository<Follow, Integer> {
-    @Query("SELECT count(*) FROM Follow WHERE followingUser= :followingUser")
-    public int countFollower(int followingUser);
-
-    @Query("SELECT followerUser From Follow WHERE followingUser= :followingUser")
-    public List<Integer> myFollow(int followingUser);
+public interface FollowDAO extends JpaRepository<Follow, FollowDTO>, QuerydslPredicateExecutor {
+    @Query("SELECT f FROM Follow f")
+    HashSet<Follow> findAllFollowSet();
 }

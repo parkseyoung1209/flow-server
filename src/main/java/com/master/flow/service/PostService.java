@@ -1,13 +1,10 @@
 package com.master.flow.service;
 
-import com.master.flow.model.dao.CommentReportDAO;
-import com.master.flow.model.dao.PostDAO;
-import com.master.flow.model.dao.PostImgDAO;
-import com.master.flow.model.dao.ProductDAO;
+import com.master.flow.model.dao.*;
 import com.master.flow.model.dto.PostDTO;
-import com.master.flow.model.vo.Post;
-import com.master.flow.model.vo.PostImg;
-import com.master.flow.model.vo.Product;
+import com.master.flow.model.dto.PostInfoDTO;
+import com.master.flow.model.dto.UserPostSummaryDTO;
+import com.master.flow.model.vo.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,6 +14,7 @@ import java.util.List;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -24,10 +22,20 @@ import java.util.stream.Collectors;
 public class PostService {
 
     @Autowired
-    private PostDAO postDao;
+    private PostDAO postDAO;
+
+    @Autowired
+    private UserDAO userDAO;
+
+    @Autowired
+    private LikesDAO likesDAO;
+
+    @Autowired
+    private CollectionDAO collectionDAO;
+
     // 게시물 전체 조회
     public List<Post> viewAll(String sort) {
-        List<Post> allPosts = postDao.findAll();
+        List<Post> allPosts = postDAO.findAll();
 
         if ("newest".equalsIgnoreCase(sort)) {
             // 최신 순 정렬
@@ -47,8 +55,8 @@ public class PostService {
 
     // 투표 게시물 전체 조회
     public List<Post> postVoteViewAll(Post vo) {
-        log.info("vote : " + postDao.findByPostTypesVote());
-        return postDao.findByPostTypesVote();
+        log.info("vote : " + postDAO.findByPostTypesVote());
+        return postDAO.findByPostTypesVote();
     }
 
     // 게시물 좋아요순으로 조회
@@ -83,6 +91,26 @@ public class PostService {
     }
 
     public void delPost(int postCode){
-        postDao.deleteById(postCode);
+        postDAO.deleteById(postCode);
+    }
+
+
+    // 유저 코드로 게시물 조회
+    public UserPostSummaryDTO getPostListByUser (int userCode){
+        Optional<User> user = userDAO.findById(userCode);
+
+        List<Post> post = postDAO.findByUser_UserCode(userCode);
+
+        List<PostInfoDTO> postInfoList = post.stream().map(posts -> {
+            int likeCount = likesDAO.countByPost(posts);
+            int collectionCount = collectionDAO.countByPost(posts);
+
+            return new PostInfoDTO(posts, likeCount, collectionCount);
+        }).collect(Collectors.toList());
+
+        int totalSavedPost = postInfoList.size();
+
+        return new UserPostSummaryDTO(postInfoList, totalSavedPost);
+
     }
 }

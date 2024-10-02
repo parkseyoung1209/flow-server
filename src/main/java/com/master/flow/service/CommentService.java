@@ -24,15 +24,10 @@ public class CommentService {
         this.commentDao = commentDAO;
     }
 
+    // 댓글 저장
     public Comment saveComment(Comment comment) {
         return commentDao.save(comment);
     }
-
-//    댓글 한개 삭제(대댓글 미고려)
-    public void deleteComment(int commentId) {
-        commentDao.deleteById(commentId);
-    }
-
 
     // 댓글 작성 & 사진 첨부
     public Comment addComment(Comment comment, MultipartFile file) throws IOException {
@@ -51,14 +46,25 @@ public class CommentService {
         return fileName;
     }
 
+    // 대댓글 작성
+    public Comment addReply(int parentCommentCode, Comment reply) {
+        Comment parentComment = commentDao.findById(parentCommentCode).orElseThrow(() -> new RuntimeException("Parent comment not found"));
+        reply.setParentComment(parentComment);
+        return commentDao.save(reply);
+    }
+
+    // 댓글 한개 삭제
+    public void deleteComment(int commentId) {
+        commentDao.deleteById(commentId);
+    }
+
     // 모든 댓글 조회
     public List<Comment> getAllComment() {
         return commentDao.findAll();
     }
 
     // 댓글 신고
-    public void reportComment(int commentCode, String reprotDesc) {
+    public void reportComment(int commentCode, String reportDesc) {
         Comment comment = commentDao.findById(commentCode).get();
     }
-
 }

@@ -66,6 +66,7 @@ public class PostService {
     // List<Multipartfile>
     // files[0]
     // files[1]
+
     //게시물 업로드
     public void change(PostDTO dto){
         // postDao.save();

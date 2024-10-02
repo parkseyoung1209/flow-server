@@ -80,19 +80,22 @@ public class PostController {
     * 각각의 값들 append로 추가해서 마지막에 보내기만 하면 끝!
     * */
 
+
     // 게시물 업로드
     @PostMapping("/post")
     public ResponseEntity upload(@RequestBody PostDTO postDto){
-        // user 임의 설정, img 추가 필요
+        //front에서 user정보 받아서 DTO로 모두 받기 -> Sevice에서 각자 save
+        // user 설정, img 추가 필요
         
-        //System.out.println(postDto)
-        postService.change(postDto);
+        System.out.println(postDto);
+//        postService.change(postDto);
         return ResponseEntity.status(HttpStatus.OK).build();
     };
 
     // 게시물 수정
     @PutMapping("/post")
     public ResponseEntity update(@RequestBody PostDTO postDto){
+
         postService.change(postDto);
         return ResponseEntity.status(HttpStatus.OK).build();
     };

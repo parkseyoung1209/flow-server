@@ -42,4 +42,8 @@ public class UserService {
         return userDao.duplicateCheck(userEmail, userPlatform).get();
     }
 
+    // user 정보 가져오기
+    public User findUser(int code){
+        return userDao.findById(code).get();
+    }
 }

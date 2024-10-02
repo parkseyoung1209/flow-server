@@ -5,15 +5,18 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicInsert;
 
 @Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@DynamicInsert
 public class PostTag {
     @Id
     @Column(name="POST_TAG_CODE")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int postTagCode;
 
 //    게시물 번호

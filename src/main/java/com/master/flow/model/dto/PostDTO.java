@@ -17,18 +17,24 @@ public class PostDTO {
     // user 관련?
 
     // post 관련
+    private int postCode;
     private String postType;
     private String postDesc;
     private String postPublicYn;
     private int userCode;
 
     // postImg 관련
-    // private List<MultipartFile> files;
+    // 멀티 파트 파일 받으려면 아예 DTO 추가
+    // DTO 하나에 받고자 하는 것들 다!
+    // List<Multipartfile>
+    // files[0]
+    // files[1]
+    private List<MultipartFile> imageFiles;
 
     // product 관련
     private List<Product> products;
 
-    // Tag 관련 (多:多 관련 확인 필요)
-    private int TagCode;
+    // Tag 관련
+    private List<Integer> tagCodes;
 
 }

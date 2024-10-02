@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicInsert;
 
 import java.time.LocalDateTime;
 
@@ -14,9 +15,12 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@DynamicInsert
 public class Post {
+
     @Id
     @Column(name="POST_CODE")
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // auto-increment
     private int postCode;
 
 //    게시물 구분 (착장룩, 투표)

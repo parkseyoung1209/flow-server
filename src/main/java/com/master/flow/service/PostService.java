@@ -66,28 +66,13 @@ public class PostService {
     //     return allPosts.stream()
     //             .sorted((p1, p2) -> Integer.compare(likesService.countLikes(p2.getPostCode()), likesService.countLikes(p1.getPostCode())))
     //             .collect(Collectors.toList());
-    private PostImgDAO postImgDao;
-    private ProductDAO productDao;
 
-    // 멀티 파트 파일 받으려면 아예 DTO 추가
-    // DTO 하나에 받고자 하는 것들 다!
-    // List<Multipartfile>
-    // files[0]
-    // files[1]
 
-    //게시물 업로드
-    public void change(PostDTO dto){
-        // postDao.save();
-       // List<MultipartFile> img = dto.getFiles();
-        List<Product> pd = dto.getProducts();
 
-        /*
-        for(MultipartFile file : img){
-            System.out.println(file);
-        }*/
-        for(Product p : pd){
-            System.out.println(p);
-        }
+    // 게시물 업로드&수정
+    public Post save(Post post) {
+        // save : postCode(primary key)가 없으면 추가/ id가 있으면 수정으로 사용
+        return postDAO.save(post);
     }
 
     public void delPost(int postCode){
@@ -113,4 +98,6 @@ public class PostService {
         return new UserPostSummaryDTO(postInfoList, totalSavedPost);
 
     }
+
 }
+

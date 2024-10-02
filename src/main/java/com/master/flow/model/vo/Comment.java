@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity @Data
 @AllArgsConstructor
@@ -43,4 +44,13 @@ public class Comment {
     @ManyToOne
     @JoinColumn(name="USER_CODE")
     private User user;
+
+//    대댓글:부모 댓글
+    @ManyToOne
+    @JoinColumn(name="PARENT_COMMENT_CODE")
+    private Comment parentComment;
+
+//    대댓글:자식 댓글
+    @OneToMany(mappedBy = "parentComment")
+    private List<Comment> replies;
 }

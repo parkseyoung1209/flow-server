@@ -32,12 +32,12 @@ public class PostService {
         if ("newest".equalsIgnoreCase(sort)) {
             // 최신 순 정렬
             return allPosts.stream()
-                    .sorted((p1, p2) -> p2.getPostDate().compareTo(p1.getPostDate())) // assuming getCreatedDate() returns a date
+                    .sorted((p1, p2) -> p2.getPostDate().compareTo(p1.getPostDate()))
                     .collect(Collectors.toList());
         } else if ("oldest".equalsIgnoreCase(sort)) {
             // 오래된 순 정렬
             return allPosts.stream()
-                    .sorted(Comparator.comparing(Post::getPostDate)) // assuming getCreatedDate() returns a date
+                    .sorted(Comparator.comparing(Post::getPostDate))
                     .collect(Collectors.toList());
         }
 

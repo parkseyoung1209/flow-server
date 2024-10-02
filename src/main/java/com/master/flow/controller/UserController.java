@@ -45,11 +45,7 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity login(@RequestBody User vo){
         User user = userService.login(vo.getUserEmail(), vo.getUserPlatform());
-
-        System.err.println("user: " + user);
-
         String token = tokenProvider.create(user);
-
         return ResponseEntity.status(HttpStatus.OK).body(token);
     }
 }

@@ -28,6 +28,9 @@ public class LikesService {
     @Autowired
     private CollectionDAO collectionDAO;
 
+    @Autowired
+    private UserDAO userDAO;
+
     public boolean toggleLikeWithoutUser(User user, Post post) {
         // Post가 데이터베이스에 저장되지 않았다면 저장
         if (!postDAO.existsById(post.getPostCode())) {

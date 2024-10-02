@@ -44,8 +44,6 @@ public class UserController {
     // 로그인
     @PostMapping("/login")
     public ResponseEntity login(@RequestBody User vo){
-
-
         User user = userService.login(vo.getUserEmail(), vo.getUserPlatform());
 
         System.err.println("user: " + user);

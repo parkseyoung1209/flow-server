@@ -31,6 +31,6 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         String token = tokenProvider.create(user);
 
-        response.sendRedirect("http://localhost:3000/login-success?token=" + token);
+        response.sendRedirect("http://localhost:3000/loginSuccess?token=" + token);
     }
 }

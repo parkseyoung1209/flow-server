@@ -15,8 +15,8 @@ public class TagService {
     private TagDAO tagDao;
 
     // 태그로 게시물 조회
-    public List<Post> viewPostsByTag(String tagName) {
-        return tagDao.findPostsByTag(tagName);
-    }
+//    public List<Post> viewPostsByTag(String tagName) {
+//        return tagDao.findPostsByTag(tagName);
+//    }
 
 }

@@ -60,18 +60,18 @@ public class PostController {
     }
 
     // 좋아요 수 높은 순으로 게시물 조회
-    @GetMapping("/post/ordered-by-likes")
-    public ResponseEntity<List<Post>> viewAllOrderByLikes() {
-        List<Post> likedPosts = likesService.viewAllOrderByLikes();
-        return ResponseEntity.status(HttpStatus.OK).body(likedPosts);
-    }
+//    @GetMapping("/post/ordered-by-likes")
+//    public ResponseEntity<List<Post>> viewAllOrderByLikes() {
+//        List<Post> likedPosts = likesService.viewAllOrderByLikes();
+//        return ResponseEntity.status(HttpStatus.OK).body(likedPosts);
+//    }
 
     // 태그로 게시물 조회
-    @GetMapping("/post/tag/{tagName}")
-    public ResponseEntity<List<Post>> getPostsByTag(@PathVariable("tagName") String tagName) {
-        List<Post> posts = tagService.viewPostsByTag(tagName);
-        return ResponseEntity.status(HttpStatus.OK).body(posts);
-    }
+//    @GetMapping("/post/tag/{tagName}")
+//    public ResponseEntity<List<Post>> getPostsByTag(@PathVariable("tagName") String tagName) {
+//        List<Post> posts = tagService.viewPostsByTag(tagName);
+//        return ResponseEntity.status(HttpStatus.OK).body(posts);
+//    }
 
     /*
     *  전송하는 방법이..!

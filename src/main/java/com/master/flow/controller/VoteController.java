@@ -16,6 +16,12 @@ public class VoteController {
     @Autowired
     private VoteService voteService;
 
+    // 전체 투표 현황 조회
+    @GetMapping("/vote")
+    public ResponseEntity voteCount () {
+        return ResponseEntity.status(HttpStatus.OK).body(voteService.voteCount());
+    }
+
     // 내가 한 투표 변경 (찬성 -> 반대 or 반대 -> 찬성)
 //    @PutMapping("/vote")
 //    public ResponseEntity changeVote (@RequestBody Vote vo){

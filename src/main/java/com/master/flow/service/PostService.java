@@ -1,7 +1,6 @@
 package com.master.flow.service;
 
 import com.master.flow.model.dao.*;
-import com.master.flow.model.dto.PostDTO;
 import com.master.flow.model.dto.PostInfoDTO;
 import com.master.flow.model.dto.UserPostSummaryDTO;
 import com.master.flow.model.vo.*;
@@ -14,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import java.util.Comparator;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -70,10 +68,11 @@ public class PostService {
         List<Post> post = postDAO.findByUser_UserCode(userCode);
 
         List<PostInfoDTO> postInfoList = post.stream().map(posts -> {
+            List<PostImg> postImgs = postImgDao.findByPost_PostCode(posts.getPostCode());
             int likeCount = likesDAO.countByPost(posts);
             int collectionCount = collectionDAO.countByPost(posts);
 
-            return new PostInfoDTO(posts, likeCount, collectionCount);
+            return new PostInfoDTO(posts, likeCount, collectionCount, postImgs);
         }).collect(Collectors.toList());
 
         int totalSavedPost = postInfoList.size();

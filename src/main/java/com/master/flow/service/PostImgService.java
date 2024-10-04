@@ -5,6 +5,8 @@ import com.master.flow.model.vo.PostImg;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class PostImgService {
 
@@ -20,4 +22,6 @@ public class PostImgService {
     public void deleteAll(int postCode){
         postImgDAO.deleteById(postCode);
     }
+
+
 }

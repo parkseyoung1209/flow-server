@@ -1,13 +1,11 @@
 package com.master.flow.service;
 
-import com.master.flow.model.dao.CollectionDAO;
-import com.master.flow.model.dao.LikesDAO;
-import com.master.flow.model.dao.PostDAO;
-import com.master.flow.model.dao.UserDAO;
+import com.master.flow.model.dao.*;
 import com.master.flow.model.dto.PostInfoDTO;
 import com.master.flow.model.dto.UserPostSummaryDTO;
 import com.master.flow.model.vo.Likes;
 import com.master.flow.model.vo.Post;
+import com.master.flow.model.vo.PostImg;
 import com.master.flow.model.vo.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,6 +19,9 @@ public class LikesService {
 
     @Autowired
     private PostDAO postDAO;
+
+    @Autowired
+    private PostImgDAO postImgDAO;
 
     @Autowired
     private LikesDAO likesDAO;
@@ -84,10 +85,11 @@ public class LikesService {
 
         List<PostInfoDTO> postInfoList = likes.stream().map(like -> {
             Post post = like.getPost();
+            List<PostImg> postImgs = postImgDAO.findByPost_PostCode(post.getPostCode());
             int likeCount = likesDAO.countByPost(post);
             int collectionCount = collectionDAO.countByPost(post);
 
-            return new PostInfoDTO(post, likeCount, collectionCount);
+            return new PostInfoDTO(post, likeCount, collectionCount, postImgs);
         }).collect(Collectors.toList());
 
         int totalSavedPost = postInfoList.size();

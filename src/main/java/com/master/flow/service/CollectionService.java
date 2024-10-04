@@ -1,15 +1,9 @@
 package com.master.flow.service;
 
-import com.master.flow.model.dao.CollectionDAO;
-import com.master.flow.model.dao.LikesDAO;
-import com.master.flow.model.dao.PostDAO;
-import com.master.flow.model.dao.UserDAO;
+import com.master.flow.model.dao.*;
 import com.master.flow.model.dto.PostInfoDTO;
 import com.master.flow.model.dto.UserPostSummaryDTO;
-import com.master.flow.model.vo.Collection;
-import com.master.flow.model.vo.Likes;
-import com.master.flow.model.vo.Post;
-import com.master.flow.model.vo.User;
+import com.master.flow.model.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +24,9 @@ public class CollectionService {
 
     @Autowired
     private LikesDAO likesDAO;
+
+    @Autowired
+    private PostImgDAO postImgDAO;
 
     public boolean toggleCollectionWithoutUser(User user, Post post) {
         // Post가 데이터베이스에 저장되지 않았다면 저장
@@ -60,12 +57,16 @@ public class CollectionService {
 
         List<Collection> collections = dao.findByUser(user);
 
+        // 게시물 사진 조회
+
+
         List<PostInfoDTO> postInfoList = collections.stream().map(collection -> {
             Post post = collection.getPost();
+            List<PostImg> postImgs = postImgDAO.findByPost_PostCode(post.getPostCode());
             int likeCount = likesDAO.countByPost(post);
             int collectionCount = dao.countByPost(post);
 
-            return new PostInfoDTO(post, likeCount, collectionCount);
+            return new PostInfoDTO(post, likeCount, collectionCount, postImgs);
         }).collect(Collectors.toList());
 
         int totalSavedPost = postInfoList.size();

@@ -1,6 +1,6 @@
 package com.master.flow.model.vo;
 
-import com.master.flow.model.dto.FollowDTO;
+import com.master.flow.model.id.FollowId;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,19 +13,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@IdClass(FollowDTO.class)
+@IdClass(FollowId.class)
 public class Follow {
-    /*
-    @Id
-    @Column(name="FOLLOW_CODE")
-    private int followCode;
-
-    @Column(name="FOLLOWING_USER")
-    private int followingUser;
-
-    @Column(name="FOLLOWER_USER")
-    private int followerUser;
-     */
     @Id
     @ManyToOne
     @JoinColumn(name = "FOLLOWING_USER", referencedColumnName = "USER_CODE")

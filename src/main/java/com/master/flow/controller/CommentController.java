@@ -20,46 +20,34 @@ public class CommentController {
     @Autowired
     private CommentService commentService;
 
-    // 댓글 등록 & 사진 첨부
-    @PostMapping("/{id}")
-    public ResponseEntity<Comment> addComment(@RequestParam("file")MultipartFile file, @RequestParam("comment") String commentJson, @PathVariable String id) throws IOException {
-        Comment comment = new ObjectMapper().readValue(commentJson, Comment.class);
-        Comment savedComment = commentService.addComment(comment, file);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedComment);
-    }
-
-    // 대댓글 작성
-    @PostMapping("/{commentCode}/replies")
-    public ResponseEntity<Comment> addReply(@PathVariable int commentCode, @RequestBody Comment reply) {
-        Comment savedReply = commentService.addReply(commentCode, reply);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedReply);
-    }
-
-    // 댓글 한개 삭제(대댓글 미고려)
-    @DeleteMapping("/delComment")
-    public ResponseEntity delete (int commentId) {
-        commentService.deleteComment(commentId);
-        return ResponseEntity.status(HttpStatus.OK).build();
-    }
-
     // 모든 댓글 조회
     @GetMapping
     public ResponseEntity<List<Comment>> getAllComment() {
         return ResponseEntity.status(HttpStatus.OK).body(commentService.getAllComment());
     }
 
-    // 댓글 삭제
+    // 댓글 & 대댓긋 작성, 사진 첨부
+    public ResponseEntity<Comment> addComment(
+            @PathVariable int parentCommentCode,
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("comment") String commentJson) throws IOException {
+
+        Comment comment = new ObjectMapper().readValue(commentJson, Comment.class);
+        Comment savedComment = commentService.saveComment(parentCommentCode, comment, file);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedComment);
+    }
+
+    // 댓글 & 대댓글 삭제
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteComment(@PathVariable int id) {
         commentService.deleteComment(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
-
     // 댓글 신고
     @PostMapping("/{id}/report")
     public ResponseEntity<Void> reportComment(@PathVariable int id, @RequestBody String reportDESC) {
         commentService.reportComment(id, reportDESC);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
-
 }

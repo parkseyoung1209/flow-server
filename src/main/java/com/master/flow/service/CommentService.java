@@ -24,21 +24,28 @@ public class CommentService {
         this.commentDao = commentDAO;
     }
 
-    // 댓글 저장
-    public Comment saveComment(Comment comment) {
-        return commentDao.save(comment);
+    // 모든 댓글 조회
+    public List<Comment> getAllComment() {
+        return commentDao.findAll();
     }
 
-    // 댓글 작성 & 사진 첨부
-    public Comment addComment(Comment comment, MultipartFile file) throws IOException {
+    // 댓글 & 대댓글 저장, 작성, 사진 첨부
+    public Comment saveComment(int parentCommentCode, Comment comment, MultipartFile file) throws IOException {
         if(file != null && !file.isEmpty()) {
             String fileName = uploadFile(file);
             comment.setCommentImgUrl(fileName);
         }
+
+        // 대댓글
+        if(parentCommentCode > 0) {
+            Comment parentComment = commentDao.findById(parentCommentCode)
+                    .orElseThrow(() -> new RuntimeException("Parent comment not found"));
+            comment.setParentComment(parentComment);
+        }
         return commentDao.save(comment);
     }
 
-    // 댓글 사진 첨부
+    // 사진 첨부 : 파일 업로드
     private String uploadFile(MultipartFile file) throws IOException {
         String fileName = file.getOriginalFilename();
         File dest = new File(uploadPath + File.separator + fileName);
@@ -46,21 +53,9 @@ public class CommentService {
         return fileName;
     }
 
-    // 대댓글 작성
-    public Comment addReply(int parentCommentCode, Comment reply) {
-        Comment parentComment = commentDao.findById(parentCommentCode).orElseThrow(() -> new RuntimeException("Parent comment not found"));
-        reply.setParentComment(parentComment);
-        return commentDao.save(reply);
-    }
-
-    // 댓글 한개 삭제
+    // 댓글 & 대댓글 삭제
     public void deleteComment(int commentId) {
         commentDao.deleteById(commentId);
-    }
-
-    // 모든 댓글 조회
-    public List<Comment> getAllComment() {
-        return commentDao.findAll();
     }
 
     // 댓글 신고
@@ -68,3 +63,14 @@ public class CommentService {
         Comment comment = commentDao.findById(commentCode).get();
     }
 }
+
+
+
+
+
+
+
+
+
+
+

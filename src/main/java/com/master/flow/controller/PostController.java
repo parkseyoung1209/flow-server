@@ -118,6 +118,7 @@ public class PostController {
     @PostMapping("/post")
     public ResponseEntity upload(PostDTO postDTO) throws IOException {
 
+        // 유저코드 받기!
 //        log.info("products : " + postDTO.getProducts());
 //        log.info("tags : " + postDTO.getTagCodes());
 
@@ -214,7 +215,7 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK).build();
     };
 
-
+    // 게시물 삭제
     @DeleteMapping("/post/{postCode}")
     public ResponseEntity delPost(@PathVariable("postCode") int postCode) {
         //log.info("POST_CODE : "+ postCode);

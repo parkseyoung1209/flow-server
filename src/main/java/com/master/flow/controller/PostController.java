@@ -90,14 +90,7 @@ public class PostController {
     public ResponseEntity votePostView(@PathVariable(name="postCode") int postCode){
         return ResponseEntity.status(HttpStatus.OK).body(postService.votePostView(postCode));
     }
-
-    // 좋아요한 게시물 조회
-    @GetMapping("/post/liked/{userCode}")
-    public ResponseEntity<List<Post>> getLikedPosts(@PathVariable("userCode") int userCode) {
-        List<Post> likedPosts = likesService.getLikedPosts(userCode);
-        return ResponseEntity.status(HttpStatus.OK).body(likedPosts);
-    }
-
+    
     // 해당 유저가 만든 게시물 조회
     @GetMapping("/{userCode}/post")
     public ResponseEntity<UserPostSummaryDTO> getPostListByUser(@PathVariable("userCode") int userCode){

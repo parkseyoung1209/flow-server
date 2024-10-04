@@ -32,12 +32,6 @@ public class PostController {
     @Autowired
     private PostService postService;
     @Autowired
-    private LikesService likesService;
-    @Autowired
-    private VoteService voteService;
-    @Autowired
-    private TagService tagService;
-    @Autowired
     private UserService userService;
     @Autowired
     private ProductService productService;
@@ -75,6 +69,16 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK).body(posts.getContent());
     }
 
+    // 카테고리별 게시물 조회
+    @GetMapping("/category")
+    public ResponseEntity<List<Post>> getPostsByFilters(
+            @RequestParam(required = false) String job,
+            @RequestParam(required = false) String gender,
+            @RequestParam(required = false) Integer height) {
+        List<Post> posts = postService.findPostsByFilters(job, gender, height);
+        return ResponseEntity.ok(posts);
+    }
+
     // 투표 게시판 게시물 전체 조회
     @GetMapping("/postVote")
     public ResponseEntity postVoteViewAll(Post vo){
@@ -100,21 +104,6 @@ public class PostController {
         UserPostSummaryDTO userPostSummaryDTO = postService.getPostListByUser(userCode);
         return ResponseEntity.status(HttpStatus.OK).body(userPostSummaryDTO);
     }
-
-    // 좋아요 수 높은 순으로 게시물 조회
-    @GetMapping("/post/ordered-by-likes")
-    public ResponseEntity<List<Post>> viewAllOrderByLikes() {
-        List<Post> likedPosts = likesService.viewAllOrderByLikes();
-        return ResponseEntity.status(HttpStatus.OK).body(likedPosts);
-    }
-
-    // 태그로 게시물 조회
-    @GetMapping("/post/tag/{tagName}")
-    public ResponseEntity<List<Post>> getPostsByTag(@PathVariable("tagName") String tagName) {
-        List<Post> posts = postTagService.viewPostsByTagName(tagName);
-        return ResponseEntity.status(HttpStatus.OK).body(posts);
-    }
-
 
     // 업로드 경로
     private String path = "\\\\192.168.10.51\\flow\\";

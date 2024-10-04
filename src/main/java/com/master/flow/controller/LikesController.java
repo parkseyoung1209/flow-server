@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/likes")
 @CrossOrigin(origins = {"*"}, maxAge=6000)
@@ -41,8 +43,14 @@ public class LikesController {
         return ResponseEntity.status(HttpStatus.OK).body(userPostSummaryDTO);
     }
 
+    // 좋아요 수 높은 순으로 게시물 조회
+    @GetMapping("/post/ordered-by-likes")
+    public ResponseEntity<List<Post>> viewAllOrderByLikes() {
+        List<Post> likedPosts = likesService.viewAllOrderByLikes();
+        return ResponseEntity.status(HttpStatus.OK).body(likedPosts);
+    }
 
-//    좋아요 한개 삭제
+    //    좋아요 한개 삭제
     @DeleteMapping("/delLike")
     public ResponseEntity delLike(@RequestParam("postCode") int postCode) {
         likesService.delLike(postCode);

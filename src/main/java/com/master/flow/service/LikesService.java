@@ -55,12 +55,6 @@ public class LikesService {
         return likesDAO.countByPost(post);
     }
 
-    // 좋아요한 게시물 조회
-    public List<Post> getLikedPosts(int userCode) {
-        List<Likes> likes = likesDAO.findByUser_UserCode(userCode);
-        return likes.stream().map(like -> like.getPost()).toList();
-    }
-
     // 좋아요 수에 따라 게시물 조회
     public List<Post> viewAllOrderByLikes() {
         return likesDAO.findAllOrderByLikes();

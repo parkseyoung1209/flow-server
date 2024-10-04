@@ -76,10 +76,15 @@ public class PostController {
     }
 
     // 투표 게시판 게시물 전체 조회
-    @GetMapping("/vote")
+    @GetMapping("/postVote")
     public ResponseEntity postVoteViewAll(Post vo){
-        // 추후 post_type = vote 만 조회 하도록 변경
         return ResponseEntity.status(HttpStatus.OK).body(postService.postVoteViewAll(vo));
+    }
+
+    // 투표 게시물 조회
+    @GetMapping("/postVote/{postCode}")
+    public ResponseEntity votePostView(@PathVariable(name="postCode") int postCode){
+        return ResponseEntity.status(HttpStatus.OK).body(postService.votePostView(postCode));
     }
 
     // 좋아요한 게시물 조회

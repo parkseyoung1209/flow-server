@@ -51,6 +51,11 @@ public class PostService {
         log.info("vote : " + postDAO.findByPostTypesVote());
         return postDAO.findByPostTypesVote();
     }
+
+    // 투표 게시물 조회
+    public Post votePostView(int postCode) {
+        return postDAO.findByPostTypesVote().get(postCode);
+    }
     
     // 게시물 업로드&수정
     public Post save(Post post) {

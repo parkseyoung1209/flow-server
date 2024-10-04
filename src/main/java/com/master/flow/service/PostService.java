@@ -46,6 +46,11 @@ public class PostService {
         return postDAO.findAll(builder, pageable);
     }
 
+    // 카테고리별 게시물 조회
+    public List<Post> findPostsByFilters(String job, String gender, Integer height) {
+        return postDAO.findPostsByFilters(job, gender, height);
+    }
+
     // 투표 게시물 전체 조회
     public List<Post> postVoteViewAll(Post vo) {
         log.info("vote : " + postDAO.findByPostTypesVote());

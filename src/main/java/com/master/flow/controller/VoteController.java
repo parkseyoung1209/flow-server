@@ -17,9 +17,15 @@ public class VoteController {
     private VoteService voteService;
 
     // 전체 투표 현황 조회
-    @GetMapping("/vote")
-    public ResponseEntity voteCount () {
-        return ResponseEntity.status(HttpStatus.OK).body(voteService.voteCount());
+    @GetMapping("/postVote/{postCode}/count")
+    public ResponseEntity voteCount (@PathVariable(name="postCode") int voteCode) {
+        return ResponseEntity.ok(voteService.voteCount(voteCode));
+    }
+
+    // 찬성 투표 수
+    @GetMapping("/postVote/{postCode}/countY")
+    public ResponseEntity voteCountY (@PathVariable(name="postCode") int voteCode) {
+        return ResponseEntity.ok(voteService.voteCountY(voteCode));
     }
 
     // 내가 한 투표 변경 (찬성 -> 반대 or 반대 -> 찬성)

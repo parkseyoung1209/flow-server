@@ -26,7 +26,7 @@ public class CommentController {
         return ResponseEntity.status(HttpStatus.OK).body(commentService.getAllComment());
     }
 
-    // 댓글 & 대댓긋 작성, 사진 첨부
+    // 댓글 & 대댓글 작성, 사진 첨부
     public ResponseEntity<Comment> addComment(
             @PathVariable int parentCommentCode,
             @RequestParam("file") MultipartFile file,
@@ -36,6 +36,20 @@ public class CommentController {
         Comment savedComment = commentService.saveComment(parentCommentCode, comment, file);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(savedComment);
+    }
+
+    // 댓글 수정
+    @PutMapping("/{id}")
+    public ResponseEntity<Comment> updateComment(@PathVariable int id, @RequestBody Comment updatedComment) {
+        Comment savedComment = commentService.updateComment(id, updatedComment);
+        return ResponseEntity.status(HttpStatus.OK).body(savedComment);
+    }
+
+    // 대댓글 수정
+    @PutMapping("/{commentCode}/replies/{replyId}")
+    public ResponseEntity<Comment> updateReply(@PathVariable int replyId, @RequestBody Comment updatedReply) {
+        Comment savedReply = commentService.updateReply(replyId, updatedReply);
+        return ResponseEntity.status(HttpStatus.OK).body(savedReply);
     }
 
     // 댓글 & 대댓글 삭제

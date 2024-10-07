@@ -45,7 +45,7 @@ public class PostController {
     public ResponseEntity viewAll(
             @RequestParam(name = "page", defaultValue = "1") int page,
             @RequestParam(name = "sort", defaultValue = "newest") String sort,
-            @RequestParam(name="keyword", required = false) String keyword) {
+            @RequestParam(name = "keyword", required = false) String keyword) {
 
         Sort sortCondition;
         if ("oldest".equalsIgnoreCase(sort)) {
@@ -66,17 +66,24 @@ public class PostController {
         }
 
         Page<Post> posts = postService.viewAll(builder, pageable);
+
         return ResponseEntity.status(HttpStatus.OK).body(posts.getContent());
     }
 
     // 카테고리별 게시물 조회
     @GetMapping("/category")
     public ResponseEntity<List<Post>> getPostsByFilters(
-            @RequestParam(required = false) String job,
-            @RequestParam(required = false) String gender,
-            @RequestParam(required = false) Integer height) {
+            @RequestParam(name = "job", required = false) String job,
+            @RequestParam(name = "gender", required = false) String gender,
+            @RequestParam(name = "height", required = false) Integer height) {
         List<Post> posts = postService.findPostsByFilters(job, gender, height);
         return ResponseEntity.ok(posts);
+    }
+
+    // 게시물 1개 보기 ( 상세페이지 조회)
+    @GetMapping("/post/{postCode}")
+    public ResponseEntity view(@PathVariable(name="postCode") int postCode) {
+        return ResponseEntity.ok(postService.view(postCode));
     }
 
     // 투표 게시판 게시물 전체 조회
@@ -90,7 +97,7 @@ public class PostController {
     public ResponseEntity votePostView(@PathVariable(name="postCode") int postCode){
         return ResponseEntity.status(HttpStatus.OK).body(postService.votePostView(postCode));
     }
-    
+
     // 해당 유저가 만든 게시물 조회
     @GetMapping("/{userCode}/post")
     public ResponseEntity<UserPostSummaryDTO> getPostListByUser(@PathVariable("userCode") int userCode){
@@ -121,11 +128,11 @@ public class PostController {
 
         // post 업로드
         Post post = postService.save(Post.builder()
-                        .postType("post")
-                        .postDesc(postDTO.getPostDesc())
-                        .postDate(LocalDateTime.now())
-                        .postPublicYn(postDTO.getPostPublicYn())
-                        .user(userService.findUser(postDTO.getUserCode()))
+                .postType("post")
+                .postDesc(postDTO.getPostDesc())
+                .postDate(LocalDateTime.now())
+                .postPublicYn(postDTO.getPostPublicYn())
+                .user(userService.findUser(postDTO.getUserCode()))
                 .build());
 
         int postCode = post.getPostCode();
@@ -133,14 +140,14 @@ public class PostController {
         // 제품추가
         for(Product p : products) {
             Product product = productService.addProduct(Product.builder()
-                            .productBrand(p.getProductBrand())
-                            .productName(p.getProductName())
-                            .productSize(p.getProductSize())
-                            .productBuyFrom(p.getProductBuyFrom())
-                            .productLink(p.getProductLink())
-                            .post(Post.builder()
-                                    .postCode(post.getPostCode())
-                                    .build())
+                    .productBrand(p.getProductBrand())
+                    .productName(p.getProductName())
+                    .productSize(p.getProductSize())
+                    .productBuyFrom(p.getProductBuyFrom())
+                    .productLink(p.getProductLink())
+                    .post(Post.builder()
+                            .postCode(post.getPostCode())
+                            .build())
                     .build());
             //log.info("product : " + product);
         }
@@ -159,10 +166,10 @@ public class PostController {
 
             // DB저장
             PostImg postImg = postImgService.addImg(PostImg.builder()
-                            .post(post.builder()
-                                    .postCode(post.getPostCode())
-                                    .build())
-                            .postImgUrl("http://192.168.10.51:8081/postImg" + File.separator + fileName)
+                    .post(post.builder()
+                            .postCode(post.getPostCode())
+                            .build())
+                    .postImgUrl("http://192.168.10.51:8081/postImg" + File.separator + fileName)
                     .build());
         }
 
@@ -170,12 +177,12 @@ public class PostController {
         for(Integer num : tags){
 //            log.info("num : " + num);
             PostTag postTag = postTagService.addTag(PostTag.builder()
-                            .post(Post.builder()
-                                    .postCode(postCode)
-                                    .build())
-                            .tag(Tag.builder()
-                                    .tagCode(num)
-                                    .build())
+                    .post(Post.builder()
+                            .postCode(postCode)
+                            .build())
+                    .tag(Tag.builder()
+                            .tagCode(num)
+                            .build())
                     .build());
 //            log.info("postTag : " + postTag);
         }
@@ -192,11 +199,11 @@ public class PostController {
         List<Integer> tags = postDTO.getTagCodes();
 
         Post post = postService.save(Post.builder()
-                        .postCode(postDTO.getPostCode())
-                        .postType("post")
-                        .postDesc(postDTO.getPostDesc())
-                        .postDate(LocalDateTime.now())
-                        .postPublicYn(postDTO.getPostPublicYn())
+                .postCode(postDTO.getPostCode())
+                .postType("post")
+                .postDesc(postDTO.getPostDesc())
+                .postDate(LocalDateTime.now())
+                .postPublicYn(postDTO.getPostPublicYn())
                 .build());
 
         return ResponseEntity.status(HttpStatus.OK).build();
@@ -214,10 +221,10 @@ public class PostController {
 
         // 이미지 삭제
         postImgService.deleteAll(postCode);
-        
+
         // 제품들 삭제
         productService.deleteAll(postCode);
-        
+
         // 게시글 삭제
         postService.delPost(postCode);
 

@@ -22,10 +22,11 @@ public class PostReportController {
         return ResponseEntity.status(HttpStatus.OK).body(postReportService.showAllPostReport());
     }
 
+    // 신고한 글 하위 객체들 전부 삭제하고 실행
     @DeleteMapping("/delPostReport")
-    public ResponseEntity delPostReport(int postReportCode) {
-        postService.delPost(postReportService.delPostReport(postReportCode));
-
+    public ResponseEntity delPostReport(@RequestParam(name="postReportCode") int postReportCode) {
+//        postService.delPost(postReportService.delPostReport(postReportCode));
+        postReportService.delPostReport(postReportCode);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

@@ -113,26 +113,47 @@ public class PostController {
         List<Product> products = postDTO.getProducts();
         List<Integer> tags = postDTO.getTagCodes();
 
+
         /*
          * 자바스크립트에서 보내는 방법!
          * 그때 파일을 같이 보내야 할 때는 FormData 객체 생성해서
          * 각각의 값들 append로 추가해서 마지막에 보내기만 하면 끝!
          * */
+        Post post = new Post();
 
         // post 업로드
-        Post post = postService.save(Post.builder()
-                        .postType("post")
-                        .postDesc(postDTO.getPostDesc())
-                        .postDate(LocalDateTime.now())
-                        .postPublicYn(postDTO.getPostPublicYn())
-                        .user(userService.findUser(postDTO.getUserCode()))
-                .build());
+        if( postDTO.getPostDesc() != null && !postDTO.getPostDesc().isEmpty()) {
+            post = postService.save(Post.builder()
+                    .postType("post")
+                    .postDesc(postDTO.getPostDesc())
+                    .postDate(LocalDateTime.now())
+                    .postPublicYn(postDTO.getPostPublicYn())
+                    .user(userService.findUser(postDTO.getUserCode()))
+                    .build());
+        } else {
+            post = postService.save(Post.builder()
+                    .postType("post")
+                    .postDate(LocalDateTime.now())
+                    .postPublicYn(postDTO.getPostPublicYn())
+                    .user(userService.findUser(postDTO.getUserCode()))
+                    .build());
+        }
 
         int postCode = post.getPostCode();
 
         // 제품추가
-        for(Product p : products) {
-            Product product = productService.addProduct(Product.builder()
+        if(products!=null && !products.isEmpty()) {
+            for (Product p : products) {
+
+                boolean allEmpty = p.getProductBrand().isEmpty() &&
+                        p.getProductName().isEmpty() &&
+                        p.getProductSize().isEmpty() &&
+                        p.getProductBuyFrom().isEmpty() &&
+                        p.getProductLink().isEmpty();
+
+
+                if(!allEmpty) {
+                    Product product = productService.addProduct(Product.builder()
                             .productBrand(p.getProductBrand())
                             .productName(p.getProductName())
                             .productSize(p.getProductSize())
@@ -141,8 +162,10 @@ public class PostController {
                             .post(Post.builder()
                                     .postCode(post.getPostCode())
                                     .build())
-                    .build());
-            //log.info("product : " + product);
+                            .build());
+                    //log.info("product : " + product);
+                }
+            }
         }
 
         // 이미지 DB 저장
@@ -167,6 +190,7 @@ public class PostController {
         }
 
         // PostTag 저장
+        if(tags != null ){
         for(Integer num : tags){
 //            log.info("num : " + num);
             PostTag postTag = postTagService.addTag(PostTag.builder()
@@ -178,6 +202,7 @@ public class PostController {
                                     .build())
                     .build());
 //            log.info("postTag : " + postTag);
+        }
         }
 
         return ResponseEntity.status(HttpStatus.OK).build();

@@ -1,7 +1,9 @@
 package com.master.flow.model.dao;
 
 import com.master.flow.model.vo.Post;
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.data.repository.query.Param;
@@ -25,5 +27,4 @@ public interface PostDAO extends JpaRepository<Post, Integer>, QuerydslPredicate
             @Param("gender") String gender,
             @Param("height") Integer height
     );
-
 }

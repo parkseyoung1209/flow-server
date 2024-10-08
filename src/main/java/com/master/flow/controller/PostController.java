@@ -108,6 +108,19 @@ public class PostController {
     // 업로드 경로
     private String path = "\\\\192.168.10.51\\flow\\";
 
+
+    // 파일이름 만들기
+    private String fileName(MultipartFile file) throws IllegalStateException, IOException {
+        UUID uuid = UUID.randomUUID();
+        String fileName = uuid.toString() + "_" + file.getOriginalFilename();
+
+        // 파일에 저장
+        File imageFile = new File(path + "postImg" + File.separator + fileName);
+        file.transferTo(imageFile); // 업로드한 파일이 지정한 path 위치로 저장됨
+
+        return fileName;
+    }
+ 
     // 게시물 업로드
     @PostMapping("/post")
     public ResponseEntity upload(PostDTO postDTO) throws IOException {
@@ -115,17 +128,13 @@ public class PostController {
         // 유저코드 받기!
 //        log.info("products : " + postDTO.getProducts());
 //        log.info("tags : " + postDTO.getTagCodes());
+        log.info("postPublicYN : " + postDTO.getPostPublicYn());
+
 
         List<MultipartFile> files = postDTO.getImageFiles();
         List<Product> products = postDTO.getProducts();
         List<Integer> tags = postDTO.getTagCodes();
 
-
-        /*
-         * 자바스크립트에서 보내는 방법!
-         * 그때 파일을 같이 보내야 할 때는 FormData 객체 생성해서
-         * 각각의 값들 append로 추가해서 마지막에 보내기만 하면 끝!
-         * */
         Post post = new Post();
 
         // post 업로드
@@ -148,6 +157,7 @@ public class PostController {
 
         int postCode = post.getPostCode();
 
+
         // 제품추가
         if(products!=null && !products.isEmpty()) {
             for (Product p : products) {
@@ -158,7 +168,7 @@ public class PostController {
                         p.getProductBuyFrom().isEmpty() &&
                         p.getProductLink().isEmpty();
 
-
+                // 모든 칸이 비어있을때 제외
                 if(!allEmpty) {
                     Product product = productService.addProduct(Product.builder()
                             .productBrand(p.getProductBrand())
@@ -215,14 +225,20 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK).build();
     };
 
-    // 게시물 내용/공개여부 수정
+    // 게시물 수정
     @PutMapping("/post")
     public ResponseEntity update(@RequestBody PostDTO postDTO){
+
+        // 기존 포스트
+        // postService.view(postDTO.getPostCode());
 
         List<MultipartFile> files = postDTO.getImageFiles();
         List<Product> products = postDTO.getProducts();
         List<Integer> tags = postDTO.getTagCodes();
 
+        // 기존 이미지 삭제 -> 새로 업로드 및 저장
+        
+        // post
         Post post = postService.save(Post.builder()
                 .postCode(postDTO.getPostCode())
                 .postType("post")
@@ -244,7 +260,7 @@ public class PostController {
         // 태그삭제
         postTagService.deleteAll(postCode);
 
-        // 이미지 삭제
+        // 이미지 삭제 (파일도 삭제 필요)
         postImgService.deleteAll(postCode);
 
         // 제품들 삭제

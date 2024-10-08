@@ -32,14 +32,14 @@ public class CommentService {
     }
 
     // 댓글 & 대댓글 저장, 작성, 사진 첨부
-    public Comment saveComment(int parentCommentCode, Comment comment, MultipartFile file) throws IOException {
+    public Comment saveComment(Integer parentCommentCode, Comment comment, MultipartFile file) throws IOException {
         if(file != null && !file.isEmpty()) {
             String fileName = uploadFile(file);
             comment.setCommentImgUrl(fileName);
         }
 
         // 대댓글
-        if(parentCommentCode > 0) {
+        if(parentCommentCode != null && parentCommentCode > 0) {
             Comment parentComment = commentDao.findById(parentCommentCode)
                     .orElseThrow(() -> new RuntimeException("Parent comment not found"));
             comment.setParentComment(parentComment);

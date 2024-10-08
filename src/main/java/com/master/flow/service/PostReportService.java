@@ -103,11 +103,25 @@ public class PostReportService {
 //        collection 테이블 삭제
         collectionDAO.deleteCollectionByPostCode(postCode);
 
+//        post_tag 테이블 삭제
+        postTagDAO.deletePostTagByPostCode(postCode);
 
+//        vote 테이블 삭제
+        voteDAO.deleteVoteByPostCode(postCode);
 
+//        post 테이블 삭제
         postDAO.deleteById(postCode);
 
 //        최종적으로 신고한 글 코드 리턴
 //        return postCode;
+    }
+
+    public void reportPost(PostReport vo, User user, int postCode) {
+        Post post = postDAO.findById(postCode).get();
+
+        vo.setUser(user);
+        vo.setPost(post);
+
+        postReportDao.save(vo);
     }
 }

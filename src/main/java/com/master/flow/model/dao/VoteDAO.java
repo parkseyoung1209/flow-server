@@ -1,7 +1,9 @@
 package com.master.flow.model.dao;
 
 import com.master.flow.model.vo.Vote;
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -24,4 +26,9 @@ public interface VoteDAO extends JpaRepository<Vote, Integer> {
     int countN(@Param("post_code") int voteCountN);
 
 
+    // 투표게시물 반대 투표 수
+    @Modifying
+    @Transactional
+    @Query(value = "DELETE FROM vote WHERE post_code = :postCode",nativeQuery = true)
+    public void deleteVoteByPostCode(@Param("postCode") int postCode);
 }

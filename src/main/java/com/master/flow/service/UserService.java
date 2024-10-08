@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -48,11 +50,9 @@ public class UserService {
         return userDao.findById(code).get();
     }
 
-    public boolean banUser(int code) {
-        User user = userDao.findById(code).get();
-        if(user.getUserBanStatus()=="Y") {
-            return false;
-        }
-        return false;
+//    유저 신고하기
+    public void banUser(int userCode) {
+        String userBanStatus = "Y";
+        userDao.banUser(userCode, userBanStatus);
     }
 }

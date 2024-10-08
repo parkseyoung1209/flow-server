@@ -39,6 +39,7 @@ public class FollowController {
         return followingCode;
     }
 
+    // 프론트 쪽 팔로우 버튼 오류 방지 로직
     @GetMapping("/follow/status")
     public ResponseEntity status(@RequestParam(name = "followingUserCode") int followingUserCode,
                                  @RequestParam(name = "followerUserCode") int followerUserCode) {
@@ -69,13 +70,13 @@ public class FollowController {
     }
 
     // 내가 팔로우한 팔로워들
-    @GetMapping("/follow/myFollower={followingUserCode}")
+    @GetMapping("/follow/myFollower/{followingUserCode}")
     public ResponseEntity viewMyFollower(@PathVariable(name = "followingUserCode") int followingUserCode) {
         return ResponseEntity.status(HttpStatus.OK).body(followService.viewMyFollower(followingUserCode));
     }
 
     // 나를 팔로우한 유저들
-    @GetMapping("/follow/toMe={followerUserCode}")
+    @GetMapping("/follow/toMe/{followerUserCode}")
     public ResponseEntity followMeUsers(@PathVariable(name= "followerUserCode") int followerUserCode) {
         return ResponseEntity.status(HttpStatus.OK).body(followService.followMeUsers(followerUserCode));
     }

@@ -38,7 +38,6 @@ public class PostService {
     @Autowired
     private ProductDAO productDao;
 
-
     // 게시물 전체 조회
     public Page<Post> viewAll(BooleanBuilder builder, Pageable pageable) {
         return postDAO.findAll(builder, pageable);
@@ -49,9 +48,13 @@ public class PostService {
         return postDAO.findPostsByFilters(job, gender, height);
     }
 
+    // 게시물 1개 보기 ( 상세페이지 조회)
+    public Post view(int postCode) {
+        return postDAO.findById(postCode).get();
+    }
+
     // 투표 게시물 전체 조회
     public List<Post> postVoteViewAll(Post vo) {
-        log.info("vote : " + postDAO.findByPostTypesVote());
         return postDAO.findByPostTypesVote();
     }
 
@@ -69,7 +72,6 @@ public class PostService {
     public void delPost(int postCode){
         postDAO.deleteById(postCode);
     }
-
 
     // 유저 코드로 게시물 조회
     public UserPostSummaryDTO getPostListByUser (int userCode){

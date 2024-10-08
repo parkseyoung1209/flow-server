@@ -3,6 +3,7 @@ package com.master.flow.controller;
 import com.master.flow.config.TokenProvider;
 import com.master.flow.model.dao.UserDAO;
 
+import com.master.flow.model.vo.Follow;
 import com.master.flow.model.vo.User;
 import com.master.flow.service.FollowService;
 
@@ -38,10 +39,16 @@ public class FollowController {
         return followingCode;
     }
 
+    @GetMapping("/follow/status")
+    public ResponseEntity status(@RequestBody Follow follow) {
+        return  ResponseEntity.ok().build();
+    }
+
     // 서비스에서 보낸 true false 값으로 정상연결 or 잘못된 연결
     @PostMapping("/follow")
-    public ResponseEntity addFollowRelative(@RequestParam(name="followerUserCode") int followerUserCode, @RequestParam(name="token") String token) {
-        boolean check = followService.addFollowRelative(userCode(token), followerUserCode);
+    public ResponseEntity addFollowRelative(@RequestBody Follow follow) {
+        System.out.println(follow);
+        boolean check = followService.addFollowRelative(follow.getFollowingUser().getUserCode(), follow.getFollowerUser().getUserCode());
         if(check)
         return ResponseEntity.status(HttpStatus.OK).build();
         else return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
@@ -49,7 +56,8 @@ public class FollowController {
 
     // 위와 마찬가지
     @DeleteMapping("/follow")
-    public ResponseEntity unFollow(int followingUserCode, int followerUserCode) {
+    public ResponseEntity unFollow(@RequestParam(name = "followingUserCode") int followingUserCode,
+                                   @RequestParam(name = "followerUserCode") int followerUserCode) {
         boolean check = followService.unFollow(followingUserCode, followerUserCode);
         if(check) return ResponseEntity.status(HttpStatus.OK).build();
         else return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();

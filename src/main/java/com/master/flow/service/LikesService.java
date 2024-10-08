@@ -33,18 +33,26 @@ public class LikesService {
     private UserDAO userDAO;
 
     public boolean toggleLikeWithoutUser(User user, Post post) {
-        // Post가 데이터베이스에 저장되지 않았다면 저장
+        // Post가 데이터베이스에 존재하지 않으면 에러 발생
         if (!postDAO.existsById(post.getPostCode())) {
-            throw new IllegalArgumentException("Post가 존재하지 않습니다.");}
-        Optional<Likes> existingLike = likesDAO.findByUserAndPost(user, post);
+            throw new IllegalArgumentException("Post가 존재하지 않습니다.");
+        }
+
+        // 전달된 유저가 이미 존재하는지 확인 (이 부분을 수정)
+        User existingUser = userDAO.findById(user.getUserCode())
+                .orElseThrow(() -> new IllegalArgumentException("User가 존재하지 않습니다."));
+
+        // 이미 좋아요가 눌러져 있는지 확인
+        Optional<Likes> existingLike = likesDAO.findByUserAndPost(existingUser, post);
 
         if (existingLike.isPresent()) {
             // 이미 좋아요가 눌러져 있는 경우 삭제
             likesDAO.delete(existingLike.get());
             return false;
         } else {
+            // 새로 좋아요 추가
             Likes like = Likes.builder()
-                    .user(user)
+                    .user(existingUser)
                     .post(post)
                     .build();
             likesDAO.save(like);

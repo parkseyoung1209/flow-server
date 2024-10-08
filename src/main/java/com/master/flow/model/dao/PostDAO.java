@@ -12,7 +12,6 @@ public interface PostDAO extends JpaRepository<Post, Integer>, QuerydslPredicate
     // post_public_yn = "Y" 인 경우 게시글(post)에서 투표게시물(vote)만 조회
     @Query(value = "SELECT * FROM post WHERE post_type = 'vote' and post_public_yn = 'Y'", nativeQuery = true)
     List<Post> findByPostTypesVote();
-    
     List<Post> findByUser_UserCode(int userCode); // 유저 코드로 게시글 목록 조회
 
     // 카테고리별 게시물 조회

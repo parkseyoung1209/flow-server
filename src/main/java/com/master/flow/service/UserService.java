@@ -44,7 +44,7 @@ public class UserService {
 
     // user 정보 가져오기
     public User findUser(int code){
-        log.info("code : " + code);
+//        log.info("code : " + code);
         return userDao.findById(code).get();
     }
 

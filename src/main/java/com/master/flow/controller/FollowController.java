@@ -40,14 +40,19 @@ public class FollowController {
     }
 
     @GetMapping("/follow/status")
-    public ResponseEntity status(@RequestBody Follow follow) {
-        return  ResponseEntity.ok().build();
+    public ResponseEntity status(@RequestParam(name = "followingUserCode") int followingUserCode,
+                                 @RequestParam(name = "followerUserCode") int followerUserCode) {
+        boolean isFollowing = followService.checkLogic(followingUserCode,followerUserCode);
+        if(isFollowing) {
+            return ResponseEntity.ok(true);
+        } else {
+            return ResponseEntity.ok(false);
+        }
     }
 
     // 서비스에서 보낸 true false 값으로 정상연결 or 잘못된 연결
     @PostMapping("/follow")
     public ResponseEntity addFollowRelative(@RequestBody Follow follow) {
-        System.out.println(follow);
         boolean check = followService.addFollowRelative(follow.getFollowingUser().getUserCode(), follow.getFollowerUser().getUserCode());
         if(check)
         return ResponseEntity.status(HttpStatus.OK).build();

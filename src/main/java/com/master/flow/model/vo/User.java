@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -65,7 +66,7 @@ public class User {
 //  java.util 인지 java.sql인지 모름
 //    제재 날짜
     @Column(name="USER_BAN_DATE")
-    private Date userBanDate;
+    private LocalDateTime userBanDate;
 
 //    제재 횟수
     @Column(name="USER_BAN_COUNT")

@@ -46,6 +46,6 @@ public class Post {
     @JoinColumn(name="USER_CODE")
     private User user;
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PostReport> postReports = new ArrayList<>();
+//    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<PostReport> postReports = new ArrayList<>();
 }

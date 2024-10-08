@@ -2,12 +2,12 @@ package com.master.flow.service;
 
 import com.master.flow.model.dao.PostDAO;
 import com.master.flow.model.dao.VoteDAO;
-import com.master.flow.model.vo.Post;
+import com.master.flow.model.vo.User;
 import com.master.flow.model.vo.Vote;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class VoteService {
@@ -17,6 +17,29 @@ public class VoteService {
 
     @Autowired
     private PostDAO postDao;
+
+    // 로그인한 사람 정보 가져오기 - ID
+    public int loginId(){
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if(auth!=null && auth.isAuthenticated()){
+            User user = (User) auth.getPrincipal();
+            return user.getUserCode();
+        }
+        return 0;
+    }
+
+    // 투표
+    public void vote (Vote vo){
+
+    }
+
+    // 투표 취소
+
+    // 로그인한 사람의 투표체크 여부
+    public Vote check(int userCode) {
+        return voteDao.check(loginId());
+    }
+
 
     // 전체 투표 현황
     public int voteCount (int voteCode) {
@@ -28,8 +51,8 @@ public class VoteService {
         return voteDao.countY(voteCode);
     }
 
-    // 내가 한 투표 변경 (찬성 -> 반대 or 반대 -> 찬성)
-//    public void changVote(Vote vo) {
-//        voteDao.save(vo);
-//    }
+    // 반대 투표 현황
+    public int voteCountN (int voteCode){
+        return voteDao.countN(voteCode);
+    }
 }

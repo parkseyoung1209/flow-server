@@ -16,6 +16,12 @@ public class VoteController {
     @Autowired
     private VoteService voteService;
 
+    // 로그인한 사람의 투표 체크 여부
+    @GetMapping("/postVote/{postCode}/check")
+    public ResponseEntity check (@PathVariable(name = "postCode") int voteCode){
+       return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
     // 전체 투표 현황 조회
     @GetMapping("/postVote/{postCode}/count")
     public ResponseEntity voteCount (@PathVariable(name="postCode") int voteCode) {
@@ -28,10 +34,10 @@ public class VoteController {
         return ResponseEntity.ok(voteService.voteCountY(voteCode));
     }
 
-    // 내가 한 투표 변경 (찬성 -> 반대 or 반대 -> 찬성)
-//    @PutMapping("/vote")
-//    public ResponseEntity changeVote (@RequestBody Vote vo){
-//        voteService.changVote(vo);
-//        return ResponseEntity.status(HttpStatus.OK).build();
-//    }
+    // 반대 투표 수
+    @GetMapping("/postVote/{postCode}/countN")
+    public ResponseEntity voteCountN (@PathVariable(name="postCode") int voteCode){
+        return ResponseEntity.ok(voteService.voteCountN(voteCode));
+    }
+
 }

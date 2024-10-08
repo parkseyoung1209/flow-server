@@ -47,4 +47,12 @@ public class UserService {
         log.info("code : " + code);
         return userDao.findById(code).get();
     }
+
+    public boolean banUser(int code) {
+        User user = userDao.findById(code).get();
+        if(user.getUserBanStatus()=="Y") {
+            return false;
+        }
+        return false;
+    }
 }

@@ -16,10 +16,18 @@ public class VoteController {
     @Autowired
     private VoteService voteService;
 
-    // 로그인한 사람의 투표 체크 여부
-    @GetMapping("/postVote/{postCode}/check")
-    public ResponseEntity check (@PathVariable(name = "postCode") int voteCode){
-       return ResponseEntity.status(HttpStatus.OK).build();
+    // 투표
+    @PostMapping("/postVote/vote")
+    public ResponseEntity vote (@RequestBody Vote vo){
+        voteService.vote(vo);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    // 투표 취소
+    @PostMapping("/postVote/vote/{voteCode}")
+    public ResponseEntity removeVote (@PathVariable(name="voteCode") int userCode){
+        voteService.removeVote(userCode);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     // 전체 투표 현황 조회
@@ -40,4 +48,9 @@ public class VoteController {
         return ResponseEntity.ok(voteService.voteCountN(voteCode));
     }
 
+    // 로그인한 사람의 투표 체크 여부
+    @GetMapping("/postVote/{postCode}/check")
+    public ResponseEntity check (@PathVariable(name = "postCode") int voteCode){
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
 }

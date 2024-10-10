@@ -49,6 +49,7 @@ public class UserController {
     public ResponseEntity login(@RequestBody User vo){
         User user = userService.login(vo.getUserEmail(), vo.getUserPlatform());
         String token = tokenProvider.create(user);
+        log.info("유저정보:"+user);
         int banCount = user.getUserBanCount();
 
 //        밴 상태일때 로그인 금지 (4회 이상은 그냥 금지)

@@ -62,7 +62,7 @@ public class PostService {
     public Post votePostView(int postCode) {
         return postDAO.findByPostTypesVote().get(postCode);
     }
-    
+
     // 게시물 업로드&수정
     public Post save(Post post) {
         // save : postCode(primary key)가 없으면 추가/ id가 있으면 수정으로 사용

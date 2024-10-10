@@ -9,6 +9,8 @@ import com.master.flow.model.vo.User;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -28,6 +30,8 @@ public class FollowService {
     public HashSet<Follow> findAllFollowSet() {
         return followDAO.findAllFollowSet();
     }
+
+
     // 로그인된 유저의 프라이머리키와 팔로우할 유저의 프라이머리키를 받아서 객체 생성
     public Follow existFollow(int followingUserCode, int followerUserCode) {
         User followingUser = userDAO.findById(followingUserCode).orElse(null);

@@ -1,12 +1,7 @@
 package com.master.flow.controller;
 
-import com.master.flow.config.TokenProvider;
-import com.master.flow.model.dao.UserDAO;
-
 import com.master.flow.model.vo.Follow;
-import com.master.flow.model.vo.User;
 import com.master.flow.service.FollowService;
-
 import com.master.flow.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,16 +26,8 @@ public class FollowController {
     @Autowired
     private UserService userService;
 
-    public int userCode(String token) {
-        TokenProvider tokenProvider = new TokenProvider();
-        User user = tokenProvider.validate(token);
-        log.info(user.getUserPlatform());
-        int followingCode = user.getUserCode();
-        return followingCode;
-    }
-
     // 프론트 쪽 팔로우 버튼 오류 방지 로직
-    @GetMapping("/follow/status")
+    @GetMapping("private/follow/status")
     public ResponseEntity status(@RequestParam(name = "followingUserCode") int followingUserCode,
                                  @RequestParam(name = "followerUserCode") int followerUserCode) {
         boolean isFollowing = followService.checkLogic(followingUserCode,followerUserCode);
@@ -52,16 +39,17 @@ public class FollowController {
     }
 
     // 서비스에서 보낸 true false 값으로 정상연결 or 잘못된 연결
-    @PostMapping("/follow")
+    @PostMapping("private/follow")
     public ResponseEntity addFollowRelative(@RequestBody Follow follow) {
-        boolean check = followService.addFollowRelative(follow.getFollowingUser().getUserCode(), follow.getFollowerUser().getUserCode());
-        if(check)
-        return ResponseEntity.status(HttpStatus.OK).build();
-        else return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        log.info("follow : " + follow);
+        //boolean check = followService.addFollowRelative(follow.getFollowingUser().getUserCode(), follow.getFollowerUser().getUserCode());
+        //if(check)
+       return ResponseEntity.status(HttpStatus.OK).build();
+       // else return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
     // 위와 마찬가지
-    @DeleteMapping("/follow")
+    @DeleteMapping("private/follow")
     public ResponseEntity unFollow(@RequestParam(name = "followingUserCode") int followingUserCode,
                                    @RequestParam(name = "followerUserCode") int followerUserCode) {
         boolean check = followService.unFollow(followingUserCode, followerUserCode);
@@ -70,13 +58,13 @@ public class FollowController {
     }
 
     // 내가 팔로우한 팔로워들
-    @GetMapping("/follow/myFollower/{followingUserCode}")
+    @GetMapping("private/follow/myFollower/{followingUserCode}")
     public ResponseEntity viewMyFollower(@PathVariable(name = "followingUserCode") int followingUserCode) {
         return ResponseEntity.status(HttpStatus.OK).body(followService.viewMyFollower(followingUserCode));
     }
 
     // 나를 팔로우한 유저들
-    @GetMapping("/follow/toMe/{followerUserCode}")
+    @GetMapping("private/follow/toMe/{followerUserCode}")
     public ResponseEntity followMeUsers(@PathVariable(name= "followerUserCode") int followerUserCode) {
         return ResponseEntity.status(HttpStatus.OK).body(followService.followMeUsers(followerUserCode));
     }

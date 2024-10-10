@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import net.minidev.json.annotate.JsonIgnore;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -37,21 +38,20 @@ public class Comment {
     private String commentDelYn;
 
 //    게시물 번호
-    @ManyToOne
-    @JoinColumn(name="POST_CODE")
-    private Post post;
+    @Column(name="POST_CODE")
+    private int postCode;
 
 //    유저 코드
     @ManyToOne
-    @JoinColumn(name="USER_CODE")
+    @JoinColumn(name="USER_CODE", insertable = false, updatable = false)
     private User user;
 
 //    대댓글:부모 댓글
-    @ManyToOne
-    @JoinColumn(name="PARENT_COMMENT_CODE")
-    private Comment parentComment;
+    @Column(name="PARENT_COMMENT_CODE")
+    private int parentCommentCode;
 
-//    대댓글:자식 댓글
-    @OneToMany(mappedBy = "parentComment")
-    private List<Comment> replies;
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name="PARENT_COMMENT_CODE", referencedColumnName = "comment_code", insertable = false, updatable = false)
+    private Comment parent;
 }

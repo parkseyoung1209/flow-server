@@ -2,6 +2,8 @@ package com.master.flow.service;
 
 import com.master.flow.model.dao.CommentDAO;
 import com.master.flow.model.vo.Comment;
+import com.master.flow.model.vo.QComment;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.Id;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,29 +24,43 @@ public class CommentService {
     @Autowired
     private CommentDAO commentDao;
 
+    @Autowired
+    private JPAQueryFactory queryFactory;
+
+    private final QComment qComment = QComment.comment;
+
     public CommentService(CommentDAO commentDAO) {
         this.commentDao = commentDAO;
     }
 
-    // 모든 댓글 조회
-    public List<Comment> getAllComment() {
-        return commentDao.findAll();
+    // 댓글 작성
+    public Comment create(Comment vo) {
+        return commentDao.save(vo);
     }
 
-    // 댓글 & 대댓글 저장, 작성, 사진 첨부
-    public Comment saveComment(Integer parentCommentCode, Comment comment, MultipartFile file) throws IOException {
-        if(file != null && !file.isEmpty()) {
-            String fileName = uploadFile(file);
-            comment.setCommentImgUrl(fileName);
-        }
+    // 대댓글 작성
+    public Comment createReply(Comment vo) {
+        vo.setParentCommentCode(vo.getParentCommentCode());
+        return commentDao.save(vo);
+    }
+    
+    // 댓글 수정
+    public Optional<Comment> update(int commentCode, Comment updateComment) {
+        return commentDao.findById(commentCode).map(comment -> {
+            comment.setCommentDesc(updateComment.getCommentDesc());
+            comment.setCommentImgUrl(updateComment.getCommentImgUrl());
+            return commentDao.save(comment);
+        });
+    }
 
-        // 대댓글
-        if(parentCommentCode != null && parentCommentCode > 0) {
-            Comment parentComment = commentDao.findById(parentCommentCode)
-                    .orElseThrow(() -> new RuntimeException("Parent comment not found"));
-            comment.setParentComment(parentComment);
-        }
-        return commentDao.save(comment);
+    // 상위 댓글 조회
+    public List<Comment> getAllComment(int postCode) {
+        return queryFactory
+                .selectFrom(qComment)
+                .where(qComment.postCode.eq(postCode))
+                .where(qComment.parentCommentCode.eq(0))
+                .orderBy(qComment.commentDate.desc())
+                .fetch();
     }
 
     // 사진 첨부 : 파일 업로드
@@ -54,31 +70,24 @@ public class CommentService {
         file.transferTo(dest);
         return fileName;
     }
-    
-    // 댓글 수정
-    public Comment updateComment(int commentId, Comment updatedComment) {
-        Comment existingComment = commentDao.findById(commentId)
-                .orElseThrow(() -> new RuntimeException("Comment not found"));
-        existingComment.setCommentDesc(updatedComment.getCommentDesc());
-        existingComment.setCommentImgUrl(updatedComment.getCommentImgUrl());
-        existingComment.setCommentDelYn(updatedComment.getCommentDelYn());
-        return commentDao.save(existingComment);
-    }
 
     // 대댓글 수정
-    public Comment updateReply(int replyId, Comment updatedReply) {
-        Comment existingReply = commentDao.findById(replyId)
-                .orElseThrow(() -> new RuntimeException("Reply not found"));
-        existingReply.setCommentDesc(updatedReply.getCommentDesc());
-        existingReply.setCommentImgUrl(updatedReply.getCommentImgUrl());
-        existingReply.setCommentDelYn(updatedReply.getCommentDelYn());
-
-        return commentDao.save(existingReply);
+    public Optional<Comment> updateReply(int commentCode, Comment updateReply) {
+        return commentDao.findById(commentCode).map(reply -> {
+            reply.setCommentDesc(updateReply.getCommentDesc());
+            reply.setCommentImgUrl(updateReply.getCommentImgUrl());
+            return commentDao.save(reply);
+        });
     }
 
-    // 댓글 & 대댓글 삭제
-    public void deleteComment(int commentId) {
-        commentDao.deleteById(commentId);
+    // 댓글 삭제
+    public void deleteComment(int commentCode) {
+        commentDao.deleteById(commentCode);
+    }
+
+    // 대댓글 삭제
+    public void deleteReply(int commentCode) {
+        commentDao.deleteById(commentCode);
     }
 
     // 댓글 신고

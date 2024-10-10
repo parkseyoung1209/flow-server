@@ -111,9 +111,6 @@ public class PostReportService {
 
 //        post 테이블 삭제
         postDAO.deleteById(postCode);
-
-//        최종적으로 신고한 글 코드 리턴
-//        return postCode;
     }
 
     public void reportPost(PostReport vo, User user, int postCode) {

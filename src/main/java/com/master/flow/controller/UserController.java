@@ -1,6 +1,7 @@
 package com.master.flow.controller;
 
 import com.master.flow.config.TokenProvider;
+import com.master.flow.model.dao.UserDAO;
 import com.master.flow.model.vo.User;
 import com.master.flow.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +24,8 @@ public class UserController {
 
     @Autowired
     private TokenProvider tokenProvider;
+    @Autowired
+    private UserDAO userDAO;
 
     // 테스트용 코드
     @GetMapping("/showAllUser")
@@ -57,20 +60,37 @@ public class UserController {
                 Duration duration = Duration.between(LocalDateTime.now(), user.getUserBanDate().plusDays(7));
                 if(duration.isPositive()) {
                     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(token);
+                } else if(duration.isNegative()) {
+                    user.setUserBanStatus("N");
+                    user.setUserBanDate(null);
+                    userDAO.save(user);
+                    return ResponseEntity.status(HttpStatus.OK).body(token);
                 }
             } else if(banCount == 2) {
                 Duration duration = Duration.between(LocalDateTime.now(), user.getUserBanDate().plusDays(15));
                 if(duration.isPositive()) {
                     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(token);
+                } else if(duration.isNegative()) {
+                    user.setUserBanStatus("N");
+                    user.setUserBanDate(null);
+                    userDAO.save(user);
+                    return ResponseEntity.status(HttpStatus.OK).body(token);
                 }
             } else if(banCount == 3) {
-                Duration duration = Duration.between(LocalDateTime.now(), user.getUserBanDate().plusDays(30));
+                Duration duration = Duration.between(LocalDateTime.now(), user.getUserBanDate().plusMinutes(1));
                 if(duration.isPositive()) {
                     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(token);
+                } else if(duration.isNegative()) {
+                    user.setUserBanStatus("N");
+                    user.setUserBanDate(null);
+                    userDAO.save(user);
+                    return ResponseEntity.status(HttpStatus.OK).body(token);
                 }
             } else if(banCount >= 4) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(token);
             }
+        } else if(user.getUserBanStatus().equals("N")) {
+            return ResponseEntity.status(HttpStatus.OK).body(token);
         }
 
         return ResponseEntity.status(HttpStatus.OK).body(token);

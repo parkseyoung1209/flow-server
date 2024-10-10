@@ -23,5 +23,7 @@ public class PostImgService {
         postImgDAO.deleteById(postCode);
     }
 
-
+    public List<PostImg> findByPost_PostCode(int postCode) {
+        return postImgDAO.findByPost_PostCode(postCode);
+    }
 }

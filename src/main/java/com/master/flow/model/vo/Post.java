@@ -46,6 +46,9 @@ public class Post {
     @JoinColumn(name="USER_CODE")
     private User user;
 
+    @Transient // 데이터베이스에 저장되지 않음
+    private List<String> imageUrls; // 이미지 URL 리스트
+
 //    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
 //    private List<PostReport> postReports = new ArrayList<>();
 }

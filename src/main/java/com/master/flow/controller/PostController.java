@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -40,9 +41,8 @@ public class PostController {
     @Autowired
     private PostTagService postTagService;
 
-    // 게시물 전체 조회
     @GetMapping("/post")
-    public ResponseEntity viewAll(
+    public ResponseEntity<List<Post>> viewAll(
             @RequestParam(name = "page", defaultValue = "1") int page,
             @RequestParam(name = "sort", defaultValue = "newest") String sort,
             @RequestParam(name = "keyword", required = false) String keyword) {
@@ -67,8 +67,15 @@ public class PostController {
 
         Page<Post> posts = postService.viewAll(builder, pageable);
 
+        // 각 게시물에 대한 이미지 URL 추가
+        for (Post post : posts) {
+            List<PostImg> postImgs = postImgService.findByPost_PostCode(post.getPostCode());
+            post.setImageUrls(postImgs.stream().map(PostImg::getPostImgUrl).collect(Collectors.toList()));
+        }
+
         return ResponseEntity.status(HttpStatus.OK).body(posts.getContent());
     }
+
 
     // 카테고리별 게시물 조회
     @GetMapping("/category")

@@ -30,10 +30,13 @@ public class VoteService {
 
     // 투표
     public void vote (Vote vo){
-
+        voteDao.save(vo);
     }
 
     // 투표 취소
+    public void removeVote (int userCode){
+        voteDao.deleteById(userCode);
+    }
 
     // 로그인한 사람의 투표체크 여부
     public Vote check(int userCode) {

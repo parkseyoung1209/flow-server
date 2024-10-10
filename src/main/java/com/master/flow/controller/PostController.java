@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -42,7 +43,7 @@ public class PostController {
     private PostTagService postTagService;
 
     @GetMapping("/post")
-    public ResponseEntity<List<Post>> viewAll(
+    public ResponseEntity<List<PostDTO>> viewAll(
             @RequestParam(name = "page", defaultValue = "1") int page,
             @RequestParam(name = "sort", defaultValue = "newest") String sort,
             @RequestParam(name = "keyword", required = false) String keyword) {
@@ -68,12 +69,20 @@ public class PostController {
         Page<Post> posts = postService.viewAll(builder, pageable);
 
         // 각 게시물에 대한 이미지 URL 추가
+        List<PostDTO> postDtos = new ArrayList<>();
+
         for (Post post : posts) {
             List<PostImg> postImgs = postImgService.findByPost_PostCode(post.getPostCode());
-            post.setImageUrls(postImgs.stream().map(PostImg::getPostImgUrl).collect(Collectors.toList()));
+
+            PostDTO postDTO = new PostDTO();
+            postDTO.setPostCode(post.getPostCode());
+            postDTO.setPostDesc(post.getPostDesc());
+            postDTO.setImageUrls(postImgs.stream().map(PostImg::getPostImgUrl).collect(Collectors.toList()));
+
+            postDtos.add(postDTO);
         }
 
-        return ResponseEntity.status(HttpStatus.OK).body(posts.getContent());
+        return ResponseEntity.status(HttpStatus.OK).body(postDtos);
     }
 
 

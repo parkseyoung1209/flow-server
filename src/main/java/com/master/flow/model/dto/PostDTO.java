@@ -23,6 +23,7 @@ public class PostDTO {
 
 
     // postImg 관련
+    private List<String> imageUrls; // 이미지 URL 리스트
 
     // List<Multipartfile>
     // files[0]

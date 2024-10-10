@@ -3,7 +3,9 @@ package com.master.flow.model.dao;
 import com.master.flow.model.vo.Likes;
 import com.master.flow.model.vo.Post;
 import com.master.flow.model.vo.User;
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -28,5 +30,10 @@ public interface LikesDAO extends JpaRepository<Likes, Integer> {
             "INNER JOIN Likes likes ON post.postCode = likes.post.postCode " +
             "GROUP BY post.postCode ORDER BY COUNT(likes) DESC")
     List<Post> findAllOrderByLikes();
+
+    @Modifying
+    @Transactional
+    @Query(value = "DELETE FROM likes WHERE post_code =:postCode",nativeQuery = true)
+    public void deleteLikesByPostCode(@Param("postCode") int postCode);
 
 }

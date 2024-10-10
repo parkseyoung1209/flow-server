@@ -115,7 +115,6 @@ public class PostController {
     // 업로드 경로
     private String path = "\\\\192.168.10.51\\flow\\";
 
-
     // 파일이름 만들기
     private String fileName(MultipartFile file) throws IllegalStateException, IOException {
         UUID uuid = UUID.randomUUID();
@@ -132,7 +131,7 @@ public class PostController {
     @PostMapping("/post")
     public ResponseEntity upload(PostDTO postDTO) throws IOException {
 
-        // 유저코드 받기!
+
 //        log.info("products : " + postDTO.getProducts());
 //        log.info("tags : " + postDTO.getTagCodes());
         log.info("postPublicYN : " + postDTO.getPostPublicYn());
@@ -236,8 +235,8 @@ public class PostController {
     @PutMapping("/post")
     public ResponseEntity update(@RequestBody PostDTO postDTO){
 
-        // 기존 포스트
-        // postService.view(postDTO.getPostCode());
+        // 조회한 게시물의 userCode === 수정하는 userCode (client)
+        // postCode 반드시 받아올 것**
 
         List<MultipartFile> files = postDTO.getImageFiles();
         List<Product> products = postDTO.getProducts();

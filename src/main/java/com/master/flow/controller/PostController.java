@@ -90,20 +90,21 @@ public class PostController {
         Page<Post> posts = postService.viewAll(builder, pageable);
 
         // 각 게시물에 대한 이미지 URL 추가
-        List<PostDTO> postDtos = new ArrayList<>();
+        List<PostDTO> postDTOS = new ArrayList<>();
 
         for (Post post : posts) {
             List<PostImg> postImgs = postImgService.findByPost_PostCode(post.getPostCode());
 
-            PostDTO postDTO = new PostDTO();
-            postDTO.setPostCode(post.getPostCode());
-            postDTO.setPostDesc(post.getPostDesc());
-            postDTO.setImageUrls(postImgs.stream().map(PostImg::getPostImgUrl).collect(Collectors.toList()));
-
-            postDtos.add(postDTO);
+            PostDTO postDTO = PostDTO.builder()
+                    .postCode(post.getPostCode())
+                    .postDesc(post.getPostDesc())
+                    .userCode(post.getUser().getUserCode())
+                    .imageUrls(postImgs.stream().map(PostImg::getPostImgUrl).collect(Collectors.toList()))
+                    .build();
+            postDTOS.add(postDTO);
         }
 
-        return ResponseEntity.status(HttpStatus.OK).body(postDtos);
+        return ResponseEntity.status(HttpStatus.OK).body(postDTOS);
     }
 
 

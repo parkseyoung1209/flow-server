@@ -23,6 +23,7 @@ public class PostImgService {
         postImgDAO.deleteById(postCode);
     }
 
+    // 메인화면 게시글 이미지
     public List<PostImg> findByPost_PostCode(int postCode) {
         return postImgDAO.findByPost_PostCode(postCode);
     }

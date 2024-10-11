@@ -267,13 +267,22 @@ public class PostController {
     public ResponseEntity update(@RequestBody PostDTO postDTO){
 
         // 조회한 게시물의 userCode === 수정하는 userCode (client)
-        // postCode 반드시 받아올 것**
+        // postCode
 
+        int postCode = postDTO.getPostCode();
+        
+        // 기존 postDTO 불러오기
+        Post prePost = postService.view(postCode);
+        List<PostImg> prefiles = postImgService.findByPost_PostCode(postCode);
+        List<Product> preproducts = productService.certainProduct(postCode);
+        List<PostTag> pretags = postTagService.certainPostTag(postCode);
+
+        // 기존 이미지 삭제 -> 새로 업로드 및 저장
+
+        // 수정된 postDTO
         List<MultipartFile> files = postDTO.getImageFiles();
         List<Product> products = postDTO.getProducts();
         List<Integer> tags = postDTO.getTagCodes();
-
-        // 기존 이미지 삭제 -> 새로 업로드 및 저장
         
         // post
         Post post = postService.save(Post.builder()

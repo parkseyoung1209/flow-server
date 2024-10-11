@@ -20,4 +20,7 @@ public interface PostTagDAO extends JpaRepository<PostTag, Integer> {
     @Transactional
     @Query(value = "DELETE FROM post_tag WHERE post_code = :postCode",nativeQuery = true)
     public void deletePostTagByPostCode(@Param("postCode") int postCode);
+
+    // postCode 로 게시물 조회
+    List<PostTag> findByPost_PostCode(int postCode);
 }

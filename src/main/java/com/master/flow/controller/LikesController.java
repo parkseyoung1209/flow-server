@@ -1,15 +1,20 @@
 package com.master.flow.controller;
 
+import com.master.flow.model.dto.PostDTO;
 import com.master.flow.model.dto.UserPostSummaryDTO;
 import com.master.flow.model.vo.Post;
+import com.master.flow.model.vo.PostImg;
 import com.master.flow.model.vo.User;
 import com.master.flow.service.LikesService;
+import com.master.flow.service.PostImgService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/likes")
@@ -18,6 +23,9 @@ public class LikesController {
 
     @Autowired
     private LikesService likesService;
+
+    @Autowired
+    private PostImgService postImgService;
 
     @PostMapping("/toggle/{postCode}")
     public ResponseEntity<Boolean> toggleLike(@PathVariable("postCode") int postCode, @RequestBody User user) {
@@ -45,9 +53,25 @@ public class LikesController {
 
     // 좋아요 수 높은 순으로 게시물 조회
     @GetMapping("/post/ordered-by-likes")
-    public ResponseEntity<List<Post>> viewAllOrderByLikes() {
+    public ResponseEntity<List<PostDTO>> viewAllOrderByLikes() {
         List<Post> likedPosts = likesService.viewAllOrderByLikes();
-        return ResponseEntity.status(HttpStatus.OK).body(likedPosts);
+
+        // 각 게시물에 대한 이미지 URL 추가
+        List<PostDTO> postDTOS = new ArrayList<>();
+
+        for (Post post : likedPosts) {
+            List<PostImg> postImgs = postImgService.findByPost_PostCode(post.getPostCode());
+
+            PostDTO postDTO = PostDTO.builder()
+                    .postCode(post.getPostCode())
+                    .postDesc(post.getPostDesc())
+                    .userCode(post.getUser().getUserCode())
+                    .imageUrls(postImgs.stream().map(PostImg::getPostImgUrl).collect(Collectors.toList()))
+                    .build();
+            postDTOS.add(postDTO);
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(postDTOS);
     }
 
     //    좋아요 한개 삭제

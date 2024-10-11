@@ -8,6 +8,7 @@ import jakarta.persistence.Id;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -38,21 +39,6 @@ public class CommentService {
         return commentDao.save(vo);
     }
 
-    // 대댓글 작성
-    public Comment createReply(Comment vo) {
-        vo.setParentCommentCode(vo.getParentCommentCode());
-        return commentDao.save(vo);
-    }
-    
-    // 댓글 수정
-    public Optional<Comment> update(int commentCode, Comment updateComment) {
-        return commentDao.findById(commentCode).map(comment -> {
-            comment.setCommentDesc(updateComment.getCommentDesc());
-            comment.setCommentImgUrl(updateComment.getCommentImgUrl());
-            return commentDao.save(comment);
-        });
-    }
-
     // 상위 댓글 조회
     public List<Comment> getAllComment(int postCode) {
         return queryFactory
@@ -63,12 +49,20 @@ public class CommentService {
                 .fetch();
     }
 
-    // 사진 첨부 : 파일 업로드
-    private String uploadFile(MultipartFile file) throws IOException {
-        String fileName = file.getOriginalFilename();
-        File dest = new File(uploadPath + File.separator + fileName);
-        file.transferTo(dest);
-        return fileName;
+    // 대댓글 작성
+    public List<Comment> createReply(int parentCommentCode) {
+        return queryFactory
+                .selectFrom(qComment)
+                .where(qComment.parentCommentCode.eq(parentCommentCode))
+                .orderBy(qComment.commentDate.asc())
+                .fetch();
+    }
+
+    // 댓글 수정
+    public void updateReply(Comment vo) {
+        Comment comment = commentDao.findById(vo.getCommentCode()).get();
+        comment.setCommentDesc(vo.getCommentDesc());
+        commentDao.save(vo);
     }
 
     // 대댓글 수정
@@ -88,6 +82,14 @@ public class CommentService {
     // 대댓글 삭제
     public void deleteReply(int commentCode) {
         commentDao.deleteById(commentCode);
+    }
+
+    // 사진 첨부 : 파일 업로드
+    private String uploadFile(MultipartFile file) throws IOException {
+        String fileName = file.getOriginalFilename();
+        File dest = new File(uploadPath + File.separator + fileName);
+        file.transferTo(dest);
+        return fileName;
     }
 
     // 댓글 신고

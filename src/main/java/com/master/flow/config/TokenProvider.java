@@ -23,7 +23,8 @@ public class TokenProvider {
                 .setClaims(Map.of(
                         "userCode", user.getUserCode(),
                         "userEmail", user.getUserEmail(),
-                        "userPlatform", user.getUserPlatform()
+                        "userPlatform", user.getUserPlatform(),
+                        "userManagerCode", user.getUserManagerCode()
                 ))
                 .setIssuedAt(new Date())
                 .setExpiration(Date.from(Instant.now().plus(1, ChronoUnit.DAYS)))
@@ -40,6 +41,7 @@ public class TokenProvider {
                 .userCode((Integer) claims.get("userCode"))
                 .userEmail((String) claims.get("userEmail"))
                 .userPlatform((String) claims.get("userPlatform"))
+                .userManagerCode((String) claims.get("userManagerCode"))
                 .build();
     }
 }

@@ -90,7 +90,7 @@ public class PostReportService {
         }
 
 //        신고한 글 내역 삭제
-        postReportDao.deleteById(postReportCode);
+        postReportDao.deletePostReportByPostCode(postCode);
 
 //      product 테이블 삭제
         productDAO.deleteProductByPostCode(postCode);

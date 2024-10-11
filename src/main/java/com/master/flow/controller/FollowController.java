@@ -42,10 +42,10 @@ public class FollowController {
     @PostMapping("private/follow")
     public ResponseEntity addFollowRelative(@RequestBody Follow follow) {
         log.info("follow : " + follow);
-        //boolean check = followService.addFollowRelative(follow.getFollowingUser().getUserCode(), follow.getFollowerUser().getUserCode());
-        //if(check)
+        boolean check = followService.addFollowRelative(follow.getFollowingUser().getUserCode(), follow.getFollowerUser().getUserCode());
+        if(check)
        return ResponseEntity.status(HttpStatus.OK).build();
-       // else return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        else return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
     // 위와 마찬가지

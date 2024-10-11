@@ -28,4 +28,9 @@ public class PostTagService {
     public List<Post> viewPostsByTagCode(int tagCode) {
         return postTagDAO.findPostsByTagCode(tagCode);
     }
+
+    // postCode로 태그list 조회
+    public List<PostTag> certainPostTag(int postCode){
+        return postTagDAO.findByPost_PostCode(postCode);
+    }
 }

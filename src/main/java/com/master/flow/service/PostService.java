@@ -1,6 +1,7 @@
 package com.master.flow.service;
 
 import com.master.flow.model.dao.*;
+import com.master.flow.model.dto.PostDTO;
 import com.master.flow.model.dto.PostInfoDTO;
 import com.master.flow.model.dto.UserPostSummaryDTO;
 import com.master.flow.model.vo.*;

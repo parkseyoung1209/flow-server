@@ -63,7 +63,7 @@ public class LikesService {
         return likesDAO.countByPost(post);
     }
 
-    // 좋아요 수에 따라 게시물 조회
+    // 좋아요 수 높은 순으로 게시물 조회
     public List<Post> viewAllOrderByLikes() {
         return likesDAO.findAllOrderByLikes();
     }

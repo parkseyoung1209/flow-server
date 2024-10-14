@@ -107,7 +107,6 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK).body(postDTOS);
     }
 
-
     // 카테고리별 게시물 조회
     @GetMapping("/category")
     public ResponseEntity<List<Post>> getPostsByFilters(

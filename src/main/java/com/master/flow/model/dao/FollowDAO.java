@@ -7,8 +7,11 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 
 import java.util.HashSet;
+import java.util.List;
 
 public interface FollowDAO extends JpaRepository<Follow, FollowId>, QuerydslPredicateExecutor<Follow> {
     @Query("SELECT f FROM Follow f")
     HashSet<Follow> findAllFollowSet();
+
+    List<Follow> findAllByFollowerUser_UserCode(int userCode);
 }

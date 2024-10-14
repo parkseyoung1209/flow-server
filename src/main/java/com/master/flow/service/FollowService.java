@@ -1,11 +1,12 @@
 package com.master.flow.service;
 
 import com.master.flow.model.dao.FollowDAO;
+import com.master.flow.model.dao.PostDAO;
+import com.master.flow.model.dao.PostImgDAO;
 import com.master.flow.model.dao.UserDAO;
 import com.master.flow.model.dto.FollowDTO;
-import com.master.flow.model.vo.Follow;
-import com.master.flow.model.vo.QFollow;
-import com.master.flow.model.vo.User;
+import com.master.flow.model.dto.PostInfoDTO;
+import com.master.flow.model.vo.*;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,12 @@ public class FollowService {
 
     @Autowired
     private UserDAO userDAO;
+
+    @Autowired
+    private PostDAO postDAO;
+
+    @Autowired
+    private PostImgDAO postImgDAO;
 
     // 전체 팔로우 테이블 가져오기
     public HashSet<Follow> findAllFollowSet() {
@@ -92,5 +99,22 @@ public class FollowService {
                 .map(Follow :: getFollowingUser)
                 .collect(Collectors.toList());
         return new FollowDTO(list.size(), list);
+    }
+
+    // 내가 팔로우한 유저의 게시글 조회
+    public List<PostInfoDTO> getPostsFromFollowedUsers(int userCode) {
+        // 해당 유저가 팔로우한 유저 목록 가져오기
+        List<Follow> followedUsers = followDAO.findAllByFollowerUser_UserCode(userCode);
+        List<Integer> followedUserCodes = followedUsers.stream()
+                .map(follow -> follow.getFollowingUser().getUserCode())
+                .collect(Collectors.toList());
+
+        // 팔로우한 유저의 게시물 가져오기
+        List<Post> posts = postDAO.findByUser_UserCodeIn(followedUserCodes);
+
+        return posts.stream().map(post -> {
+            List<PostImg> postImgs = postImgDAO.findByPost_PostCode(post.getPostCode());
+            return new PostInfoDTO(post, 0, 0, postImgs); // likeCount와 collectionCount는 나중에 추가할 수 있습니다.
+        }).collect(Collectors.toList());
     }
 }

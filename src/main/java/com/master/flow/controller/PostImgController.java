@@ -1,19 +1,29 @@
 package com.master.flow.controller;
 
 import com.master.flow.model.vo.PostImg;
+import com.master.flow.service.PostImgService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/*")
 @CrossOrigin(origins = {"*"}, maxAge=6000)
 public class PostImgController {
 
+
+    @Autowired
+    private PostImgService service;
+
+    /* 사용안함
     private String path = "\\\\192.168.10.51\\flow\\PostImg\\";
 
     // 공용 폴더 + 데이터베이스 사진 추가
@@ -32,6 +42,13 @@ public class PostImgController {
             String url = "http://192.168.10.51:8081/PostImg/" + fileName;
 
         }
+    }
+    */
+
+    // 게시물 1개 이미지보기
+    @GetMapping("/postImg/{postCode}")
+    public ResponseEntity ImgList(@PathVariable(name="postCode") int postCode) {
+        return ResponseEntity.ok(service.findByPost_PostCode(postCode));
     }
 
 }

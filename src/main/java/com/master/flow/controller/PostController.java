@@ -146,18 +146,6 @@ public class PostController {
     // 업로드 경로
     private String path = "\\\\192.168.10.51\\flow\\";
 
-    // 파일이름 만들기
-    private String fileName(MultipartFile file) throws IllegalStateException, IOException {
-        UUID uuid = UUID.randomUUID();
-        String fileName = uuid.toString() + "_" + file.getOriginalFilename();
-
-        // 파일에 저장
-        File imageFile = new File(path + "postImg" + File.separator + fileName);
-        file.transferTo(imageFile); // 업로드한 파일이 지정한 path 위치로 저장됨
-
-        return fileName;
-    }
- 
     // 게시물 업로드
     @PostMapping("/post")
     public ResponseEntity upload(PostDTO postDTO) throws IOException {
@@ -263,7 +251,7 @@ public class PostController {
     };
 
     // 게시물 수정
-    @PutMapping("/post")
+    @PutMapping("/post/{postCode}")
     public ResponseEntity update(@RequestBody PostDTO postDTO){
 
         // 조회한 게시물의 userCode === 수정하는 userCode (client)

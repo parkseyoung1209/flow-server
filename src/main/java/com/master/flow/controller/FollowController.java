@@ -41,7 +41,6 @@ public class FollowController {
     // 서비스에서 보낸 true false 값으로 정상연결 or 잘못된 연결
     @PostMapping("private/follow")
     public ResponseEntity addFollowRelative(@RequestBody Follow follow) {
-        log.info("follow : " + follow);
         boolean check = followService.addFollowRelative(follow.getFollowingUser().getUserCode(), follow.getFollowerUser().getUserCode());
         if(check)
        return ResponseEntity.status(HttpStatus.OK).build();

@@ -42,16 +42,12 @@ public class Comment {
     private int postCode;
 
 //    유저 코드
-    @ManyToOne
-    @JoinColumn(name="USER_CODE", insertable = false, updatable = false)
-    private User user;
+//    @ManyToOne
+//    @JoinColumn(name="USER_CODE", insertable = false, updatable = false)
+    @Column(name="USER_CODE")
+    private int userCode;
 
 //    대댓글:부모 댓글
     @Column(name="PARENT_COMMENT_CODE")
     private int parentCommentCode;
-
-    @JsonIgnore
-    @ManyToOne
-    @JoinColumn(name="PARENT_COMMENT_CODE", referencedColumnName = "comment_code", insertable = false, updatable = false)
-    private Comment parent;
 }

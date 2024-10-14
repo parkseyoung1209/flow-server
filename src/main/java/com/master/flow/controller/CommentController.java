@@ -25,22 +25,18 @@ public class CommentController {
     @Autowired
     private CommentService commentService;
 
-    // 댓글 작성
+    // 댓글 작성 & 사진 첨부
     @PostMapping("/addcomment")
-    public ResponseEntity add(@RequestBody Comment vo) {
-
-        // 로그인된 사용자 정보 가져오기
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) authentication.getPrincipal();
-        vo.setUser(user); // 작성자 정보 설정
-        return ResponseEntity.ok(commentService.create(vo));
+    public ResponseEntity addComment(@RequestBody Comment vo) {
+        return ResponseEntity.ok(commentService.addComment(vo));
     }
 
     // 한 게시물에 따른 모든 댓글 조회
     @GetMapping("/{postCode}/comment")
-    public ResponseEntity comments(@PathVariable(name = "postCode") int postCode) {
+    public ResponseEntity getComments(@PathVariable(name = "postCode") int postCode) {
         List<Comment> comments = commentService.getAllComment(postCode);
-        List<CommentDTO> response = commentList(comments);
+//        List<CommentDTO> response = commentList(comments);
+        System.err.println(comments);
         return ResponseEntity.ok(comments);
     }
 
@@ -59,7 +55,7 @@ public class CommentController {
     }
 
     // 대댓글 작성
-    public CommentDTO parentCommentCode(Comment comment) {
+    public CommentDTO addParentCommentCode(Comment comment) {
         return CommentDTO.builder()
                 .commentCode(comment.getCommentCode())
                 .commentDesc(comment.getCommentDesc())
@@ -67,14 +63,14 @@ public class CommentController {
                 .commentDate(comment.getCommentDate())
                 .commentDelYn(comment.getCommentDelYn())
                 .postCode(comment.getPostCode())
-                .user(comment.getUser())
+//                .user(comment.getUser()
                 .build();
     }
 
     // 댓글 수정
     @PutMapping("/updatecomment/{commentCode}")
-    public ResponseEntity update(@RequestBody Comment vo) {
-        commentService.updateReply(vo);
+    public ResponseEntity updateComment(@RequestBody Comment vo) {
+        commentService.updateComment(vo);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
@@ -84,18 +80,11 @@ public class CommentController {
         return ResponseEntity.of(commentService.updateReply(commentCode, updateReply));
     }
 
-    // 댓글 삭제
+    // 댓글, 대댓글 삭제
     @DeleteMapping("/deletecomment/{commentCode}")
-    public ResponseEntity delete(@PathVariable(name="commentCode") int commentCode) {
+    public ResponseEntity deleteComment(@PathVariable(name="commentCode") int commentCode) {
         commentService.deleteComment(commentCode);
         return ResponseEntity.status(HttpStatus.OK).build();
-    }
-
-    // 대댓글 삭제
-    @DeleteMapping("/deletereply/{commentCode}")
-    public ResponseEntity<Void> deleteReply(@PathVariable int commentCode) {
-        commentService.deleteReply(commentCode);
-        return ResponseEntity.noContent().build();
     }
 
     // 댓글 신고

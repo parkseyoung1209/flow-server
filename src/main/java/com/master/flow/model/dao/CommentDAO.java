@@ -18,4 +18,8 @@ public interface CommentDAO extends JpaRepository<Comment, Integer> {
     @Transactional
     @Query(value = "DELETE FROM comment WHERE post_code =:postCode",nativeQuery = true)
     void deleteCommentByPostCode(@Param("postCode") int postCode);
+
+    // commentCode, postCode, userCode, parentCommentCode
+    @Query(value = "INSERT INTO comment(comment_desc, post_code, user_code, parent_comment_code) values(:commentDesc, :postCode, :userCode, :parentCommentCode)", nativeQuery = true)
+    Comment saveComment(@Param("commentDesc") String commentDesc, @Param("postCode") int postCode, @Param("userCode") int userCode, @Param("parentCommentCode") int parentCommentCode);
 }

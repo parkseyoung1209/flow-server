@@ -38,6 +38,7 @@ public class UserService {
     // 회원가입
     public void registerUser(User vo){
         vo.setUserBanStatus("N");
+        vo.setUserManagerCode("N");
         userDao.save(vo);
     }
 
@@ -89,6 +90,9 @@ public class UserService {
     public User findUser(int code){
         return userDao.findById(code).get();
     }
+    public User findUser(){
+        return userDao.findById(getUser().getUserCode()).get();
+    }
 
 //    유저 신고하기
     public void banUser(int userCode) {
@@ -99,5 +103,10 @@ public class UserService {
     // 유저 탈퇴
     public void deleteUser(){
         userDao.deleteById(getUser().getUserCode());
+    }
+
+    // 유저 정보 수정
+    public void updateUser(User vo){
+        userDao.save(vo);
     }
 }

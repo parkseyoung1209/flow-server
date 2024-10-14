@@ -139,4 +139,17 @@ public class UserController {
         }catch (Exception e){}
         return ResponseEntity.status(HttpStatus.OK).build();
     }
+
+    // 유저 정보 가져오기
+    @GetMapping("/findUser")
+    public ResponseEntity findUser(){
+        return ResponseEntity.ok(userService.findUser());
+    }
+
+    // 유저 정보 수정
+    @PutMapping("/updateUser")
+    public ResponseEntity updateUser(@RequestBody User vo){
+        userService.updateUser(vo);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
 }

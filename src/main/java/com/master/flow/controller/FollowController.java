@@ -1,7 +1,11 @@
 package com.master.flow.controller;
 
+import com.master.flow.model.dto.PostDTO;
+import com.master.flow.model.dto.PostInfoDTO;
 import com.master.flow.model.vo.Follow;
+import com.master.flow.model.vo.PostImg;
 import com.master.flow.service.FollowService;
+import com.master.flow.service.PostImgService;
 import com.master.flow.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +17,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -25,6 +31,9 @@ public class FollowController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private PostImgService postImgService;
 
     // 프론트 쪽 팔로우 버튼 오류 방지 로직
     @GetMapping("private/follow/status")
@@ -74,4 +83,24 @@ public class FollowController {
     public ResponseEntity handlerSQLException() {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("잘못된 접근입니다");
     }
+
+    // 내가 팔로우한 유저의 게시글 조회
+    @GetMapping("/posts/followed/{userCode}")
+    public ResponseEntity<List<PostDTO>> getPostsFromFollowedUsers(@PathVariable(name = "userCode") int userCode) {
+        List<PostInfoDTO> postInfoList = followService.getPostsFromFollowedUsers(userCode);
+
+        List<PostDTO> postDTOS = postInfoList.stream().map(postInfo -> {
+            List<PostImg> postImgs = postImgService.findByPost_PostCode(postInfo.getPost().getPostCode());
+
+            return PostDTO.builder()
+                    .postCode(postInfo.getPost().getPostCode())
+                    .postDesc(postInfo.getPost().getPostDesc())
+                    .userCode(postInfo.getPost().getUser().getUserCode())
+                    .imageUrls(postImgs.stream().map(PostImg::getPostImgUrl).collect(Collectors.toList()))
+                    .build();
+        }).collect(Collectors.toList());
+
+        return ResponseEntity.ok(postDTOS);
+    }
+
 }

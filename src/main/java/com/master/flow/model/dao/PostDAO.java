@@ -27,4 +27,6 @@ public interface PostDAO extends JpaRepository<Post, Integer>, QuerydslPredicate
             @Param("gender") String gender,
             @Param("height") Integer height
     );
+
+    List<Post> findByUser_UserCodeIn(List<Integer> userCodes);
 }

@@ -152,4 +152,10 @@ public class UserController {
         userService.updateUser(vo);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
+
+    // 닉네임 중복 확인
+    @GetMapping("/nickNameCheck")
+    public ResponseEntity nicknameCheck(@RequestParam(name = "userNickname") String userNickname){
+        return ResponseEntity.ok(userService.nicknameCheck(userNickname));
+    }
 }

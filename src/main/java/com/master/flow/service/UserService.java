@@ -2,7 +2,9 @@ package com.master.flow.service;
 
 import com.master.flow.config.TokenProvider;
 import com.master.flow.model.dao.UserDAO;
+import com.master.flow.model.vo.QUser;
 import com.master.flow.model.vo.User;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -23,6 +26,11 @@ public class UserService {
 
     @Autowired
     private TokenProvider tokenProvider;
+
+    @Autowired
+    private JPAQueryFactory queryFactory;
+
+    private final QUser qUser = QUser.user;
 
     // 사용자 정보 가져오는 메서드
     private User getUser(){
@@ -108,5 +116,16 @@ public class UserService {
     // 유저 정보 수정
     public void updateUser(User vo){
         userDao.save(vo);
+    }
+
+    // 유저 닉네임 중복 체크
+    public boolean nicknameCheck(String userNickname){
+        List<User> user = queryFactory
+                .selectFrom(qUser)
+                .where(qUser.userNickname.eq(userNickname))
+                .fetch();
+
+        if(user.size() == 0) return true;
+        return false;
     }
 }

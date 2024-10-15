@@ -80,10 +80,17 @@ public class CommentController {
         return ResponseEntity.of(commentService.updateReply(commentCode, updateReply));
     }
 
-    // 댓글, 대댓글 삭제
+    // 댓글 삭제
     @DeleteMapping("/deletecomment/{commentCode}")
     public ResponseEntity deleteComment(@PathVariable(name="commentCode") int commentCode) {
         commentService.deleteComment(commentCode);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    // 대댓글 삭제
+    @DeleteMapping("/deleteparent/{parentCommentCode}")
+    public ResponseEntity<Void> deleteParent(@PathVariable(name="parentCommentCode") int parentCommentCode) {
+        commentService.deleteParent(parentCommentCode);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 

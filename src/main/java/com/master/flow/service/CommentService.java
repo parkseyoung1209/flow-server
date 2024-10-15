@@ -52,7 +52,7 @@ public class CommentService {
             return commentDao.save(vo);
 //            return commentDao.saveComment(vo.getCommentDesc(), vo.getPostCode(), getUser().getUserCode(), vo.getParentCommentCode());
         }
-            return null;
+        return null;
     }
 
     // 상위 댓글 조회
@@ -90,9 +90,9 @@ public class CommentService {
         });
     }
 
-    // 댓글, 대댓글 삭제
+    // 댓글 삭제
     public void deleteComment(int commentCode) {
-        
+
         // 자식 댓글이 있는지 체크
         List<Comment> comments = queryFactory.selectFrom(qComment)
                 .where(qComment.parentCommentCode.eq(commentCode)).fetch();
@@ -105,17 +105,23 @@ public class CommentService {
         } else {
             commentDao.deleteById(commentCode);
         }
-
         // 해당 댓글에 부모 댓글이 있는지 체크
-        if(comment.getParentCommentCode() > 0) {
+//        deleteParent(comment.getCommentCode());
+    }
+
+    // 대댓글 삭제
+    public void deleteParent(int parentCommentCode) {
+        if(parentCommentCode > 0) {
             // 부모 댓글의 자식 댓글이 모두 삭제되었는지 체크
             List<Comment> parents = queryFactory.selectFrom(qComment)
-                    .where(qComment.parentCommentCode.eq(comment.getParentCommentCode())).fetch();
+                    .where(qComment.parentCommentCode.eq(parentCommentCode)).fetch();
             int parentCount = parents.size();
             if(parentCount == 0) {
-                Comment parent = commentDao.findById(comment.getParentCommentCode()).get();
+                Comment parent = commentDao.findById(parentCommentCode).get();
                 if(parent.getCommentDelYn() != null) {
                     commentDao.deleteById(parent.getCommentCode());
+
+                    deleteParent(parent.getParentCommentCode());
                 }
             }
         }
@@ -126,14 +132,3 @@ public class CommentService {
         Comment comment = commentDao.findById(commentCode).get();
     }
 }
-
-
-
-
-
-
-
-
-
-
-

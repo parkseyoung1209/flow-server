@@ -34,8 +34,8 @@ public class PostReportController {
 
 //    글 신고하기
     @PostMapping("/reportPost")
-    public ResponseEntity reportPost(@RequestBody PostReport postReport, User user, int postCode) {
-        postReportService.reportPost(postReport,user,postCode);
+    public ResponseEntity reportPost(@RequestBody PostReport postReport) {
+        postReportService.reportPost(postReport);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

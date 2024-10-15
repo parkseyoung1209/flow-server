@@ -4,10 +4,7 @@ import com.master.flow.service.UserReportService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/*")
@@ -20,4 +17,18 @@ public class UserReportController {
     public ResponseEntity showAllUserReport() {
         return ResponseEntity.status(HttpStatus.OK).body(userReportService.showAllUserReport());
     }
+
+    @DeleteMapping("/delUserReport")
+    public ResponseEntity delReportUser(@RequestParam(name="userReportCode") int userReportCode) {
+        userReportService.delReportUser(userReportCode);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    //    유저 밴하기
+    @PutMapping("/banUser")
+    public ResponseEntity banUser(@RequestParam(name="userCode") int userCode) {
+        userReportService.banUser(userCode);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
 }

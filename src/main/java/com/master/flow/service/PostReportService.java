@@ -113,12 +113,8 @@ public class PostReportService {
         postDAO.deleteById(postCode);
     }
 
-    public void reportPost(PostReport vo, User user, int postCode) {
-        Post post = postDAO.findById(postCode).get();
-
-        vo.setUser(user);
-        vo.setPost(post);
-
+//    신고하기
+    public void reportPost(PostReport vo) {
         postReportDao.save(vo);
     }
 }

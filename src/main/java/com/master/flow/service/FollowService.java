@@ -10,6 +10,7 @@ import com.master.flow.model.vo.*;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -102,7 +103,7 @@ public class FollowService {
     }
 
     // 내가 팔로우한 유저의 게시글 조회
-    public List<PostInfoDTO> getPostsFromFollowedUsers(int userCode) {
+    public List<PostInfoDTO> getPostsFromFollowedUsers(int userCode, Pageable pageable) {
         // 해당 유저가 팔로우한 유저 목록 가져오기
         List<Follow> followedUsers = followDAO.findAllByFollowerUser_UserCode(userCode);
         List<Integer> followedUserCodes = followedUsers.stream()
@@ -110,7 +111,7 @@ public class FollowService {
                 .collect(Collectors.toList());
 
         // 팔로우한 유저의 게시물 가져오기
-        List<Post> posts = postDAO.findByUser_UserCodeIn(followedUserCodes);
+        List<Post> posts = postDAO.findByUser_UserCodeIn(followedUserCodes, pageable);
 
         return posts.stream().map(post -> {
             List<PostImg> postImgs = postImgDAO.findByPost_PostCode(post.getPostCode());

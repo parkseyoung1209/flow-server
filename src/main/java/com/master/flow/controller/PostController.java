@@ -66,15 +66,9 @@ public class PostController {
     @GetMapping("/post")
     public ResponseEntity<List<PostDTO>> viewAll(
             @RequestParam(name = "page", defaultValue = "1") int page,
-            @RequestParam(name = "sort", defaultValue = "newest") String sort,
             @RequestParam(name = "keyword", required = false) String keyword) {
 
-        Sort sortCondition;
-        if ("oldest".equalsIgnoreCase(sort)) {
-            sortCondition = Sort.by("postDate").ascending(); // 오래된 순 정렬
-        } else {
-            sortCondition = Sort.by("postDate").descending(); // 최신 순 정렬 (기본값)
-        }
+        Sort sortCondition = Sort.by("postDate").descending(); // 최신 순 정렬
 
         Pageable pageable = PageRequest.of(page - 1, 10, sortCondition);
 
@@ -119,9 +113,20 @@ public class PostController {
 
     // 게시물 1개 보기 ( 상세페이지 조회)
     @GetMapping("/post/{postCode}")
-    public ResponseEntity view(@PathVariable(name="postCode") int postCode) {
-        return ResponseEntity.ok(postService.view(postCode));
+    public ResponseEntity<PostDTO> view(@PathVariable(name="postCode") int postCode) {
+        Post post = postService.view(postCode);
+        List<PostImg> postImgs = postImgService.findByPost_PostCode(postCode);
+
+        PostDTO postDTO = PostDTO.builder()
+                .postCode(post.getPostCode())
+                .postDesc(post.getPostDesc())
+                .userCode(post.getUser().getUserCode())
+                .imageUrls(postImgs.stream().map(PostImg::getPostImgUrl).collect(Collectors.toList()))
+                .build();
+
+        return ResponseEntity.ok(postDTO);
     }
+
 
     // 투표 게시판 게시물 전체 조회
     @GetMapping("/postVote")

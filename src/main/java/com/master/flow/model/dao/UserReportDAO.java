@@ -13,4 +13,13 @@ public interface UserReportDAO extends JpaRepository<UserReport, Integer> {
     @Transactional
     @Query(value = "DELETE FROM user_report WHERE user_code = :userCode",nativeQuery = true)
     void deleteUserReportByUserCode(@Param("userCode") int userCode);
+
+    @Query(value = "SELECT * FROM user_report WHERE user_code = :userCode",nativeQuery = true)
+    void getAllUserReportByUserCode(@Param("userCode") int userCode);
+
+    //    유저 밴
+    @Modifying
+    @Transactional
+    @Query(value = "UPDATE user SET USER_BAN_STATUS = :userBanStatus, USER_BAN_DATE = now(), USER_BAN_COUNT = USER_BAN_COUNT + 1 WHERE USER_CODE =:code",nativeQuery = true)
+    void banUser(@Param("code") int code, @Param("userBanStatus") String userBanStatus);
 }

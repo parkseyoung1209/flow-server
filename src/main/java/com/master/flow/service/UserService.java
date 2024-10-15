@@ -102,12 +102,6 @@ public class UserService {
         return userDao.findById(getUser().getUserCode()).get();
     }
 
-//    유저 신고하기
-    public void banUser(int userCode) {
-        String userBanStatus = "Y";
-        userDao.banUser(userCode, userBanStatus);
-    }
-
     // 유저 탈퇴
     public void deleteUser(){
         userDao.deleteById(getUser().getUserCode());

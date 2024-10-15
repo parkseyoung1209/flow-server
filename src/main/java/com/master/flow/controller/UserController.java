@@ -51,13 +51,6 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(userMap.get("token"));
     }
 
-//    유저 신고하기
-    @PutMapping("/banUser")
-    public ResponseEntity banUser(@RequestParam(name="userCode") int userCode) {
-        userService.banUser(userCode);
-        return ResponseEntity.status(HttpStatus.OK).build();
-    }
-
     // 유저 탈퇴
     @DeleteMapping("/deleteUser")
     public ResponseEntity deleteUser(){

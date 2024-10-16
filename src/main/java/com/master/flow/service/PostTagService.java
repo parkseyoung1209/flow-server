@@ -33,4 +33,10 @@ public class PostTagService {
     public List<PostTag> certainPostTag(int postCode){
         return postTagDAO.findByPost_PostCode(postCode);
     }
+
+
+    public List<Integer> findPostTag(int postCode){
+        return postTagDAO.findPostTag(postCode);
+    }
+
 }

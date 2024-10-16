@@ -14,6 +14,6 @@ public interface PostImgDAO extends JpaRepository<PostImg, Integer> {
 
     @Modifying
     @Transactional
-    @Query(value="DELETE FROM post_img WHERE post_code = :postCode",nativeQuery = true)
+    @Query(value = "DELETE FROM post_img WHERE post_code = :postCode", nativeQuery = true)
     public void deletePostImgByPostCode(@Param("postCode") int postCode);
 }

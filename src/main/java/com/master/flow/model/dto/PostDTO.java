@@ -22,6 +22,7 @@ public class PostDTO {
     private String postPublicYn;
 
     // postImg 관련
+    private List<PostImgDTO> postImgInfo;
     private List<String> imageUrls; // 이미지 URL 리스트
 
     // List<Multipartfile>

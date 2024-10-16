@@ -31,6 +31,7 @@ public class CommentController {
         return ResponseEntity.ok(commentService.addComment(vo));
     }
 
+
     // 한 게시물에 따른 모든 댓글 조회
     @GetMapping("/{postCode}/comment")
     public ResponseEntity getComments(@PathVariable(name = "postCode") int postCode) {

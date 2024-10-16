@@ -37,7 +37,7 @@ public class CommentService {
     private User getUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        if(auth != null && auth.isAuthenticated()){
+        if(auth != null && auth.isAuthenticated()) {
             return (User) auth.getPrincipal();
         }
         return null;
@@ -46,13 +46,26 @@ public class CommentService {
     // 댓글 작성
     public Comment addComment(Comment vo) {
         System.out.println(vo);
-
+//        User user = getUser();
         if(getUser() != null) {
-            vo.setUserCode(getUser().getUserCode());
+//            vo.setUserCode(getUser().getUserCode());
             return commentDao.save(vo);
 //            return commentDao.saveComment(vo.getCommentDesc(), vo.getPostCode(), getUser().getUserCode(), vo.getParentCommentCode());
         }
         return null;
+    }
+
+    // 댓글 사진 첨부
+    public String uploadImg(MultipartFile file) throws IOException {
+        // 저장 경로
+        String filePath = uploadPath + File.separator + file.getOriginalFilename();
+        File destinationFile = new File(filePath);
+
+        // 파일 저장
+        file.transferTo(destinationFile);
+
+        // 파일 URL 반환
+        return "http://192.168.10.51:8081/comment" + file.getOriginalFilename();
     }
 
     // 상위 댓글 조회

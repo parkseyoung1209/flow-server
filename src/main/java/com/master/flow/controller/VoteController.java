@@ -39,7 +39,7 @@ public class VoteController {
     // 전체 투표 현황 조회
     @GetMapping("/postVote/{postCode}/count")
     public ResponseEntity voteCount (@PathVariable(name="postCode") int voteCode) {
-        return ResponseEntity.ok(voteService.voteCount(voteCode));
+        return ResponseEntity.ok(voteService.votePost(voteCode));
     }
 
     // 찬성 투표 수

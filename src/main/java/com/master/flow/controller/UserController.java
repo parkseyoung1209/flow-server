@@ -1,7 +1,6 @@
 package com.master.flow.controller;
 
-import com.master.flow.config.TokenProvider;
-import com.master.flow.model.dao.UserDAO;
+import com.master.flow.model.dto.UserUpdateDTO;
 import com.master.flow.model.vo.User;
 import com.master.flow.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +12,7 @@ import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -141,8 +141,9 @@ public class UserController {
 
     // 유저 정보 수정
     @PutMapping("/updateUser")
-    public ResponseEntity updateUser(@RequestBody User vo){
-        userService.updateUser(vo);
+    public ResponseEntity updateUser(UserUpdateDTO dto) throws IOException {
+        System.err.println(dto);
+        userService.updateUser(dto);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 

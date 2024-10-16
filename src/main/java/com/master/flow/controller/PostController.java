@@ -1,6 +1,7 @@
 package com.master.flow.controller;
 
 import com.master.flow.model.dao.*;
+import com.master.flow.model.dto.PostImgDTO;
 import com.master.flow.model.dto.UserPostSummaryDTO;
 import com.master.flow.model.vo.*;
 import com.master.flow.service.*;
@@ -116,11 +117,23 @@ public class PostController {
     public ResponseEntity<PostDTO> view(@PathVariable(name="postCode") int postCode) {
         Post post = postService.view(postCode);
         List<PostImg> postImgs = postImgService.findByPost_PostCode(postCode);
+        List<Product> products = productService.certainProduct(postCode);
+        List<Integer> tagCodes = postTagService.findPostTag(postCode);
+        List<PostImgDTO> imgDTO = new ArrayList<>();
+
+        for(PostImg pi : postImgs) {
+            imgDTO.add(new PostImgDTO(pi.getPostImgCode(), pi.getPostImgUrl()));
+        }
 
         PostDTO postDTO = PostDTO.builder()
                 .postCode(post.getPostCode())
                 .postDesc(post.getPostDesc())
+                .postPublicYn(post.getPostPublicYn())
+                .postType(post.getPostType())
+                .products(products)
+                .tagCodes(tagCodes)
                 .userCode(post.getUser().getUserCode())
+                .postImgInfo(imgDTO)
                 .imageUrls(postImgs.stream().map(PostImg::getPostImgUrl).collect(Collectors.toList()))
                 .build();
 
@@ -148,7 +161,7 @@ public class PostController {
     }
 
     // 업로드 경로
-    private String path = "\\\\192.168.10.51\\flow\\";
+    private String path = "\\\\192.168.10.51\\flow\\postImg";
 
     // 게시물 업로드
     @PostMapping("/post")
@@ -221,7 +234,7 @@ public class PostController {
 
             String fileName = uuid + "_" + f.getOriginalFilename();
             //http://192.168.10.51:8082/postImg/파일
-            File imageFile = new File(path + "postImg" + File.separator + fileName);
+            File imageFile = new File(path + File.separator + fileName);
 
             // 파일에 저장
             f.transferTo(imageFile);
@@ -258,16 +271,8 @@ public class PostController {
     @PutMapping("/post/{postCode}")
     public ResponseEntity update(@RequestBody PostDTO postDTO){
 
-        // 조회한 게시물의 userCode === 수정하는 userCode (client)
-        // postCode
-
         int postCode = postDTO.getPostCode();
-        
-        // 기존 postDTO 불러오기
-        Post prePost = postService.view(postCode);
-        List<PostImg> prefiles = postImgService.findByPost_PostCode(postCode);
-        List<Product> preproducts = productService.certainProduct(postCode);
-        List<PostTag> pretags = postTagService.certainPostTag(postCode);
+
 
         // 기존 이미지 삭제 -> 새로 업로드 및 저장
 
@@ -312,6 +317,18 @@ public class PostController {
         likesDAO.deleteLikesByPostCode(postCode);
 
         // 글에 있는 사진들 삭제
+        List<PostImg> postImgs = postImgService.findByPost_PostCode(postCode);
+
+        for(PostImg pi : postImgs){
+            // 이미지파일 삭제
+            String url = pi.getPostImgUrl();
+            String fileName = url.substring(url.lastIndexOf("\\") +1);
+//            System.out.println("파일명 : " +fileName);
+            File file = new File(path + "\\" +  fileName);
+//            System.out.println("삭제 경로" + file);
+            file.delete();
+        }
+
         postImgDAO.deletePostImgByPostCode(postCode);
 
         // 글에 등록된 상품들 삭제

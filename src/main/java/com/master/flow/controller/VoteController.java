@@ -1,6 +1,5 @@
 package com.master.flow.controller;
 
-import com.master.flow.model.vo.Post;
 import com.master.flow.model.vo.Vote;
 import com.master.flow.service.VoteService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +15,7 @@ public class VoteController {
     @Autowired
     private VoteService voteService;
 
-    // 투표
+    // 찬/반 투표
     @PostMapping("/postVote/vote")
     public ResponseEntity vote (@RequestBody Vote vo){
         voteService.vote(vo);
@@ -27,6 +26,13 @@ public class VoteController {
     @PostMapping("/postVote/vote/{voteCode}")
     public ResponseEntity removeVote (@PathVariable(name="voteCode") int userCode){
         voteService.removeVote(userCode);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    // 투표 수정
+    @PutMapping("/postVote/vote")
+    public ResponseEntity updateVote (@RequestBody Vote vo){
+        voteService.updateVote();
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 

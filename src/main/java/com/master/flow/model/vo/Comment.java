@@ -42,10 +42,10 @@ public class Comment {
     private int postCode;
 
 //    유저 코드
-//    @ManyToOne
-//    @JoinColumn(name="USER_CODE", insertable = false, updatable = false)
-    @Column(name="USER_CODE")
-    private int userCode;
+    @ManyToOne
+    @JoinColumn(name="USER_CODE", insertable = false, updatable = false)
+//    @Column(name="USER_CODE")
+    private User userCode;
 
 //    대댓글:부모 댓글
     @Column(name="PARENT_COMMENT_CODE")

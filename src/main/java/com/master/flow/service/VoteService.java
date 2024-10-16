@@ -28,7 +28,7 @@ public class VoteService {
         return 0;
     }
 
-    // 투표
+    // 찬/반 투표
     public void vote (Vote vo){
         voteDao.save(vo);
     }
@@ -43,9 +43,22 @@ public class VoteService {
         return voteDao.check(loginId());
     }
 
+    // 투표 수정
+    public void updateVote (){
+        Vote vote = check(loginId());
+        if(vote!= null){
+            if(vote.getVoteYn().equals("y")){
+                vote.setVoteYn("n");
+            }else{
+                vote.setVoteYn("y");
+            }
+            voteDao.save(vote);
+        }
+    }
+
 
     // 전체 투표 현황
-    public int voteCount (int voteCode) {
+    public int votePost (int voteCode) {
         return voteDao.count(voteCode);
     }
 

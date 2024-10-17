@@ -1,5 +1,6 @@
 package com.master.flow.controller;
 
+import com.master.flow.model.vo.UserReport;
 import com.master.flow.service.UserReportService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,6 +29,13 @@ public class UserReportController {
     @PutMapping("/banUser")
     public ResponseEntity banUser(@RequestParam(name="userCode") int userCode) {
         userReportService.banUser(userCode);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    // 유저 신고하기
+    @PostMapping("/reportUser")
+    public ResponseEntity reportUser(@RequestBody UserReport userReport) {
+        userReportService.reportUser(userReport);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 

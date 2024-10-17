@@ -20,12 +20,6 @@ public class PostImgService {
         return postImgDAO.save(postImg);
     }
 
-    // 게시글 삭제
-    public void deleteAll(int postCode){
-
-        postImgDAO.deleteById(postCode);
-    }
-
     // 메인화면 게시글 이미지
     public List<PostImg> findByPost_PostCode(int postCode) {
 

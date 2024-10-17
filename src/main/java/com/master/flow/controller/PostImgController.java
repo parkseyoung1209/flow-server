@@ -49,6 +49,7 @@ public class PostImgController {
     // 게시물 수정 시 postImgCode로 사진 삭제
     @DeleteMapping("/postImg")
     public ResponseEntity updateImages(@RequestBody List<Integer> images){
+        System.out.println(images);
 
         for (Integer im : images) {
             // 파일 삭제

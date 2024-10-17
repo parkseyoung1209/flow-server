@@ -18,7 +18,7 @@ public interface PostTagDAO extends JpaRepository<PostTag, Integer> {
 
     @Modifying
     @Transactional
-    @Query(value = "DELETE FROM post_tag WHERE post_code = :postCode",nativeQuery = true)
+    @Query(value = "DELETE FROM post_tag WHERE post_code = :postCode", nativeQuery = true)
     public void deletePostTagByPostCode(@Param("postCode") int postCode);
 
     // postCode 로 게시물 조회
@@ -28,5 +28,4 @@ public interface PostTagDAO extends JpaRepository<PostTag, Integer> {
     // postCode 로 tagCode 조회
     @Query("SELECT pt.tag.tagCode FROM PostTag pt WHERE pt.post.postCode = :postCode")
     List<Integer> findPostTag(@Param("postCode") int postCode);
-
 }

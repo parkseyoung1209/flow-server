@@ -25,10 +25,12 @@ public class CommentController {
     @Autowired
     private CommentService commentService;
 
-    // 댓글 작성 & 사진 첨부
+    // 댓글 작성
     @PostMapping("/addcomment")
     public ResponseEntity addComment(@RequestBody Comment vo) {
-        return ResponseEntity.ok(commentService.addComment(vo));
+        commentService.addComment(vo);
+//        return ResponseEntity.ok(commentService.addComment(vo));
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
 
@@ -42,18 +44,18 @@ public class CommentController {
     }
 
     // 무한 댓글 추가
-    public List<CommentDTO> commentList(List<Comment> comments) {
-        List<CommentDTO> response = new ArrayList<>();
-
-        for (Comment comment : comments) {
-            List<Comment> replies = commentService.getAllComment(comment.getCommentCode());
-            List<CommentDTO> repliesDTO = new ArrayList<>();
-            CommentDTO dto = new CommentDTO();
-            dto.setReplies(repliesDTO);
-            response.add(dto);
-        }
-        return response;
-    }
+//    public List<CommentDTO> commentList(List<Comment> comments) {
+//        List<CommentDTO> response = new ArrayList<>();
+//
+//        for (Comment comment : comments) {
+//            List<Comment> replies = commentService.getAllComment(comment.getCommentCode());
+//            List<CommentDTO> repliesDTO = new ArrayList<>();
+//            CommentDTO dto = new CommentDTO();
+//            dto.setReplies(repliesDTO);
+//            response.add(dto);
+//        }
+//        return response;
+//    }
 
     // 대댓글 작성
     public CommentDTO addParentCommentCode(Comment comment) {

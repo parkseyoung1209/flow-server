@@ -1,8 +1,12 @@
 package com.master.flow.service;
 
 import com.master.flow.config.TokenProvider;
+import com.master.flow.model.dao.PostDAO;
+import com.master.flow.model.dao.PostImgDAO;
 import com.master.flow.model.dao.UserDAO;
 import com.master.flow.model.dto.UserUpdateDTO;
+import com.master.flow.model.vo.Post;
+import com.master.flow.model.vo.PostImg;
 import com.master.flow.model.vo.QUser;
 import com.master.flow.model.vo.User;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -27,6 +31,10 @@ public class UserService {
 
     @Autowired
     private UserDAO userDao;
+    @Autowired
+    private PostDAO postDAO;
+    @Autowired
+    private PostImgDAO postImgDAO;
 
     @Autowired
     private TokenProvider tokenProvider;
@@ -36,6 +44,7 @@ public class UserService {
 
     private final QUser qUser = QUser.user;
     private final String userImgDir = "\\\\192.168.10.51\\flow\\userImg\\";
+    private final String postImgpath = "\\\\192.168.10.51\\flow\\postImg\\";
 
     // 사용자 정보 가져오는 메서드
     private User getUser(){
@@ -109,6 +118,29 @@ public class UserService {
 
     // 유저 탈퇴
     public void deleteUser(){
+        User user = userDao.findById(getUser().getUserCode()).get();
+        // 유저가 생성한 게시글 조회
+        List<Post> post = postDAO.findByUser_UserCode(user.getUserCode());
+
+        // 이미지 서버에 존재하는 유저의 게시물 이미지들 삭제
+        for(Post p : post){
+            // 게시물 마다의 이미지 객체 받아옴
+            List<PostImg> imgs = postImgDAO.findByPost_PostCode(p.getPostCode());
+            for(PostImg postImg : imgs){
+                String url = postImg.getPostImgUrl();
+                String fileNmae = url.substring(url.lastIndexOf("\\") + 1);
+                File file = new File(postImgpath + fileNmae);
+                file.delete();
+            }
+        }
+
+        if(!user.getUserProfileUrl().equals("http://192.168.10.51:8081/userImg/defaultUser.png")){
+            String url = user.getUserProfileUrl();
+            String fileName = url.substring(url.lastIndexOf("/") + 1);
+            File file = new File(userImgDir + fileName);
+            file.delete();
+        }
+
         userDao.deleteById(getUser().getUserCode());
     }
 

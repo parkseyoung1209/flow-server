@@ -20,8 +20,8 @@ public class PostTagService {
     }
 
     // 게시물 삭제
-    public void deleteAll(int postCode){
-        postTagDAO.deleteById(postCode);
+    public void deletePostTagByPostCode(int postCode){
+        postTagDAO.deletePostTagByPostCode(postCode);
     }
 
     // 태그 코드로 게시물 조회
@@ -34,9 +34,9 @@ public class PostTagService {
         return postTagDAO.findByPost_PostCode(postCode);
     }
 
-
     public List<Integer> findPostTag(int postCode){
         return postTagDAO.findPostTag(postCode);
     }
+
 
 }

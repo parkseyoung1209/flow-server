@@ -268,28 +268,74 @@ public class PostController {
     };
 
     // 게시물 수정
-    @PutMapping("/post/{postCode}")
+    @PutMapping("/post")
     public ResponseEntity update(@RequestBody PostDTO postDTO){
 
         int postCode = postDTO.getPostCode();
 
+        Post prePost = postService.view(postCode);
 
-        // 기존 이미지 삭제 -> 새로 업로드 및 저장
-
-        // 수정된 postDTO
-        List<MultipartFile> files = postDTO.getImageFiles();
         List<Product> products = postDTO.getProducts();
         List<Integer> tags = postDTO.getTagCodes();
         
         // post
         Post post = postService.save(Post.builder()
-                .postCode(postDTO.getPostCode())
+                .postCode(postCode)
                 .postType("post")
                 .postDesc(postDTO.getPostDesc())
-                .postDate(LocalDateTime.now())
+                .postDate(prePost.getPostDate())
                 .postPublicYn(postDTO.getPostPublicYn())
+                .user(userService.findUser(postDTO.getUserCode()))
                 .build());
 
+
+        // 제품추가
+        if(products!=null && !products.isEmpty()) {
+            for (Product p : products) {
+
+                boolean allEmpty = p.getProductBrand().isEmpty() &&
+                        p.getProductName().isEmpty() &&
+                        p.getProductSize().isEmpty() &&
+                        p.getProductBuyFrom().isEmpty() &&
+                        p.getProductLink().isEmpty();
+
+                // 모든 칸이 비어있을때 제외
+                if(!allEmpty) {
+                        // 새로 추가된 제품
+                        Product product = productService.addProduct(Product.builder()
+                                .productCode(p.getProductCode())
+                                .productBrand(p.getProductBrand())
+                                .productName(p.getProductName())
+                                .productSize(p.getProductSize())
+                                .productBuyFrom(p.getProductBuyFrom())
+                                .productLink(p.getProductLink())
+                                .post(Post.builder()
+                                        .postCode(postCode)
+                                        .build())
+                                .build());
+                        //log.info("product : " + product);
+                }
+            }
+        }
+
+        // 기존 tag 삭제
+        postTagService.deletePostTagByPostCode(postCode);
+
+        // PostTag 저장
+        if(tags != null ){
+            for(Integer num : tags){
+//            log.info("num : " + num);
+                PostTag postTag = postTagService.addTag(PostTag.builder()
+                                .post(Post.builder()
+                                        .postCode(postCode)
+                                        .build())
+                                .tag(Tag.builder()
+                                        .tagCode(num)
+                                        .build())
+                                .build());
+//            log.info("postTag : " + postTag);
+            }
+        }
         return ResponseEntity.status(HttpStatus.OK).build();
     };
 

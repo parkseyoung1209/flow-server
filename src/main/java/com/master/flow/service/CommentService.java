@@ -1,6 +1,7 @@
 package com.master.flow.service;
 
 import com.master.flow.model.dao.CommentDAO;
+import com.master.flow.model.dto.CommentDTO;
 import com.master.flow.model.vo.Comment;
 import com.master.flow.model.vo.QComment;
 import com.master.flow.model.vo.User;
@@ -44,15 +45,14 @@ public class CommentService {
     }
 
     // 댓글 작성
-    public Comment addComment(Comment vo) {
-        System.out.println(vo);
-//        User user = getUser();
-        if(getUser() != null) {
-//            vo.setUserCode(getUser().getUserCode());
-            return commentDao.save(vo);
-//            return commentDao.saveComment(vo.getCommentDesc(), vo.getPostCode(), getUser().getUserCode(), vo.getParentCommentCode());
+    public void addComment(Comment vo) {
+        User user = getUser();
+
+        if(user != null) {
+            System.err.println(vo);
+            System.err.println(user.getUserCode());
+             commentDao.saveComment(vo.getCommentDesc(), vo.getPostCode(), user.getUserCode(), 0);
         }
-        return null;
     }
 
     // 댓글 사진 첨부

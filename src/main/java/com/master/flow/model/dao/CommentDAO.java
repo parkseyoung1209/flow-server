@@ -1,6 +1,7 @@
 package com.master.flow.model.dao;
 
 import com.master.flow.model.vo.Comment;
+import com.master.flow.model.vo.User;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -20,6 +21,8 @@ public interface CommentDAO extends JpaRepository<Comment, Integer> {
     void deleteCommentByPostCode(@Param("postCode") int postCode);
 
     // commentCode, postCode, userCode, parentCommentCode
+    @Modifying
+    @Transactional
     @Query(value = "INSERT INTO comment(comment_desc, post_code, user_code, parent_comment_code) values(:commentDesc, :postCode, :userCode, :parentCommentCode)", nativeQuery = true)
-    Comment saveComment(@Param("commentDesc") String commentDesc, @Param("postCode") int postCode, @Param("userCode") int userCode, @Param("parentCommentCode") int parentCommentCode);
+    void saveComment(@Param("commentDesc") String commentDesc, @Param("postCode") int postCode, @Param("userCode") int userCode, @Param("parentCommentCode") int parentCommentCode);
 }

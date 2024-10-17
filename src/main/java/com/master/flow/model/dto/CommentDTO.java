@@ -20,6 +20,6 @@ public class CommentDTO {
     private LocalDateTime commentDate;
     private String commentDelYn;
     private int postCode;
-    private User user;
-    private List<CommentDTO> replies = new ArrayList<>();
+    private int userCode;
+//    private List<CommentDTO> replies = new ArrayList<>();
 }

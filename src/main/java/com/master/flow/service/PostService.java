@@ -1,10 +1,11 @@
 package com.master.flow.service;
 
 import com.master.flow.model.dao.*;
-import com.master.flow.model.dto.PostDTO;
 import com.master.flow.model.dto.PostInfoDTO;
 import com.master.flow.model.dto.UserPostSummaryDTO;
-import com.master.flow.model.vo.*;
+import com.master.flow.model.vo.Post;
+import com.master.flow.model.vo.PostImg;
+import com.master.flow.model.vo.User;
 import com.querydsl.core.BooleanBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -59,7 +59,7 @@ public class PostService {
         return postDAO.findByPostTypesVote();
     }
 
-    // 투표 게시물 조회
+    // 투표 게시물 1개 조회
     public Post votePostView(int postCode) {
         return postDAO.findByPostTypesVote().get(postCode);
     }

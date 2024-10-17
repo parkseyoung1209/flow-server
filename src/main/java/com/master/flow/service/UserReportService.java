@@ -1,5 +1,7 @@
 package com.master.flow.service;
 
+import com.master.flow.model.dao.PostDAO;
+import com.master.flow.model.dao.UserDAO;
 import com.master.flow.model.dao.UserReportDAO;
 import com.master.flow.model.vo.UserReport;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +15,10 @@ import java.util.List;
 public class UserReportService {
     @Autowired
     private UserReportDAO userReportDAO;
+    @Autowired
+    private UserDAO userDAO;
+    @Autowired
+    private PostDAO postDAO;
 
     // 신고당한 유저 전부보기
     public List<UserReport> showAllUserReport() {return userReportDAO.findAll();}
@@ -29,6 +35,11 @@ public class UserReportService {
     public void banUser(int userCode) {
         String userBanStatus = "Y";
         userReportDAO.banUser(userCode, userBanStatus);
+    }
+
+    // 신고하기
+    public void reportUser(UserReport vo) {
+        userReportDAO.save(vo);
     }
 
 }

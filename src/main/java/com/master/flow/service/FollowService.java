@@ -47,7 +47,7 @@ public class FollowService {
                 .build();
         return follow;
     }
-    //전체 팔로우 해쉬셋에 새로 생성한 객체의 데이터가 포함되어있는지 확인
+    //전체 팔로우 해쉬셋에 existFollow로 새로 생성한 객체의 데이터가 포함되어있는지 확인
     public boolean checkLogic(int followingUserCode, int followerUserCode) {
         return findAllFollowSet().contains(existFollow(followingUserCode, followerUserCode));
     }

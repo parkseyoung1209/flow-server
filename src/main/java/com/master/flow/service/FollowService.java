@@ -12,8 +12,10 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -36,7 +38,6 @@ public class FollowService {
         return followDAO.findAllFollowSet();
     }
 
-
     // 로그인된 유저의 프라이머리키와 팔로우할 유저의 프라이머리키를 받아서 객체 생성
     public Follow existFollow(int followingUserCode, int followerUserCode) {
         User followingUser = userDAO.findById(followingUserCode).orElse(null);
@@ -51,6 +52,7 @@ public class FollowService {
     public boolean checkLogic(int followingUserCode, int followerUserCode) {
         return findAllFollowSet().contains(existFollow(followingUserCode, followerUserCode));
     }
+
     //새로운 팔로우 관계 생성
     public boolean addFollowRelative(int followingUserCode, int followerUserCode) {
         if(checkLogic(followingUserCode, followerUserCode)) {

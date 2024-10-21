@@ -44,6 +44,10 @@ public class PostController {
     @Autowired
     private PostTagService postTagService;
     @Autowired
+    private LikesService likesService;
+    @Autowired
+    private CollectionService collectionService;
+    @Autowired
     private PostReportDAO postReportDAO;
     @Autowired
     private CommentDAO commentDAO;
@@ -116,6 +120,8 @@ public class PostController {
     @GetMapping("/post/{postCode}")
     public ResponseEntity<PostDTO> view(@PathVariable(name="postCode") int postCode) {
         Post post = postService.view(postCode);
+        int likeCount = likesService.countLikesByPost(post);
+        int collectionCount = collectionService.countCollectionByPost(post);
         List<PostImg> postImgs = postImgService.findByPost_PostCode(postCode);
         List<Product> products = productService.certainProduct(postCode);
         List<Integer> tagCodes = postTagService.findPostTag(postCode);
@@ -130,6 +136,8 @@ public class PostController {
                 .postDesc(post.getPostDesc())
                 .postPublicYn(post.getPostPublicYn())
                 .postType(post.getPostType())
+                .likeCount(likeCount)
+                .collectionCount(collectionCount)
                 .products(products)
                 .tagCodes(tagCodes)
                 .userCode(post.getUser().getUserCode())
@@ -137,6 +145,7 @@ public class PostController {
                 .imageUrls(postImgs.stream().map(PostImg::getPostImgUrl).collect(Collectors.toList()))
                 .build();
 
+        System.out.println(postDTO);
         return ResponseEntity.ok(postDTO);
     }
 

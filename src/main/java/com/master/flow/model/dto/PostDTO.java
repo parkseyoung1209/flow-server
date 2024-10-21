@@ -36,4 +36,7 @@ public class PostDTO {
     // Tag 관련
     private List<Integer> tagCodes;
 
+    private int likeCount;
+    private int collectionCount;
+
 }

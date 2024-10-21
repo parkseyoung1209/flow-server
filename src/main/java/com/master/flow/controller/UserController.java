@@ -139,6 +139,11 @@ public class UserController {
         return ResponseEntity.ok(userService.findUser());
     }
 
+    @GetMapping("/findUserByCode")
+    public ResponseEntity findUserByCode(@RequestParam(name = "userCode") int userCode){
+        return ResponseEntity.ok(userService.findUser(userCode));
+    }
+
     // 유저 정보 수정
     @PutMapping("/updateUser")
     public ResponseEntity updateUser(UserUpdateDTO dto) throws IOException {

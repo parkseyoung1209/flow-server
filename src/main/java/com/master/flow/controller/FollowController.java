@@ -9,8 +9,6 @@ import com.master.flow.service.PostImgService;
 import com.master.flow.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -89,14 +87,11 @@ public class FollowController {
     // 내가 팔로우한 유저의 게시글 조회
     @GetMapping("/posts/followed/{userCode}")
     public ResponseEntity<List<PostDTO>> getPostsFromFollowedUsers(
-            @PathVariable(name = "userCode") int userCode,
-            @RequestParam(name = "page", defaultValue = "1") int page) {
+            @PathVariable(name = "userCode") int userCode) {
 
         Sort sortCondition = Sort.by("postDate").descending(); // 최신 순 정렬
 
-        Pageable pageable = PageRequest.of(page - 1, 10, sortCondition);
-
-        List<PostInfoDTO> postInfoList = followService.getPostsFromFollowedUsers(userCode, pageable);
+        List<PostInfoDTO> postInfoList = followService.getPostsFromFollowedUsers(userCode);
 
         List<PostDTO> postDTOS = postInfoList.stream().map(postInfo -> {
             List<PostImg> postImgs = postImgService.findByPost_PostCode(postInfo.getPost().getPostCode());

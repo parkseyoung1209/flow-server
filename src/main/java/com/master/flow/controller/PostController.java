@@ -10,9 +10,6 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -66,12 +63,9 @@ public class PostController {
 
     @GetMapping("/post")
     public ResponseEntity<List<PostDTO>> viewAll(
-            @RequestParam(name = "page", defaultValue = "1") int page,
             @RequestParam(name = "keyword", required = false) String keyword) {
 
         Sort sortCondition = Sort.by("postDate").descending(); // 최신 순 정렬
-
-        Pageable pageable = PageRequest.of(page - 1, 10, sortCondition);
 
         BooleanBuilder builder = new BooleanBuilder();
 
@@ -82,7 +76,7 @@ public class PostController {
             builder.and(expression);
         }
 
-        Page<Post> posts = postService.viewAll(builder, pageable);
+        List<Post> posts = postService.viewAll(builder, sortCondition);
 
         // 각 게시물에 대한 이미지 URL 추가
         List<PostDTO> postDTOS = new ArrayList<>();

@@ -1,10 +1,7 @@
 package com.master.flow.model.dao;
 
 import com.master.flow.model.vo.Post;
-import jakarta.transaction.Transactional;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.data.repository.query.Param;
@@ -29,5 +26,5 @@ public interface PostDAO extends JpaRepository<Post, Integer>, QuerydslPredicate
             @Param("height") Integer height
     );
 
-    List<Post> findByUser_UserCodeIn(List<Integer> userCodes, Pageable pageable);
+    List<Post> findByUser_UserCodeIn(List<Integer> userCodes);
 }

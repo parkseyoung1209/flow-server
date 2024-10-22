@@ -139,7 +139,7 @@ public class PostController {
                 .imageUrls(postImgs.stream().map(PostImg::getPostImgUrl).collect(Collectors.toList()))
                 .build();
 
-        System.out.println(postDTO);
+//        System.out.println(postDTO);
         return ResponseEntity.ok(postDTO);
     }
 
@@ -251,6 +251,7 @@ public class PostController {
                     .build());
         }
 
+        System.out.println(tags);
         // PostTag 저장
         if(tags != null && !tags.isEmpty()){
         for(Integer num : tags){

@@ -1,7 +1,6 @@
 package com.master.flow.controller;
 
 import com.master.flow.model.vo.Post;
-import com.master.flow.model.vo.PostTag;
 import com.master.flow.service.PostTagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,7 +24,6 @@ public class PostTagController {
         return ResponseEntity.status(HttpStatus.OK).body(posts);
     }
 
-
     // postCode로 tagCode 조회
     @GetMapping("postTag/{postCode}")
     public ResponseEntity getPostTags(@PathVariable(name = "postCode") int postCode) {
@@ -35,6 +33,5 @@ public class PostTagController {
 
         return ResponseEntity.ok(tagCodes);
     }
-
 
 }

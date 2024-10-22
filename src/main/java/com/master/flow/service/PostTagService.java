@@ -38,5 +38,8 @@ public class PostTagService {
         return postTagDAO.findPostTag(postCode);
     }
 
-
+    // 여러 태그로 게시물 조회
+    public List<Post> viewPostsByTags(List<Integer> tagCodes) {
+        return postTagDAO.findPostsByTags(tagCodes);
+    }
 }

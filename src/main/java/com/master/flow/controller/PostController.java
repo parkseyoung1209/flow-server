@@ -252,7 +252,7 @@ public class PostController {
         }
 
         // PostTag 저장
-        if(tags != null ){
+        if(tags != null && !tags.isEmpty()){
         for(Integer num : tags){
 //            log.info("num : " + num);
             PostTag postTag = postTagService.addTag(PostTag.builder()

@@ -25,7 +25,7 @@ public class PostTag {
     private Post post;
 
 //    태그 코드
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL )
     @JoinColumn(name="TAG_CODE")
     private Tag tag;
 }

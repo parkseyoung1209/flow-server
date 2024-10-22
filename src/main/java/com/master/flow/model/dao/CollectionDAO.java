@@ -18,7 +18,8 @@ public interface CollectionDAO extends JpaRepository<Collection, Integer> {
     int countByPost(Post post);
 
     // 특정 유저가 저장한 게시물 리스트 반환
-    List<Collection> findByUser(Optional<User> user);
+    @Query(value = "SELECT * FROM collection WHERE user_code = :userCode ORDER BY collection_code desc", nativeQuery = true)
+    List<Collection> findByUser(@Param("userCode") int userCode);
 
     @Modifying
     @Transactional

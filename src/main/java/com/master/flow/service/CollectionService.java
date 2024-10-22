@@ -55,7 +55,7 @@ public class CollectionService {
     {
         Optional<User> user = userDAO.findById(userCode);
 
-        List<Collection> collections = dao.findByUser(user);
+        List<Collection> collections = dao.findByUser(userCode);
 
         // 게시물 사진 조회
 

@@ -18,7 +18,8 @@ public interface LikesDAO extends JpaRepository<Likes, Integer> {
     
     int countByPost(Post post);
 
-    List<Likes> findByUser_UserCode(int userCode); // 좋아요 누른 게시글 목록 조회
+    @Query(value = "SELECT * FROM likes WHERE user_code = :userCode ORDER BY likes_code desc", nativeQuery = true)
+    List<Likes> findByUser_UserCode(@Param("userCode") int userCode); // 좋아요 누른 게시글 목록 조회
 
     long countByPost_PostCode(int postCode); // 특정 게시물에 대한 좋아요 수 카운트
 

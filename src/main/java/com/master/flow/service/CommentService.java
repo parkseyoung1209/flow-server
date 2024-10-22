@@ -45,14 +45,8 @@ public class CommentService {
     }
 
     // 댓글 작성
-    public void addComment(Comment vo) {
-        User user = getUser();
-
-        if(user != null) {
-            System.err.println(vo);
-            System.err.println(user.getUserCode());
-             commentDao.saveComment(vo.getCommentDesc(), vo.getPostCode(), user.getUserCode(), 0);
-        }
+    public void addComment(CommentDTO dto) {
+        commentDao.saveComment(dto.getCommentDesc(), dto.getPostCode(), dto.getUserCode(), 0);
     }
 
     // 댓글 사진 첨부

@@ -27,8 +27,9 @@ public class CommentController {
 
     // 댓글 작성
     @PostMapping("/addcomment")
-    public ResponseEntity addComment(@RequestBody Comment vo) {
-        commentService.addComment(vo);
+    public ResponseEntity addComment(@RequestBody CommentDTO dto) {
+        System.out.println(dto);
+        commentService.addComment(dto);
 //        return ResponseEntity.ok(commentService.addComment(vo));
         return ResponseEntity.status(HttpStatus.OK).build();
     }

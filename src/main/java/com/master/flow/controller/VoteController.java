@@ -59,4 +59,10 @@ public class VoteController {
     public ResponseEntity check (@PathVariable(name = "postCode") int voteCode){
         return ResponseEntity.status(HttpStatus.OK).build();
     }
+
+    // 해당 유저의 투표 생성 유무 확인
+    @GetMapping("/postVote/haveVote")
+    public ResponseEntity haveVote(@RequestParam(name = "userCode") int userCode){
+        return ResponseEntity.ok(voteService.haveVote(userCode));
+    }
 }

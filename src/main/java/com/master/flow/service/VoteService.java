@@ -2,12 +2,17 @@ package com.master.flow.service;
 
 import com.master.flow.model.dao.PostDAO;
 import com.master.flow.model.dao.VoteDAO;
+import com.master.flow.model.vo.Post;
+import com.master.flow.model.vo.QPost;
 import com.master.flow.model.vo.User;
 import com.master.flow.model.vo.Vote;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class VoteService {
@@ -17,6 +22,11 @@ public class VoteService {
 
     @Autowired
     private PostDAO postDao;
+
+    @Autowired
+    private JPAQueryFactory queryFactory;
+
+    private final QPost qPost = QPost.post;
 
     // 로그인한 사람 정보 가져오기 - ID
     public int loginId(){
@@ -70,5 +80,19 @@ public class VoteService {
     // 반대 투표 현황
     public int voteCountN (int voteCode){
         return voteDao.countN(voteCode);
+    }
+
+    // 해당 유저의 투표 생성 유무 확인
+    public boolean haveVote(int userCode){
+        List<Post> post = queryFactory
+                .selectFrom(qPost)
+                .where(qPost.user.userCode.eq(userCode))
+                .where(qPost.postType.eq("vote"))
+                .fetch();
+
+        if(post.size() != 0){
+            return true;
+        }
+        return false;
     }
 }

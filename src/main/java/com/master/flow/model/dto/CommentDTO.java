@@ -21,5 +21,5 @@ public class CommentDTO {
     private String commentDelYn;
     private int postCode;
     private int userCode;
-//    private List<CommentDTO> replies = new ArrayList<>();
+    private List<CommentDTO> replies = new ArrayList<>();
 }

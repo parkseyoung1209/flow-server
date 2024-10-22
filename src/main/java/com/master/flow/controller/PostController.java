@@ -1,11 +1,11 @@
 package com.master.flow.controller;
 
 import com.master.flow.model.dao.*;
+import com.master.flow.model.dto.PostDTO;
 import com.master.flow.model.dto.PostImgDTO;
 import com.master.flow.model.dto.UserPostSummaryDTO;
 import com.master.flow.model.vo.*;
 import com.master.flow.service.*;
-import com.master.flow.model.dto.PostDTO;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import lombok.extern.slf4j.Slf4j;
@@ -266,6 +266,76 @@ public class PostController {
 //            log.info("postTag : " + postTag);
         }
         }
+
+        return ResponseEntity.status(HttpStatus.OK).build();
+    };
+
+    // 투표 게시물 업로드
+    @PostMapping("/postVote")
+    public ResponseEntity uploadVote(PostDTO postDTO) throws IOException {
+
+        List<MultipartFile> files = postDTO.getImageFiles();
+
+        Post post = new Post();
+
+        // post 업로드
+        if( postDTO.getPostDesc() != null && !postDTO.getPostDesc().isEmpty()) {
+            post = postService.save(Post.builder()
+                    .postType("vote")
+                    .postPublicYn("Y")
+                    .postDesc(postDTO.getPostDesc())
+                    .postDate(LocalDateTime.now())
+                    .user(userService.findUser(postDTO.getUserCode()))
+                    .build());
+        } else {
+            post = postService.save(Post.builder()
+                    .postType("vote")
+                    .postPublicYn("Y")
+                    .postDate(LocalDateTime.now())
+                    .user(userService.findUser(postDTO.getUserCode()))
+                    .build());
+        }
+
+        // 이미지 DB 저장
+        for(MultipartFile f : files) {
+            // 파일 업로드
+            String uuid = UUID.randomUUID().toString();
+
+            String fileName = uuid + "_" + f.getOriginalFilename();
+            //http://192.168.10.51:8082/postImg/파일
+            File imageFile = new File(path + File.separator + fileName);
+
+            // 파일에 저장
+            f.transferTo(imageFile);
+
+            // DB저장
+            PostImg postImg = postImgService.addImg(PostImg.builder()
+                    .post(post.builder()
+                            .postCode(post.getPostCode())
+                            .build())
+                    .postImgUrl("http://192.168.10.51:8081/postImg" + File.separator + fileName)
+                    .build());
+        }
+        return ResponseEntity.status(HttpStatus.OK).build();
+    };
+
+    // 투표 게시물 수정
+    @PutMapping("/postVote")
+    public ResponseEntity updateVote(@RequestBody PostDTO postDTO){
+
+        int postCode = postDTO.getPostCode();
+
+        Post prePost = postService.view(postCode);
+
+        List<Product> products = postDTO.getProducts();
+        List<Integer> tags = postDTO.getTagCodes();
+
+        Post post = postService.save(Post.builder()
+                .postCode(postCode)
+                .postType("vote")
+                .postDesc(postDTO.getPostDesc())
+                .user(userService.findUser(postDTO.getUserCode()))
+                .build());
 
         return ResponseEntity.status(HttpStatus.OK).build();
     };

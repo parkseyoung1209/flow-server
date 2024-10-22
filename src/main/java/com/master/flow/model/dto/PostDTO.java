@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data @NoArgsConstructor
@@ -20,6 +21,7 @@ public class PostDTO {
     private String postType;
     private String postDesc;
     private String postPublicYn;
+    private LocalDateTime postDate;
 
     // postImg 관련
     private List<PostImgDTO> postImgInfo;

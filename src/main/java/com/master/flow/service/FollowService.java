@@ -6,16 +6,17 @@ import com.master.flow.model.dao.PostImgDAO;
 import com.master.flow.model.dao.UserDAO;
 import com.master.flow.model.dto.FollowDTO;
 import com.master.flow.model.dto.PostInfoDTO;
+import com.master.flow.model.dto.UserDTO;
 import com.master.flow.model.vo.*;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -32,6 +33,9 @@ public class FollowService {
 
     @Autowired
     private PostImgDAO postImgDAO;
+
+    @Autowired
+    private JPAQueryFactory queryFactory;
 
     // 전체 팔로우 테이블 가져오기
     public HashSet<Follow> findAllFollowSet() {
@@ -79,28 +83,54 @@ public class FollowService {
         BooleanExpression expression1 = qFollow.followingUser.userCode.eq(code);
         BooleanExpression expression2 = qFollow.followerUser.userCode.eq(code);
         if(check) {
-            booleanBuilder.and(expression1);
-        } else {
-            booleanBuilder.and(expression2);
+          return booleanBuilder.and(expression1);
+        } else return booleanBuilder.and(expression2);
+    }
+
+    // 검색기능
+    public List<User> searchUser(int code, String key) {
+        QUser qUser = QUser.user;  // QueryDSL로 생성된 QUser 객체
+        QFollow qFollow = QFollow.follow;
+
+        BooleanBuilder booleanBuilder = new BooleanBuilder();
+
+        if (key != null && !key.trim().isEmpty()) {
+            booleanBuilder.and(qUser.userEmail.contains(key).or(qUser.userNickname.contains(key)));
         }
-        return booleanBuilder;
+        List<User> users = queryFactory
+                .select(qUser)
+                .from(qFollow)
+                .join(qUser).on(qFollow.followerUser.userCode.eq(qUser.userCode))
+                .where(qFollow.followingUser.userCode.eq(code)
+                        .and(booleanBuilder))
+                .fetch();
+        System.out.println(users.size());
+        return users;
     }
 
     //내가 팔로우한 인간들의 수와 인간들 전체 목록 dto발사
     public FollowDTO viewMyFollower(int followingUserCode) {
         List<Follow> follows = (List<Follow>) followDAO.findAll(selectFollowingOrFollower(followingUserCode, true));
-        List<User> list = follows.stream()
-                .map(Follow :: getFollowerUser)
+        List<UserDTO> list = follows.stream()
+                .map(f -> {
+                    User user = f.getFollowerUser();
+                    boolean logic = checkLogic(followingUserCode, user.getUserCode());
+                    return new UserDTO(user, logic);
+        })
                 .collect(Collectors.toList());
-        return new FollowDTO(list.size(), list);
+        return new FollowDTO(list.size(), (ArrayList<UserDTO>) list);
     }
     //위랑 반대
     public FollowDTO followMeUsers (int followerUserCode) {
         List<Follow> follows = (List<Follow>) followDAO.findAll(selectFollowingOrFollower(followerUserCode, false));
-        List<User> list = follows.stream()
-                .map(Follow :: getFollowingUser)
+        List<UserDTO> list = follows.stream()
+                .map(f -> {
+                    User user = f.getFollowingUser();
+                    boolean logic = checkLogic(followerUserCode, user.getUserCode());
+                    return new UserDTO(user, logic);
+                })
                 .collect(Collectors.toList());
-        return new FollowDTO(list.size(), list);
+        return new FollowDTO(list.size(), (ArrayList<UserDTO>) list);
     }
 
     // 내가 팔로우한 유저의 게시글 조회

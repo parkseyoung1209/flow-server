@@ -12,7 +12,7 @@ import java.util.List;
 
 public interface CommentDAO extends JpaRepository<Comment, Integer> {
     // POST_CODE로 조회
-    @Query(value="SELECT * FROM comment WHERE POST_CODE = :postCode",nativeQuery = true)
+    @Query(value="SELECT * FROM comment WHERE POST_CODE = :postCode ORDER BY comment_code asc",nativeQuery = true)
     List<Comment> findByPostCode(@Param("postCode") int postCode);
 
     @Modifying

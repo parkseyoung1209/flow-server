@@ -68,7 +68,7 @@ public class CommentService {
                 .selectFrom(qComment)
                 .where(qComment.postCode.eq(postCode))
                 .where(qComment.parentCommentCode.eq(0))
-                .orderBy(qComment.commentDate.desc())
+                .orderBy(qComment.commentDate.asc())
                 .fetch();
     }
 

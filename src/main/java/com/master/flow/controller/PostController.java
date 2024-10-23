@@ -173,7 +173,7 @@ public class PostController {
 
 //        log.info("products : " + postDTO.getProducts());
 //        log.info("tags : " + postDTO.getTagCodes());
-        log.info("postPublicYN : " + postDTO.getPostPublicYn());
+//        log.info("postPublicYN : " + postDTO.getPostPublicYn());
 
 
         List<MultipartFile> files = postDTO.getImageFiles();
@@ -251,7 +251,7 @@ public class PostController {
                     .build());
         }
 
-        System.out.println(tags);
+        System.out.println("태그 : " + tags);
         // PostTag 저장
         if(tags != null && !tags.isEmpty()){
         for(Integer num : tags){
@@ -396,7 +396,7 @@ public class PostController {
         postTagService.deletePostTagByPostCode(postCode);
 
         // PostTag 저장
-        if(tags != null ){
+        if(tags != null && !tags.isEmpty()){
             for(Integer num : tags){
 //            log.info("num : " + num);
                 PostTag postTag = postTagService.addTag(PostTag.builder()

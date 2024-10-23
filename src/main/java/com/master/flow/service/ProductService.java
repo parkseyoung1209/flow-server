@@ -18,13 +18,13 @@ public class ProductService {
         return productDao.save(product);
     }
 
-    // 게시글 전체 삭제
-    public void deleteAll(int postCode){
-        productDao.deleteById(postCode);
-    }
-
     // postCode로 제품 가져오기
     public List<Product> certainProduct(int postCode){
         return productDao.findByPost_PostCode(postCode);
+    }
+
+    // 제품 삭제
+    public void deleteOne (int productCode) {
+        productDao.deleteById(productCode);
     }
 }

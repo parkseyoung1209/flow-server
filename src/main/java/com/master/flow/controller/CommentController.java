@@ -78,12 +78,6 @@ public class CommentController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-    // 대댓글 수정
-    @PutMapping("/updatereply/{commentCode}")
-    public ResponseEntity<Comment> updateReply(@PathVariable int commentCode, @RequestBody Comment updateReply) {
-        return ResponseEntity.of(commentService.updateReply(commentCode, updateReply));
-    }
-
     // 댓글 삭제
     @DeleteMapping("/deletecomment/{commentCode}")
     public ResponseEntity deleteComment(@PathVariable(name="commentCode") int commentCode) {

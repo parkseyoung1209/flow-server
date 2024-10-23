@@ -88,15 +88,6 @@ public class CommentService {
         commentDao.save(vo);
     }
 
-    // 대댓글 수정
-    public Optional<Comment> updateReply(int commentCode, Comment updateReply) {
-        return commentDao.findById(commentCode).map(reply -> {
-            reply.setCommentDesc(updateReply.getCommentDesc());
-            reply.setCommentImgUrl(updateReply.getCommentImgUrl());
-            return commentDao.save(reply);
-        });
-    }
-
     // 댓글 삭제
     public void deleteComment(int commentCode) {
 

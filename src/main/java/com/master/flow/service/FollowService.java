@@ -121,37 +121,16 @@ public class FollowService {
         return new FollowDTO(list.size(), (ArrayList<UserDTO>) list);
     }
     //위랑 반대
-    public FollowDTO viewMyFollowers(int followerUserCode, String key) {
-        QUser qUser = QUser.user;  // QueryDSL로 생성된 QUser 객체
-        QFollow qFollow = QFollow.follow;  // QueryDSL로 생성된 QFollow 객체
-
-        BooleanBuilder booleanBuilder = new BooleanBuilder();
-
-        // 이메일이나 닉네임에 key가 포함된 유저를 필터링하는 조건 추가
-        if (key != null && !key.trim().isEmpty()) {
-            booleanBuilder.and(qUser.userEmail.contains(key)
-                    .or(qUser.userNickname.contains(key)));  // 이메일이나 닉네임에 key 포함 조건
-        }
-
-        // QueryDSL로 나를 팔로우한 유저 리스트 조회
-        List<User> users = queryFactory
-                .select(qUser)
-                .from(qFollow)
-                .join(qUser).on(qFollow.followerUser.userCode.eq(qUser.userCode))  // Follow -> User 조인
-                .where(qFollow.followingUser.userCode.eq(followerUserCode)          // 나를 팔로우한 유저
-                        .and(booleanBuilder))                                       // 추가 조건
-                .fetch();
-
-        // User 리스트를 UserDTO 리스트로 변환
-        List<UserDTO> userDTOList = users.stream()
-                .map(user -> {
-                    boolean logic = checkLogic(followerUserCode, user.getUserCode());  // 로직 처리
-                    return new UserDTO(user, logic);  // User -> UserDTO 변환
+    public FollowDTO followMeUsers (int followerUserCode) {
+        List<Follow> follows = (List<Follow>) followDAO.findAll(selectFollowingOrFollower(followerUserCode, false));
+        List<UserDTO> list = follows.stream()
+                .map(f -> {
+                    User user = f.getFollowingUser();
+                    boolean logic = checkLogic(followerUserCode, user.getUserCode());
+                    return new UserDTO(user, logic);
                 })
                 .collect(Collectors.toList());
-
-        // FollowDTO 반환
-        return new FollowDTO(userDTOList.size(), (ArrayList<UserDTO>) userDTOList);
+        return new FollowDTO(list.size(), (ArrayList<UserDTO>) list);
     }
 
     // 내가 팔로우한 유저의 게시글 조회

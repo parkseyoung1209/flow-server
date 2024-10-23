@@ -1,6 +1,5 @@
 package com.master.flow.model.dto;
 
-import com.master.flow.model.vo.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,5 +11,5 @@ import java.util.List;
 @Data @AllArgsConstructor @NoArgsConstructor @Builder
 public class FollowDTO {
     private int countFollower;
-    private List<User> Follower;
+    private List<UserDTO> Follower;
 }

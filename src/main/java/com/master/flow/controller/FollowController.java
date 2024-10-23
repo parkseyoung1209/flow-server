@@ -108,5 +108,9 @@ public class FollowController {
 
         return ResponseEntity.ok(postDTOS);
     }
+    @GetMapping("/private/follow/search/{followingUserCode}&keyword={key}")
+    public ResponseEntity searchUser(@PathVariable(name = "followingUserCode") int followingUserCode, @PathVariable(name = "key") String key) {
+        return ResponseEntity.ok(followService.searchUser(followingUserCode,key));
+    }
 
 }

@@ -54,7 +54,7 @@ public class PostService {
     }
 
     // 투표 게시물 전체 조회
-    public List<Post> postVoteViewAll(Post vo) {
+    public List<Post> postVoteViewAll(BooleanBuilder builder, Sort sort) {
         return postDAO.findByPostTypesVote();
     }
 

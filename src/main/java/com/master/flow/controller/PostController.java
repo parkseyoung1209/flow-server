@@ -66,6 +66,8 @@ public class PostController {
     private VoteDAO voteDAO;
     @Autowired
     private CommentReportService commentReportService;
+    @Autowired
+    private VoteService voteService;
 
     @GetMapping("/post")
     public ResponseEntity<List<PostDTO>> viewAll(
@@ -92,6 +94,41 @@ public class PostController {
 
             PostDTO postDTO = PostDTO.builder()
                     .postCode(post.getPostCode())
+                    .postDesc(post.getPostDesc())
+                    .userCode(post.getUser().getUserCode())
+                    .imageUrls(postImgs.stream().map(PostImg::getPostImgUrl).collect(Collectors.toList()))
+                    .build();
+            postDTOS.add(postDTO);
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(postDTOS);
+    }
+
+    // 투표 게시판 게시물 전체 조회
+    @GetMapping("/votePost")
+    public ResponseEntity<List<PostDTO>> postVoteViewAll(@RequestParam(name = "keyword", required = false) String keyword){
+        Sort sortCondition = Sort.by("postDate").descending(); // 최신 순 정렬
+
+        BooleanBuilder builder = new BooleanBuilder();
+
+        QPost qPost = QPost.post;
+
+        if (keyword != null) {
+            BooleanExpression expression = qPost.postDesc.like("%" + keyword + "%");
+            builder.and(expression);
+        }
+
+        List<Post> posts = postService.postVoteViewAll(builder, sortCondition);
+
+        // 각 게시물에 대한 이미지 URL 추가
+        List<PostDTO> postDTOS = new ArrayList<>();
+
+        for (Post post : posts) {
+            List<PostImg> postImgs = postImgService.findByPost_PostCode(post.getPostCode());
+
+            PostDTO postDTO = PostDTO.builder()
+                    .postCode(post.getPostCode())
+                    .postType(post.getPostType())
                     .postDesc(post.getPostDesc())
                     .userCode(post.getUser().getUserCode())
                     .imageUrls(postImgs.stream().map(PostImg::getPostImgUrl).collect(Collectors.toList()))
@@ -147,17 +184,33 @@ public class PostController {
         return ResponseEntity.ok(postDTO);
     }
 
-
-    // 투표 게시판 게시물 전체 조회
-    @GetMapping("/postVote")
-    public ResponseEntity postVoteViewAll(Post vo){
-        return ResponseEntity.status(HttpStatus.OK).body(postService.postVoteViewAll(vo));
-    }
-
     // 투표 게시물 조회
-    @GetMapping("/postVote/{postCode}")
+    @GetMapping("/votePost/{postCode}")
     public ResponseEntity votePostView(@PathVariable(name="postCode") int postCode){
-        return ResponseEntity.status(HttpStatus.OK).body(postService.votePostView(postCode));
+        Post post = postService.view(postCode);
+        List<PostImg> postImgs = postImgService.findByPost_PostCode(postCode);
+        List<PostImgDTO> imgDTO = new ArrayList<>();
+        int yCount = voteService.voteCountY(postCode);
+        int nCount = voteService.voteCountN(postCode);
+        int voteCount = voteService.voteCount(postCode);
+        for(PostImg pi : postImgs) {
+            imgDTO.add(new PostImgDTO(pi.getPostImgCode(), pi.getPostImgUrl()));
+        }
+
+        PostDTO postDTO = PostDTO.builder()
+                .postCode(post.getPostCode())
+                .postDesc(post.getPostDesc())
+                .postPublicYn(post.getPostPublicYn())
+                .postType(post.getPostType())
+                .userCode(post.getUser().getUserCode())
+                .postImgInfo(imgDTO)
+                .yCount(yCount)
+                .nCount(nCount)
+                .voteCount(voteCount)
+                .imageUrls(postImgs.stream().map(PostImg::getPostImgUrl).collect(Collectors.toList()))
+                .build();
+
+        return ResponseEntity.ok(postDTO);
     }
 
     // 해당 유저가 만든 게시물 조회
@@ -276,7 +329,7 @@ public class PostController {
     };
 
     // 투표 게시물 업로드
-    @PostMapping("/postVote")
+    @PostMapping("/uploadVote")
     public ResponseEntity uploadVote(PostDTO postDTO) throws IOException {
 
         List<MultipartFile> files = postDTO.getImageFiles();

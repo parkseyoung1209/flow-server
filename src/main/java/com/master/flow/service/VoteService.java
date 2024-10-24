@@ -68,7 +68,7 @@ public class VoteService {
 
 
     // 전체 투표 현황
-    public int votePost (int voteCode) {
+    public int voteCount (int voteCode) {
         return voteDao.count(voteCode);
     }
 

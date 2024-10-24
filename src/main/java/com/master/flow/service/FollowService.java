@@ -133,20 +133,21 @@ public class FollowService {
         return new FollowDTO(list.size(), (ArrayList<UserDTO>) list);
     }
 
-    // 내가 팔로우한 유저의 게시글 조회
-    public List<PostInfoDTO> getPostsFromFollowedUsers(int userCode) {
-        // 해당 유저가 팔로우한 유저 목록 가져오기
-        List<Follow> followedUsers = followDAO.findAllByFollowerUser_UserCode(userCode);
-        List<Integer> followedUserCodes = followedUsers.stream()
-                .map(follow -> follow.getFollowingUser().getUserCode())
+    // 내가 팔로우하는 유저의 게시글 조회
+    public List<PostInfoDTO> getPostsFromFollowingUsers(int userCode) {
+        // 해당 유저를 팔로우하고 있는 유저 목록 가져오기
+        List<Follow> followers = followDAO.findAllByFollowingUser_UserCode(userCode);
+        List<Integer> followerUserCodes = followers.stream()
+                .map(follow -> follow.getFollowerUser().getUserCode())
                 .collect(Collectors.toList());
 
         // 팔로우한 유저의 게시물 가져오기
-        List<Post> posts = postDAO.findByUser_UserCodeIn(followedUserCodes);
+        List<Post> posts = postDAO.findByUser_UserCodeIn(followerUserCodes);
 
         return posts.stream().map(post -> {
             List<PostImg> postImgs = postImgDAO.findByPost_PostCode(post.getPostCode());
             return new PostInfoDTO(post, 0, 0, postImgs); // likeCount와 collectionCount는 나중에 추가할 수 있습니다.
         }).collect(Collectors.toList());
     }
+
 }

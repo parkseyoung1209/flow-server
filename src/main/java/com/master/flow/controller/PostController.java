@@ -45,6 +45,8 @@ public class PostController {
     @Autowired
     private CollectionService collectionService;
     @Autowired
+    private TagService tagService;
+    @Autowired
     private PostReportDAO postReportDAO;
     @Autowired
     private CommentDAO commentDAO;
@@ -120,6 +122,7 @@ public class PostController {
         List<Product> products = productService.certainProduct(postCode);
         List<Integer> tagCodes = postTagService.findPostTag(postCode);
         List<PostImgDTO> imgDTO = new ArrayList<>();
+        List<Tag> tags = tagService.findTagByTagCode(tagCodes);
 
         for(PostImg pi : postImgs) {
             imgDTO.add(new PostImgDTO(pi.getPostImgCode(), pi.getPostImgUrl()));
@@ -134,6 +137,7 @@ public class PostController {
                 .collectionCount(collectionCount)
                 .products(products)
                 .tagCodes(tagCodes)
+                .tags(tags)
                 .userCode(post.getUser().getUserCode())
                 .postImgInfo(imgDTO)
                 .imageUrls(postImgs.stream().map(PostImg::getPostImgUrl).collect(Collectors.toList()))

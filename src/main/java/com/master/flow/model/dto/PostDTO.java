@@ -1,6 +1,7 @@
 package com.master.flow.model.dto;
 
 import com.master.flow.model.vo.Product;
+import com.master.flow.model.vo.Tag;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -37,6 +38,7 @@ public class PostDTO {
 
     // Tag 관련
     private List<Integer> tagCodes;
+    private List<Tag> tags;
 
     private int likeCount;
     private int collectionCount;

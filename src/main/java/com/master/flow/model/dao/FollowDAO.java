@@ -13,5 +13,6 @@ public interface FollowDAO extends JpaRepository<Follow, FollowId>, QuerydslPred
     @Query("SELECT f FROM Follow f")
     HashSet<Follow> findAllFollowSet();
 
-    List<Follow> findAllByFollowerUser_UserCode(int userCode);
+    List<Follow> findAllByFollowingUser_UserCode(int userCode);
+
 }

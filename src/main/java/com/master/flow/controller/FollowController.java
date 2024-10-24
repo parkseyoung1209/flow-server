@@ -87,13 +87,13 @@ public class FollowController {
     }
 
     // 내가 팔로우한 유저의 게시글 조회
-    @GetMapping("/posts/followed/{userCode}")
+    @GetMapping("/posts/following/{userCode}")
     public ResponseEntity<List<PostDTO>> getPostsFromFollowedUsers(
             @PathVariable(name = "userCode") int userCode) {
 
         Sort sortCondition = Sort.by("postDate").descending(); // 최신 순 정렬
-
-        List<PostInfoDTO> postInfoList = followService.getPostsFromFollowedUsers(userCode);
+        
+        List<PostInfoDTO> postInfoList = followService.getPostsFromFollowingUsers(userCode);
 
         List<PostDTO> postDTOS = postInfoList.stream().map(postInfo -> {
             List<PostImg> postImgs = postImgService.findByPost_PostCode(postInfo.getPost().getPostCode());
@@ -108,6 +108,7 @@ public class FollowController {
 
         return ResponseEntity.ok(postDTOS);
     }
+
     @GetMapping("/private/follow/search/{followingUserCode}&keyword={key}")
     public ResponseEntity searchUser(@PathVariable(name = "followingUserCode") int followingUserCode, @PathVariable(name = "key") String key) {
         return ResponseEntity.ok(followService.searchUser(followingUserCode,key));

@@ -68,16 +68,14 @@ public class FollowController {
 
     // 내가 팔로우한 팔로워들
     @GetMapping("private/follow/myFollower/{followingUserCode}")
-    public ResponseEntity viewMyFollower(@PathVariable(name = "followingUserCode") int followingUserCode) {
-        return ResponseEntity.status(HttpStatus.OK).body(followService.viewMyFollower(followingUserCode));
+    public ResponseEntity viewMyFollower(@PathVariable(name = "followingUserCode") int followingUserCode, @RequestParam(name = "key", required = false) String key) {
+        return ResponseEntity.status(HttpStatus.OK).body(followService.viewMyFollower(followingUserCode, key));
     }
 
     // 나를 팔로우한 유저들
     @GetMapping("private/follow/toMe/{followerUserCode}")
-    public ResponseEntity followMeUsers(@PathVariable(name= "followerUserCode") int followerUserCode) {
-
-
-        return ResponseEntity.status(HttpStatus.OK).body(followService.followMeUsers(followerUserCode));
+    public ResponseEntity followMeUsers(@PathVariable(name= "followerUserCode") int followerUserCode, @RequestParam(name = "key", required = false) String key) {
+        return ResponseEntity.status(HttpStatus.OK).body(followService.followMeUsers(followerUserCode, key));
     }
 
     // 데이터베이스 잘못 접근 전부 처리

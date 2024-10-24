@@ -44,32 +44,32 @@ public class CommentController {
         return ResponseEntity.ok(comments);
     }
 
-    // 무한 댓글 추가
-//    public List<CommentDTO> commentList(List<Comment> comments) {
-//        List<CommentDTO> response = new ArrayList<>();
-//
-//        for (Comment comment : comments) {
-//            List<Comment> replies = commentService.getAllComment(comment.getCommentCode());
-//            List<CommentDTO> repliesDTO = new ArrayList<>();
-//            CommentDTO dto = new CommentDTO();
-//            dto.setReplies(repliesDTO);
-//            response.add(dto);
-//        }
-//        return response;
-//    }
+//     무한 댓글 추가
+    public List<CommentDTO> commentList(List<Comment> comments) {
+        List<CommentDTO> response = new ArrayList<>();
 
-    // 대댓글 작성
-    public CommentDTO addParentCommentCode(Comment comment) {
-        return CommentDTO.builder()
-                .commentCode(comment.getCommentCode())
-                .commentDesc(comment.getCommentDesc())
-                .commentImgUrl(comment.getCommentImgUrl())
-                .commentDate(comment.getCommentDate())
-                .commentDelYn(comment.getCommentDelYn())
-                .postCode(comment.getPostCode())
-//                .user(comment.getUser()
-                .build();
+        for (Comment comment : comments) {
+            List<Comment> replies = commentService.getAllComment(comment.getCommentCode());
+            List<CommentDTO> repliesDTO = new ArrayList<>();
+            CommentDTO dto = new CommentDTO();
+            dto.setReplies(repliesDTO);
+            response.add(dto);
+        }
+        return response;
     }
+
+//    // 대댓글 작성
+//    public CommentDTO addParentCommentCode(Comment comment) {
+//        return CommentDTO.builder()
+//                .commentCode(comment.getCommentCode())
+//                .commentDesc(comment.getCommentDesc())
+//                .commentImgUrl(comment.getCommentImgUrl())
+//                .commentDate(comment.getCommentDate())
+//                .commentDelYn(comment.getCommentDelYn())
+//                .postCode(comment.getPostCode())
+////                .user(comment.getUser()
+//                .build();
+//    }
 
     // 댓글 수정
     @PutMapping("/updatecomment/{commentCode}")
@@ -85,12 +85,12 @@ public class CommentController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-    // 대댓글 삭제
-    @DeleteMapping("/deleteparent/{parentCommentCode}")
-    public ResponseEntity<Void> deleteParent(@PathVariable(name="parentCommentCode") int parentCommentCode) {
-        commentService.deleteParent(parentCommentCode);
-        return ResponseEntity.status(HttpStatus.OK).build();
-    }
+//    // 대댓글 삭제
+//    @DeleteMapping("/deleteparent/{parentCommentCode}")
+//    public ResponseEntity<Void> deleteParent(@PathVariable(name="parentCommentCode") int parentCommentCode) {
+//        commentService.deleteParent(parentCommentCode);
+//        return ResponseEntity.status(HttpStatus.OK).build();
+//    }
 
     // 댓글 신고
     @PostMapping("/{id}/report")

@@ -6,7 +6,9 @@ import com.master.flow.model.vo.Comment;
 import com.master.flow.model.vo.QComment;
 import com.master.flow.model.vo.User;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.Id;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -49,20 +51,20 @@ public class CommentService {
         commentDao.saveComment(dto.getCommentDesc(), dto.getPostCode(), dto.getUserCode(), 0);
     }
 
-    // 댓글 사진 첨부
-    public String uploadImg(MultipartFile file) throws IOException {
-        // 저장 경로
-        String filePath = uploadPath + File.separator + file.getOriginalFilename();
-        File destinationFile = new File(filePath);
+//    // 댓글 사진 첨부
+//    public String uploadImg(MultipartFile file) throws IOException {
+//        // 저장 경로
+//        String filePath = uploadPath + File.separator + file.getOriginalFilename();
+//        File destinationFile = new File(filePath);
+//
+//        // 파일 저장
+//        file.transferTo(destinationFile);
+//
+//        // 파일 URL 반환
+//        return "http://192.168.10.51:8081/comment" + file.getOriginalFilename();
+//    }
 
-        // 파일 저장
-        file.transferTo(destinationFile);
-
-        // 파일 URL 반환
-        return "http://192.168.10.51:8081/comment" + file.getOriginalFilename();
-    }
-
-    // 상위 댓글 조회
+    // 부모 댓글 조회
     public List<Comment> getAllComment(int postCode) {
         return queryFactory
                 .selectFrom(qComment)
@@ -72,14 +74,14 @@ public class CommentService {
                 .fetch();
     }
 
-    // 대댓글 작성
-    public List<Comment> addParentCommentCode(int parentCommentCode) {
-        return queryFactory
-                .selectFrom(qComment)
-                .where(qComment.parentCommentCode.eq(parentCommentCode))
-                .orderBy(qComment.commentDate.asc())
-                .fetch();
-    }
+//    // 대댓글 작성
+//    public List<Comment> addParentCommentCode(int parentCommentCode) {
+//        return queryFactory
+//                .selectFrom(qComment)
+//                .where(qComment.parentCommentCode.eq(parentCommentCode))
+//                .orderBy(qComment.commentDate.asc())
+//                .fetch();
+//    }
 
     // 댓글 수정
     public void updateComment(Comment vo) {
@@ -91,18 +93,19 @@ public class CommentService {
     // 댓글 삭제
     public void deleteComment(int commentCode) {
 
-        // 자식 댓글이 있는지 체크
-        List<Comment> comments = queryFactory.selectFrom(qComment)
+        // 자식 댓글 조회
+        List<Comment> childComments = queryFactory.selectFrom(qComment)
                 .where(qComment.parentCommentCode.eq(commentCode)).fetch();
-        int childCount = comments.size();
+        int childCount = childComments.size();
 
-        Comment comment = commentDao.findById(commentCode).get();
-
-        if(childCount > 0) {
-            commentDao.save(comment);
-        } else {
-            commentDao.deleteById(commentCode);
+        // 자식 댓글 삭제
+        for (Comment childComment : childComments) {
+            commentDao.deleteById(childComment.getCommentCode());
         }
+
+        // 부모 댓글 삭제
+        commentDao.deleteById(commentCode);
+
         // 해당 댓글에 부모 댓글이 있는지 체크
 //        deleteParent(comment.getCommentCode());
     }

@@ -41,4 +41,9 @@ public class PostDTO {
     private int likeCount;
     private int collectionCount;
 
+    // 투표 관련
+    private int voteCount; // 전체 투표 수
+    private int yCount; // 찬성 투표 수
+    private int nCount; // 반대 투표 수
+
 }

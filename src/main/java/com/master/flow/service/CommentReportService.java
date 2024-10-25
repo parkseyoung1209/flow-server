@@ -25,4 +25,8 @@ public class CommentReportService {
     public void delCommentReport(int commentReportCode) {
         commentReportDao.deleteById(commentReportCode);
     }
+//    신고된 댓글 취소하기
+    public void cancelCommentReport(int commentReportCode) {
+        commentReportDao.deleteById(commentReportCode);
+    }
 }

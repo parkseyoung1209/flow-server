@@ -2,6 +2,7 @@ package com.master.flow.model.dto;
 
 import com.master.flow.model.vo.Product;
 import com.master.flow.model.vo.Tag;
+import com.master.flow.model.vo.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,6 +17,7 @@ import java.util.List;
 public class PostDTO {
     // user 관련?
     private int userCode;
+    private User user;
 
     // post 관련
     private int postCode;

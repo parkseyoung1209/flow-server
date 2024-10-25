@@ -96,6 +96,7 @@ public class PostController {
                     .postCode(post.getPostCode())
                     .postDesc(post.getPostDesc())
                     .userCode(post.getUser().getUserCode())
+                    .user(post.getUser())
                     .imageUrls(postImgs.stream().map(PostImg::getPostImgUrl).collect(Collectors.toList()))
                     .build();
             postDTOS.add(postDTO);

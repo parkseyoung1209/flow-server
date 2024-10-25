@@ -100,6 +100,7 @@ public class FollowController {
                     .postCode(postInfo.getPost().getPostCode())
                     .postDesc(postInfo.getPost().getPostDesc())
                     .userCode(postInfo.getPost().getUser().getUserCode())
+                    .user(postInfo.getPost().getUser())
                     .imageUrls(postImgs.stream().map(PostImg::getPostImgUrl).collect(Collectors.toList()))
                     .build();
         }).collect(Collectors.toList());

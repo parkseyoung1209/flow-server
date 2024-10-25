@@ -72,9 +72,9 @@ public class CommentController {
 //    }
 
     // 댓글 수정
-    @PutMapping("/updatecomment/{commentCode}")
-    public ResponseEntity updateComment(@RequestBody Comment vo) {
-        commentService.updateComment(vo);
+    @PutMapping("/updatecomment")
+    public ResponseEntity updateComment(@RequestBody CommentDTO dto) {
+        commentService.updateComment(dto);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 

@@ -84,10 +84,15 @@ public class CommentService {
 //    }
 
     // 댓글 수정
-    public void updateComment(Comment vo) {
-        Comment comment = commentDao.findById(vo.getCommentCode()).get();
-        comment.setCommentDesc(vo.getCommentDesc());
-        commentDao.save(vo);
+    public void updateComment(CommentDTO dto) {
+        Optional<Comment> optionalComment = commentDao.findById(dto.getCommentCode());
+        if (optionalComment.isPresent()) {
+            Comment comment = optionalComment.get();
+            comment.setCommentDesc(dto.getCommentDesc());
+            commentDao.save(comment);
+        } else {
+            throw new EntityNotFoundException("Comment not found with code: " + dto.getCommentCode());
+        }
     }
 
     // 댓글 삭제

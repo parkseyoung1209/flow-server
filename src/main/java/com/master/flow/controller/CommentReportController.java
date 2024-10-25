@@ -1,11 +1,13 @@
 package com.master.flow.controller;
 
 import com.master.flow.service.CommentReportService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/*")
 @CrossOrigin(origins = {"*"}, maxAge=6000)
@@ -23,6 +25,11 @@ public class CommentReportController {
     @DeleteMapping("/delCommentReport")
     public ResponseEntity delCommentReport(@RequestParam int commentReportCode) {
         commentReportService.delCommentReport(commentReportCode);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+    @DeleteMapping("/cancelCommentReport")
+    public ResponseEntity cancelCommentReport(@RequestParam(name="commentReportCode") int commentReportCode) {
+        commentReportService.cancelCommentReport(commentReportCode);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

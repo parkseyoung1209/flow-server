@@ -176,7 +176,7 @@ public class FollowService {
             System.out.println("두번째는" + key.charAt(1));
         }
         // key가 한글 자음인지 확인 (한글 자음 유니코드 범위: ㄱ ~ ㅎ)
-        return key.length() >= 1 && (key.charAt(0) >= 0x3131 && key.charAt(0) <= 0xD7A3);
+        return key.length() >= 1 && (key.charAt(0) >= 0x3131 && key.charAt(0) <= 0x314E);
     }
 
     //내가 팔로우한 인간들의 수와 인간들 전체 목록 dto발사

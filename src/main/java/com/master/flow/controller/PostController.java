@@ -171,6 +171,7 @@ public class PostController {
                 .postDesc(post.getPostDesc())
                 .postPublicYn(post.getPostPublicYn())
                 .postType(post.getPostType())
+                .postDate(post.getPostDate())
                 .likeCount(likeCount)
                 .collectionCount(collectionCount)
                 .products(products)

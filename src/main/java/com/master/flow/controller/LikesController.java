@@ -8,6 +8,7 @@ import com.master.flow.model.vo.User;
 import com.master.flow.service.LikesService;
 import com.master.flow.service.PostImgService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +16,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.springframework.data.domain.Page;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequestMapping("/api/likes")
@@ -53,28 +56,27 @@ public class LikesController {
 
     // 좋아요 수 높은 순으로 게시물 조회
     @GetMapping("/post/ordered-by-likes")
-    public ResponseEntity<List<PostDTO>> viewAllOrderByLikes() {
-        List<Post> likedPosts = likesService.viewAllOrderByLikes();
+    public ResponseEntity<Page<PostDTO>> viewAllOrderByLikes(
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
 
-        // 각 게시물에 대한 이미지 URL 추가
-        List<PostDTO> postDTOS = new ArrayList<>();
+        Page<Post> likedPosts = likesService.viewAllOrderByLikes(PageRequest.of(page, size));
 
-        for (Post post : likedPosts) {
+        Page<PostDTO> postDTOS = likedPosts.map(post -> {
             List<PostImg> postImgs = postImgService.findByPost_PostCode(post.getPostCode());
-
-            PostDTO postDTO = PostDTO.builder()
+            return PostDTO.builder()
                     .postCode(post.getPostCode())
                     .postDesc(post.getPostDesc())
                     .userCode(post.getUser().getUserCode())
                     .user(post.getUser())
                     .imageUrls(postImgs.stream().map(PostImg::getPostImgUrl).collect(Collectors.toList()))
                     .build();
-            postDTOS.add(postDTO);
-        }
+        });
+
+        System.err.println(postDTOS);
 
         return ResponseEntity.status(HttpStatus.OK).body(postDTOS);
     }
-
     //    좋아요 한개 삭제
     @DeleteMapping("/delLike")
     public ResponseEntity delLike(@RequestParam("postCode") int postCode) {

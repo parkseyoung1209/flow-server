@@ -83,7 +83,7 @@ public class PostReportService {
         for(Comment comment : comments) {
             for(CommentReport commentReport : commentsReport) {
                 if(commentReport.getComment().getCommentCode() == comment.getCommentCode()) {
-                    commentReportService.delCommentReport(commentReport.getCommentReportCode());
+                    commentReportService.cancelCommentReport(commentReport.getCommentReportCode());
                 }
             }
             commentService.deleteComment(comment.getCommentCode());
@@ -116,5 +116,9 @@ public class PostReportService {
 //    신고하기
     public void reportPost(PostReport vo) {
         postReportDao.save(vo);
+    }
+//    신고글 취소하기
+    public void cancelPostReport(int postReportCode) {
+        postReportDao.deleteById(postReportCode);
     }
 }

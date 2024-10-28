@@ -482,7 +482,7 @@ public class PostController {
         for(Comment comment : comments) {
             for(CommentReport commentReport : commentsReport) {
                 if(commentReport.getComment().getCommentCode() == comment.getCommentCode()) {
-                    commentReportService.delCommentReport(commentReport.getCommentReportCode());
+                    commentReportService.cancelCommentReport(commentReport.getCommentReportCode());
                 }
             }
         }

@@ -39,4 +39,11 @@ public class UserReportController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
+    // 유저 신고 취소하기
+    @DeleteMapping("/cancelUserReport")
+    public ResponseEntity cancelUserReport(@RequestParam(name="userReportCode") int userReportCode) {
+        userReportService.cancelUserReport(userReportCode);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
 }

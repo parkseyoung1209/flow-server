@@ -38,4 +38,10 @@ public class PostReportController {
         postReportService.reportPost(postReport);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
+//    신고글 취소하기
+    @DeleteMapping("/cancelPostReport")
+    public ResponseEntity cancelPostReport(@RequestParam(name="postReportCode") int postReportCode) {
+        postReportService.cancelPostReport(postReportCode);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
 }

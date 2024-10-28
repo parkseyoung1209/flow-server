@@ -12,4 +12,9 @@ public interface CommentReportDAO extends JpaRepository<CommentReport, Integer> 
     @Transactional
     @Query(value = "DELETE FROM comment_report WHERE post_code =:postCode",nativeQuery = true)
     public void deleteCommentReportByPostCode(@Param("postCode") int postCode);
+
+    @Modifying
+    @Transactional
+    @Query(value="DELETE FROM comment_report WHERE comment_code =:commentCode",nativeQuery = true)
+    public void deleteCommentReportByCommentCode(@Param("commentCode") int commentCode);
 }

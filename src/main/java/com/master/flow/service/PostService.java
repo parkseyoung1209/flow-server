@@ -43,11 +43,6 @@ public class PostService {
         return (List<Post>) postDAO.findAll(builder, sort);
     }
 
-    // 카테고리별 게시물 조회
-    public List<Post> findPostsByFilters(String job, String gender, Integer height) {
-        return postDAO.findPostsByFilters(job, gender, height);
-    }
-
     // 게시물 1개 보기 ( 상세페이지 조회)
     public Post view(int postCode) {
         return postDAO.findById(postCode).get();

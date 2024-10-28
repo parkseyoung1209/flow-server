@@ -29,6 +29,6 @@ public interface PostTagDAO extends JpaRepository<PostTag, Integer> {
     List<Integer> findPostTag(@Param("postCode") int postCode);
 
     // 여러 태그로 게시물 조회
-    @Query("SELECT pt.post FROM PostTag pt WHERE pt.tag.tagCode IN :tagCodes GROUP BY pt.post")
-    List<Post> findPostsByTags(@Param("tagCodes") List<Integer> tagCodes);
+    @Query("SELECT pt.post FROM PostTag pt WHERE pt.tag.tagName IN :tagNames GROUP BY pt.post")
+    List<Post> findPostsByTagNames(@Param("tagNames") List<String> tagNames);
 }

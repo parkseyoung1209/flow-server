@@ -16,16 +16,23 @@ public interface PostDAO extends JpaRepository<Post, Integer>, QuerydslPredicate
     @Query(value = "SELECT * FROM post WHERE user_code = :userCode ORDER BY post_code desc", nativeQuery = true)
     List<Post> findByUser_UserCode(@Param("userCode") int userCode); // 유저 코드로 게시글 목록 조회
 
+    List<Post> findByUser_UserCodeIn(List<Integer> userCodes);
+
     // 카테고리별 게시물 조회
     @Query("SELECT p FROM Post p JOIN p.user u WHERE "
-            + "(:job IS NULL OR u.userJob = :job) "
-            + "AND (:gender IS NULL OR u.userGender = :gender) "
-            + "AND (:height IS NULL OR u.userHeight = :height)")
+            + "(:userJob IS NULL OR u.userJob IN :userJob) "
+            + "AND (:userGender IS NULL OR u.userGender = :userGender) "
+            + "AND (:userHeightMin IS NULL OR u.userHeight >= :userHeightMin) "
+            + "AND (:userHeightMax IS NULL OR u.userHeight <= :userHeightMax) "
+            + "AND (:userWeightMin IS NULL OR u.userWeight >= :userWeightMin) "
+            + "AND (:userWeightMax IS NULL OR u.userWeight <= :userWeightMax)")
     List<Post> findPostsByFilters(
-            @Param("job") String job,
-            @Param("gender") String gender,
-            @Param("height") Integer height
+            @Param("userJob") List<String> userJob,
+            @Param("userGender") String userGender,
+            @Param("userHeightMin") Integer userHeightMin,
+            @Param("userHeightMax") Integer userHeightMax,
+            @Param("userWeightMin") Integer userWeightMin,
+            @Param("userWeightMax") Integer userWeightMax
     );
 
-    List<Post> findByUser_UserCodeIn(List<Integer> userCodes);
 }

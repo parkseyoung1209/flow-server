@@ -10,6 +10,7 @@ import com.master.flow.model.vo.PostImg;
 import com.master.flow.model.vo.QUser;
 import com.master.flow.model.vo.User;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import io.jsonwebtoken.security.SignatureException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -48,12 +49,14 @@ public class UserService {
 
     // 사용자 정보 가져오는 메서드
     private User getUser(){
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-        if(auth != null && auth.isAuthenticated()){
-            return (User) auth.getPrincipal();
+        try{
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            if(auth != null && auth.isAuthenticated()){
+                return (User) auth.getPrincipal();
+            }
+        }catch (SignatureException e){
+            return null;
         }
-
         return null;
     }
     
@@ -113,7 +116,10 @@ public class UserService {
         return userDao.findById(code).get();
     }
     public User findUser(){
-        return userDao.findById(getUser().getUserCode()).get();
+        if(getUser() != null){
+            return userDao.findById(getUser().getUserCode()).get();
+        }
+        return null;
     }
 
     // 유저 탈퇴

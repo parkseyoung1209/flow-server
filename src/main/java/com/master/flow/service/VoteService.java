@@ -38,8 +38,13 @@ public class VoteService {
         return 0;
     }
 
-    // 찬/반 투표
-    public void vote (Vote vo){
+    // 찬성 투표
+    public void voteY (Vote vo){
+        voteDao.save(vo);
+    }
+
+    // 반대 투표
+    public void voteN (Vote vo){
         voteDao.save(vo);
     }
 

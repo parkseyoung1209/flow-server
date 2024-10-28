@@ -107,12 +107,14 @@ public class PostController {
 
     // 투표 게시판 게시물 전체 조회
     @GetMapping("/votePost")
-    public ResponseEntity<List<PostDTO>> postVoteViewAll(@RequestParam(name = "keyword", required = false) String keyword){
+    public ResponseEntity<List<PostDTO>> postVoteViewAll(@RequestParam(name = "keyword", required = false) String keyword) {
         Sort sortCondition = Sort.by("postDate").descending(); // 최신 순 정렬
 
         BooleanBuilder builder = new BooleanBuilder();
-
         QPost qPost = QPost.post;
+
+        // postType이 "vote"인 것만 조회
+        builder.and(qPost.postType.eq("vote"));
 
         if (keyword != null) {
             BooleanExpression expression = qPost.postDesc.like("%" + keyword + "%");
@@ -123,7 +125,6 @@ public class PostController {
 
         // 각 게시물에 대한 이미지 URL 추가
         List<PostDTO> postDTOS = new ArrayList<>();
-
         for (Post post : posts) {
             List<PostImg> postImgs = postImgService.findByPost_PostCode(post.getPostCode());
 
@@ -137,8 +138,9 @@ public class PostController {
             postDTOS.add(postDTO);
         }
 
-        return ResponseEntity.status(HttpStatus.OK).body(postDTOS);
+        return ResponseEntity.ok(postDTOS);
     }
+
 
     // 카테고리별 게시물 조회
     @GetMapping("/category")

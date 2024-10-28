@@ -1,5 +1,6 @@
 package com.master.flow.controller;
 
+import com.master.flow.model.vo.User;
 import com.master.flow.model.vo.Vote;
 import com.master.flow.service.VoteService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,16 +15,22 @@ public class VoteController {
 
     @Autowired
     private VoteService voteService;
+    // 찬성 투표
+    @PostMapping("/votePost/{postCode}/y")
+    public ResponseEntity voteY (@RequestBody Vote vo){
+        voteService.voteY(vo);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
 
-    // 찬/반 투표
-    @PostMapping("/postVote/vote")
-    public ResponseEntity vote (@RequestBody Vote vo){
-        voteService.vote(vo);
+    // 반대 투표
+    @PostMapping("/votePost/{postCode}/n")
+    public ResponseEntity voteN (@RequestBody Vote vo){
+        voteService.voteN(vo);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     // 투표 취소
-    @PostMapping("/postVote/vote/{voteCode}")
+    @PostMapping("/postVote/vote/{voteCode}/remove")
     public ResponseEntity removeVote (@PathVariable(name="voteCode") int userCode){
         voteService.removeVote(userCode);
         return ResponseEntity.status(HttpStatus.OK).build();

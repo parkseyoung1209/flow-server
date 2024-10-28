@@ -140,16 +140,6 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK).body(postDTOS);
     }
 
-    // 카테고리별 게시물 조회
-    @GetMapping("/category")
-    public ResponseEntity<List<Post>> getPostsByFilters(
-            @RequestParam(name = "job", required = false) String job,
-            @RequestParam(name = "gender", required = false) String gender,
-            @RequestParam(name = "height", required = false) Integer height) {
-        List<Post> posts = postService.findPostsByFilters(job, gender, height);
-        return ResponseEntity.ok(posts);
-    }
-
     // 게시물 1개 보기 ( 상세페이지 조회)
     @GetMapping("/post/{postCode}")
     public ResponseEntity<PostDTO> view(@PathVariable(name="postCode") int postCode) {

@@ -21,10 +21,9 @@ public class ProductController {
 
 //        System.out.println(products);
 
-        for (Integer p : products){
-            productService.deleteOne(p);
+        for (Integer p : products) {
+            if(p!=null) productService.deleteOne(p);
         }
-
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 

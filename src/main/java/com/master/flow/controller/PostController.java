@@ -229,12 +229,7 @@ public class PostController {
     @PostMapping("/post")
     public ResponseEntity upload(PostDTO postDTO) throws IOException {
 
-
-//        log.info("products : " + postDTO.getProducts());
-//        log.info("tags : " + postDTO.getTagCodes());
-//        log.info("postPublicYN : " + postDTO.getPostPublicYn());
-
-
+//        System.out.println(postDTO);
         List<MultipartFile> files = postDTO.getImageFiles();
         List<Product> products = postDTO.getProducts();
         List<Integer> tags = postDTO.getTagCodes();
@@ -253,6 +248,7 @@ public class PostController {
         } else {
             post = postService.save(Post.builder()
                     .postType("post")
+                    .postDesc("")
                     .postDate(LocalDateTime.now())
                     .postPublicYn(postDTO.getPostPublicYn())
                     .user(userService.findUser(postDTO.getUserCode()))

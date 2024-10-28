@@ -42,4 +42,9 @@ public class UserReportService {
         userReportDAO.save(vo);
     }
 
+    // 취소하기
+    public void cancelUserReport(int userReportCode) {
+        userReportDAO.deleteById(userReportCode);
+    }
+
 }

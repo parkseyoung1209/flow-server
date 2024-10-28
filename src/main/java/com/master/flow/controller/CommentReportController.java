@@ -23,7 +23,7 @@ public class CommentReportController {
 
 //    신고한 댓글 한개 삭제하기
     @DeleteMapping("/delCommentReport")
-    public ResponseEntity delCommentReport(@RequestParam int commentReportCode) {
+    public ResponseEntity delCommentReport(@RequestParam(name="commentReportCode") int commentReportCode) {
         commentReportService.delCommentReport(commentReportCode);
         return ResponseEntity.status(HttpStatus.OK).build();
     }

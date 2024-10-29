@@ -1,6 +1,8 @@
 package com.master.flow.model.dao;
 
 import com.master.flow.model.vo.Post;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
@@ -34,5 +36,7 @@ public interface PostDAO extends JpaRepository<Post, Integer>, QuerydslPredicate
             @Param("userWeightMin") Integer userWeightMin,
             @Param("userWeightMax") Integer userWeightMax
     );
+
+    Page<Post> findByUser_UserCodeIn(List<Integer> userCodes, Pageable pageable);
 
 }

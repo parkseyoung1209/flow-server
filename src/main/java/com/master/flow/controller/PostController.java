@@ -10,6 +10,8 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -71,14 +73,15 @@ public class PostController {
     @Autowired
     private VoteDescService voteDescService;
 
+    // 컨트롤러에서 페이징 파라미터 추가
     @GetMapping("/post")
-    public ResponseEntity<List<PostDTO>> viewAll(
-            @RequestParam(name = "keyword", required = false) String keyword) {
+    public ResponseEntity<Page<PostDTO>> viewAll(
+            @RequestParam(name = "keyword", required = false) String keyword,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "10") int size) {
 
-        Sort sortCondition = Sort.by("postDate").descending(); // 최신 순 정렬
-
+        Sort sortCondition = Sort.by("postDate").descending();
         BooleanBuilder builder = new BooleanBuilder();
-
         QPost qPost = QPost.post;
 
         if (keyword != null) {
@@ -86,23 +89,20 @@ public class PostController {
             builder.and(expression);
         }
 
-        List<Post> posts = postService.viewAll(builder, sortCondition);
+        // 페이징 처리
+        Page<Post> posts = postService.viewAll(builder, PageRequest.of(page, size, sortCondition));
 
         // 각 게시물에 대한 이미지 URL 추가
-        List<PostDTO> postDTOS = new ArrayList<>();
-
-        for (Post post : posts) {
+        Page<PostDTO> postDTOS = posts.map(post -> {
             List<PostImg> postImgs = postImgService.findByPost_PostCode(post.getPostCode());
-
-            PostDTO postDTO = PostDTO.builder()
+            return PostDTO.builder()
                     .postCode(post.getPostCode())
                     .postDesc(post.getPostDesc())
                     .userCode(post.getUser().getUserCode())
                     .user(post.getUser())
                     .imageUrls(postImgs.stream().map(PostImg::getPostImgUrl).collect(Collectors.toList()))
                     .build();
-            postDTOS.add(postDTO);
-        }
+        });
 
         return ResponseEntity.status(HttpStatus.OK).body(postDTOS);
     }

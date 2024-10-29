@@ -9,6 +9,8 @@ import com.master.flow.model.vo.User;
 import com.querydsl.core.BooleanBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -38,9 +40,9 @@ public class PostService {
     @Autowired
     private ProductDAO productDao;
 
-    // 게시물 전체 조회
-    public List<Post> viewAll(BooleanBuilder builder, Sort sort) {
-        return (List<Post>) postDAO.findAll(builder, sort);
+    // 서비스 계층에서 페이징 처리
+    public Page<Post> viewAll(BooleanBuilder builder, Pageable pageable) {
+        return postDAO.findAll(builder, pageable);
     }
 
     // 게시물 1개 보기 ( 상세페이지 조회)

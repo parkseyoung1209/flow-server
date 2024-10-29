@@ -11,6 +11,8 @@ import com.master.flow.model.vo.*;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -407,20 +409,18 @@ public class FollowService {
     }
 
     // 내가 팔로우하는 유저의 게시글 조회
-    public List<PostInfoDTO> getPostsFromFollowingUsers(int userCode) {
-        // 해당 유저를 팔로우하고 있는 유저 목록 가져오기
+    public Page<PostInfoDTO> getPostsFromFollowingUsers(int userCode, Pageable pageable) {
         List<Follow> followers = followDAO.findAllByFollowingUser_UserCode(userCode);
         List<Integer> followerUserCodes = followers.stream()
                 .map(follow -> follow.getFollowerUser().getUserCode())
                 .collect(Collectors.toList());
 
-        // 팔로우한 유저의 게시물 가져오기
-        List<Post> posts = postDAO.findByUser_UserCodeIn(followerUserCodes);
+        Page<Post> posts = postDAO.findByUser_UserCodeIn(followerUserCodes, pageable);
 
-        return posts.stream().map(post -> {
+        return posts.map(post -> {
             List<PostImg> postImgs = postImgDAO.findByPost_PostCode(post.getPostCode());
-            return new PostInfoDTO(post, 0, 0, postImgs); // likeCount와 collectionCount는 나중에 추가할 수 있습니다.
-        }).collect(Collectors.toList());
+            return new PostInfoDTO(post, 0, 0, postImgs);
+        });
     }
     // 추천 팔로워를 해봅시다...
 //    public

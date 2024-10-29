@@ -9,6 +9,9 @@ import com.master.flow.service.PostImgService;
 import com.master.flow.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,7 +21,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -86,14 +91,15 @@ public class FollowController {
 
     // 내가 팔로우한 유저의 게시글 조회
     @GetMapping("/posts/following/{userCode}")
-    public ResponseEntity<List<PostDTO>> getPostsFromFollowedUsers(
-            @PathVariable(name = "userCode") int userCode) {
+    public ResponseEntity<Map<String, Object>> getPostsFromFollowedUsers(
+            @PathVariable(name = "userCode") int userCode,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
 
-        Sort sortCondition = Sort.by("postDate").descending(); // 최신 순 정렬
-        
-        List<PostInfoDTO> postInfoList = followService.getPostsFromFollowingUsers(userCode);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("postDate").descending());
+        Page<PostInfoDTO> postInfoList = followService.getPostsFromFollowingUsers(userCode, pageable);
 
-        List<PostDTO> postDTOS = postInfoList.stream().map(postInfo -> {
+        Page<PostDTO> postDTOS = postInfoList.map(postInfo -> {
             List<PostImg> postImgs = postImgService.findByPost_PostCode(postInfo.getPost().getPostCode());
 
             return PostDTO.builder()
@@ -103,9 +109,15 @@ public class FollowController {
                     .user(postInfo.getPost().getUser())
                     .imageUrls(postImgs.stream().map(PostImg::getPostImgUrl).collect(Collectors.toList()))
                     .build();
-        }).collect(Collectors.toList());
+        });
 
-        return ResponseEntity.ok(postDTOS);
+        Map<String, Object> response = new HashMap<>();
+        response.put("content", postDTOS.getContent());
+        response.put("totalPages", postDTOS.getTotalPages());
+        response.put("totalElements", postDTOS.getTotalElements());
+        response.put("currentPage", postDTOS.getNumber());
+
+        System.err.println(response);
+        return ResponseEntity.ok(response);
     }
-
 }

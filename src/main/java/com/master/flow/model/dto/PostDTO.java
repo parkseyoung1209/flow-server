@@ -3,6 +3,7 @@ package com.master.flow.model.dto;
 import com.master.flow.model.vo.Product;
 import com.master.flow.model.vo.Tag;
 import com.master.flow.model.vo.User;
+import com.master.flow.model.vo.VoteDesc;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -48,6 +49,8 @@ public class PostDTO {
     // 투표 관련
     private int voteCount; // 전체 투표 수
     private int yCount; // 찬성 투표 수
-    private int nCount; // 반대 투표 수
+    private int nCount; // 반대 투표 수\
+
+    private VoteDesc voteDesc; // 투표 내용
 
 }

@@ -68,6 +68,8 @@ public class PostController {
     private CommentReportService commentReportService;
     @Autowired
     private VoteService voteService;
+    @Autowired
+    private VoteDescService voteDescService;
 
     @GetMapping("/post")
     public ResponseEntity<List<PostDTO>> viewAll(
@@ -181,6 +183,7 @@ public class PostController {
     @GetMapping("/votePost/{postCode}")
     public ResponseEntity votePostView(@PathVariable(name="postCode") int postCode){
         Post post = postService.view(postCode);
+        VoteDesc voteDesc = voteDescService.voteDesc(postCode);
         List<PostImg> postImgs = postImgService.findByPost_PostCode(postCode);
         List<PostImgDTO> imgDTO = new ArrayList<>();
         int yCount = voteService.voteCountY(postCode);

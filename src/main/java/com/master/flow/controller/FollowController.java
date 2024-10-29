@@ -101,7 +101,6 @@ public class FollowController {
 
         Page<PostDTO> postDTOS = postInfoList.map(postInfo -> {
             List<PostImg> postImgs = postImgService.findByPost_PostCode(postInfo.getPost().getPostCode());
-
             return PostDTO.builder()
                     .postCode(postInfo.getPost().getPostCode())
                     .postDesc(postInfo.getPost().getPostDesc())
@@ -112,12 +111,11 @@ public class FollowController {
         });
 
         Map<String, Object> response = new HashMap<>();
-        response.put("content", postDTOS.getContent());
+        response.put("content", postDTOS.getContent());    // Add postDTO content
         response.put("totalPages", postDTOS.getTotalPages());
         response.put("totalElements", postDTOS.getTotalElements());
         response.put("currentPage", postDTOS.getNumber());
 
-        System.err.println(response);
         return ResponseEntity.ok(response);
     }
 }

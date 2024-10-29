@@ -45,31 +45,31 @@ public class CommentController {
     }
 
 //     무한 댓글 추가
-    public List<CommentDTO> commentList(List<Comment> comments) {
-        List<CommentDTO> response = new ArrayList<>();
-
-        for (Comment comment : comments) {
-            List<Comment> replies = commentService.getAllComment(comment.getCommentCode());
-            List<CommentDTO> repliesDTO = new ArrayList<>();
-            CommentDTO dto = new CommentDTO();
-            dto.setReplies(repliesDTO);
-            response.add(dto);
-        }
-        return response;
-    }
-
-//    // 대댓글 작성
-//    public CommentDTO addParentCommentCode(Comment comment) {
-//        return CommentDTO.builder()
-//                .commentCode(comment.getCommentCode())
-//                .commentDesc(comment.getCommentDesc())
-//                .commentImgUrl(comment.getCommentImgUrl())
-//                .commentDate(comment.getCommentDate())
-//                .commentDelYn(comment.getCommentDelYn())
-//                .postCode(comment.getPostCode())
-////                .user(comment.getUser()
-//                .build();
+//    public List<CommentDTO> commentList(List<Comment> comments) {
+//        List<CommentDTO> response = new ArrayList<>();
+//
+//        for (Comment comment : comments) {
+//            List<Comment> replies = commentService.getAllComment(comment.getCommentCode());
+//            List<CommentDTO> repliesDTO = new ArrayList<>();
+//            CommentDTO dto = new CommentDTO();
+//            dto.setReplies(repliesDTO);
+//            response.add(dto);
+//        }
+//        return response;
 //    }
+
+    // 대댓글 작성
+    public CommentDTO addParentCommentCode(Comment comment) {
+        return CommentDTO.builder()
+                .commentCode(comment.getCommentCode())
+                .commentDesc(comment.getCommentDesc())
+                .commentImgUrl(comment.getCommentImgUrl())
+                .commentDate(comment.getCommentDate())
+                .commentDelYn(comment.getCommentDelYn())
+                .postCode(comment.getPostCode())
+//                .user(comment.getUser()
+                .build();
+    }
 
     // 댓글 수정
     @PutMapping("/updatecomment")

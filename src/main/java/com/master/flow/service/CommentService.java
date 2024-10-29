@@ -74,14 +74,14 @@ public class CommentService {
                 .fetch();
     }
 
-//    // 대댓글 작성
-//    public List<Comment> addParentCommentCode(int parentCommentCode) {
-//        return queryFactory
-//                .selectFrom(qComment)
-//                .where(qComment.parentCommentCode.eq(parentCommentCode))
-//                .orderBy(qComment.commentDate.asc())
-//                .fetch();
-//    }
+    // 대댓글 작성
+    public List<Comment> addParentCommentCode(int parentCommentCode) {
+        return queryFactory
+                .selectFrom(qComment)
+                .where(qComment.parentCommentCode.eq(parentCommentCode))
+                .orderBy(qComment.commentDate.asc())
+                .fetch();
+    }
 
     // 댓글 수정
     public void updateComment(CommentDTO dto) {

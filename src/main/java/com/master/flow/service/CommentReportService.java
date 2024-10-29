@@ -43,4 +43,8 @@ public class CommentReportService {
     public void cancelCommentReport(int commentReportCode) {
         commentReportDao.deleteById(commentReportCode);
     }
+//    댓글 신고하기
+    public void reportComment(CommentReport vo) {
+        commentReportDao.save(vo);
+    }
 }

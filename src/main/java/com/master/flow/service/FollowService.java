@@ -143,7 +143,6 @@ public class FollowService {
                 .toList();
     }
     public List<String> convertToInitialsFromName(List<User> users, int num, String key) {
-        System.out.println(num);
         List<String> userNickNameList = new ArrayList<>();
         for(User user : users) {
             StringBuilder initials = new StringBuilder();

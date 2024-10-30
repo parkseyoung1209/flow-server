@@ -11,10 +11,14 @@ import jakarta.persistence.Id;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -64,7 +68,7 @@ public class CommentService {
 //        return "http://192.168.10.51:8081/comment" + file.getOriginalFilename();
 //    }
 
-    // 부모 댓글 조회
+    // 댓글 조회
     public List<Comment> getAllComment(int postCode) {
         return queryFactory
                 .selectFrom(qComment)
@@ -75,7 +79,12 @@ public class CommentService {
     }
 
     // 대댓글 작성
-    public List<Comment> addParentCommentCode(int parentCommentCode) {
+    public void addParentCommentCode(CommentDTO dto) {
+        commentDao.saveComment(dto.getCommentDesc(), dto.getPostCode(), dto.getUserCode(), dto.getParentCommentCode());
+    }
+
+    // 대댓글 조회
+    public List<Comment> getParentCommentCode(int parentCommentCode) {
         return queryFactory
                 .selectFrom(qComment)
                 .where(qComment.parentCommentCode.eq(parentCommentCode))

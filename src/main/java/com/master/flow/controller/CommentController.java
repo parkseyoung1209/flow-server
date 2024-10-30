@@ -35,7 +35,7 @@ public class CommentController {
     }
 
 
-    // 한 게시물에 따른 모든 댓글 조회
+    // 댓글 조회
     @GetMapping("/{postCode}/comment")
     public ResponseEntity getComments(@PathVariable(name = "postCode") int postCode) {
         List<Comment> comments = commentService.getAllComment(postCode);
@@ -45,21 +45,21 @@ public class CommentController {
     }
 
 //     무한 댓글 추가
-//    public List<CommentDTO> commentList(List<Comment> comments) {
-//        List<CommentDTO> response = new ArrayList<>();
-//
-//        for (Comment comment : comments) {
-//            List<Comment> replies = commentService.getAllComment(comment.getCommentCode());
-//            List<CommentDTO> repliesDTO = new ArrayList<>();
-//            CommentDTO dto = new CommentDTO();
-//            dto.setReplies(repliesDTO);
-//            response.add(dto);
-//        }
-//        return response;
-//    }
+    public List<CommentDTO> commentList(List<Comment> comments) {
+        List<CommentDTO> response = new ArrayList<>();
 
-    // 대댓글 작성
-    public CommentDTO addParentCommentCode(Comment comment) {
+        for (Comment comment : comments) {
+            List<Comment> replies = commentService.getAllComment(comment.getCommentCode());
+            List<CommentDTO> repliesDTO = new ArrayList<>();
+            CommentDTO dto = new CommentDTO();
+            dto.setReplies(repliesDTO);
+            response.add(dto);
+        }
+        return response;
+    }
+
+    // 대댓글 조회
+    public CommentDTO getParentCommentCode(Comment comment) {
         return CommentDTO.builder()
                 .commentCode(comment.getCommentCode())
                 .commentDesc(comment.getCommentDesc())
@@ -69,6 +69,13 @@ public class CommentController {
                 .postCode(comment.getPostCode())
 //                .user(comment.getUser()
                 .build();
+    }
+
+    // 대댓글 작성
+    @PostMapping("/parentCommentCode")
+    public ResponseEntity<Void> addParentCommentCode(@RequestBody CommentDTO dto) {
+        commentService.addParentCommentCode(dto);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     // 댓글 수정
@@ -91,11 +98,4 @@ public class CommentController {
 //        commentService.deleteParent(parentCommentCode);
 //        return ResponseEntity.status(HttpStatus.OK).build();
 //    }
-
-    // 댓글 신고
-    @PostMapping("/{id}/report")
-    public ResponseEntity<Void> reportComment(@PathVariable int id, @RequestBody String reportDESC) {
-        commentService.reportComment(id, reportDESC);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-    }
 }

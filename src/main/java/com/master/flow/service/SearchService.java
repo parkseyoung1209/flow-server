@@ -27,6 +27,7 @@ public class SearchService {
         Integer heightMax = searchDTO.getUserHeightMax();
         Integer weightMin = searchDTO.getUserWeightMin();
         Integer weightMax = searchDTO.getUserWeightMax();
+        Integer tagCode = searchDTO.getTagCode();
 
         // 카테고리별 게시물 조회
         List<Post> posts = postDAO.findPostsByFilters(
@@ -35,14 +36,15 @@ public class SearchService {
                 heightMin,
                 heightMax,
                 weightMin,
-                weightMax
+                weightMax,
+                tagCode
         );
 
         // 태그 필터링
-        if (searchDTO.getTags() != null && !searchDTO.getTags().isEmpty()) {
-            List<Post> taggedPosts = postTagDAO.findPostsByTagNames(searchDTO.getTags());
-            posts.retainAll(taggedPosts);
-        }
+//        if (searchDTO.getTagCode() != null && !searchDTO.getTagCode().isEmpty()) {
+//            List<Post> taggedPosts = postTagDAO.findPostsByTagNames(searchDTO.getTags());
+//            posts.retainAll(taggedPosts);
+//        }
 
         return posts;
     }

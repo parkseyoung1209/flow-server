@@ -21,20 +21,24 @@ public interface PostDAO extends JpaRepository<Post, Integer>, QuerydslPredicate
     List<Post> findByUser_UserCodeIn(List<Integer> userCodes);
 
     // 카테고리별 게시물 조회
-    @Query("SELECT p FROM Post p JOIN p.user u WHERE "
+    //
+    // 카테고리별 게시물 조회
+    @Query("SELECT p FROM Post p JOIN p.user u LEFT JOIN PostTag pt ON (p.postCode = pt.postCode) WHERE "
             + "(:userJob IS NULL OR u.userJob IN :userJob) "
             + "AND (:userGender IS NULL OR u.userGender = :userGender) "
             + "AND (:userHeightMin IS NULL OR u.userHeight >= :userHeightMin) "
             + "AND (:userHeightMax IS NULL OR u.userHeight <= :userHeightMax) "
             + "AND (:userWeightMin IS NULL OR u.userWeight >= :userWeightMin) "
-            + "AND (:userWeightMax IS NULL OR u.userWeight <= :userWeightMax)")
+            + "AND (:userWeightMax IS NULL OR u.userWeight <= :userWeightMax)"
+            + "AND (:tagCode IS NULL OR pt.tagCode = :tagCode)")
     List<Post> findPostsByFilters(
             @Param("userJob") List<String> userJob,
             @Param("userGender") String userGender,
             @Param("userHeightMin") Integer userHeightMin,
             @Param("userHeightMax") Integer userHeightMax,
             @Param("userWeightMin") Integer userWeightMin,
-            @Param("userWeightMax") Integer userWeightMax
+            @Param("userWeightMax") Integer userWeightMax,
+            @Param("tagCode") Integer tagCode
     );
 
     Page<Post> findByUser_UserCodeIn(List<Integer> userCodes, Pageable pageable);

@@ -1,5 +1,7 @@
 package com.master.flow.model.dto;
 
+import com.master.flow.model.vo.PostTag;
+import com.master.flow.model.vo.Tag;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,7 +19,7 @@ public class SearchDTO {
     private Integer userHeightMax;
     private Integer userWeightMin;
     private Integer userWeightMax;
-
-    private List<String> tags;
+    private Integer tagCode;
+    //private List<PostTag> tags;
 
 }

@@ -104,6 +104,8 @@ public class PostController {
                     .build();
         });
 
+        System.err.println(postDTOS);
+
         return ResponseEntity.status(HttpStatus.OK).body(postDTOS);
     }
 
@@ -182,8 +184,8 @@ public class PostController {
     // 투표 게시물 조회
     @GetMapping("/votePost/{postCode}")
     public ResponseEntity votePostView(@PathVariable(name="postCode") int postCode){
-        Post post = postService.view(postCode);
-        VoteDesc voteDesc = voteDescService.voteDesc(postCode);
+        Post post = postService.view(postCode); // post 코드로 게시물 조회
+        VoteDesc voteDesc = voteDescService.voteDesc(postCode); // 포스트 코드로 투표 게시물 내용 1, 2 조회
         List<PostImg> postImgs = postImgService.findByPost_PostCode(postCode);
         List<PostImgDTO> imgDTO = new ArrayList<>();
         int yCount = voteService.voteCountY(postCode);
@@ -198,11 +200,14 @@ public class PostController {
                 .postDesc(post.getPostDesc())
                 .postPublicYn(post.getPostPublicYn())
                 .postType(post.getPostType())
+                .postDate(post.getPostDate())
                 .userCode(post.getUser().getUserCode())
                 .postImgInfo(imgDTO)
                 .yCount(yCount)
                 .nCount(nCount)
                 .voteCount(voteCount)
+                .voteTextFirst(voteDesc.getVoteTextFirst())
+                .voteTextSecond(voteDesc.getVoteTextSecond())
                 .imageUrls(postImgs.stream().map(PostImg::getPostImgUrl).collect(Collectors.toList()))
                 .build();
 
@@ -323,7 +328,6 @@ public class PostController {
     // 투표 게시물 업로드
     @PostMapping("/uploadVote")
     public ResponseEntity uploadVote(PostDTO postDTO) throws IOException {
-
         List<MultipartFile> files = postDTO.getImageFiles();
 
         Post post = new Post();
@@ -345,6 +349,17 @@ public class PostController {
                     .user(userService.findUser(postDTO.getUserCode()))
                     .build());
         }
+
+        VoteDesc voteDesc = new VoteDesc();
+        voteDesc.setPost(post);
+        if(postDTO.getVoteTextFirst() != null){
+            voteDesc.setVoteTextFirst(postDTO.getVoteTextFirst());
+        }
+        if(postDTO.getVoteTextSecond() != null){
+            voteDesc.setVoteTextSecond(postDTO.getVoteTextSecond());
+        }
+        voteDescService.save(voteDesc);
+
 
         // 이미지 DB 저장
         for(MultipartFile f : files) {

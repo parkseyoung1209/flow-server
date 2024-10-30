@@ -15,31 +15,24 @@ public class VoteController {
 
     @Autowired
     private VoteService voteService;
-    // 찬성 투표
-    @PostMapping("/votePost/{postCode}/y")
-    public ResponseEntity voteY (@RequestBody Vote vo){
-        voteService.voteY(vo);
+
+    // 찬성/반대 투표
+    @PostMapping("/votePost/{postCode}")
+    public ResponseEntity vote (@RequestBody Vote vo){
+        voteService.vote(vo);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-    // 반대 투표
-    @PostMapping("/votePost/{postCode}/n")
-    public ResponseEntity voteN (@RequestBody Vote vo){
-        voteService.voteN(vo);
-        return ResponseEntity.status(HttpStatus.OK).build();
+    // 해당 게시물의 해당유저의 투표 유무 조회
+    @GetMapping("/votePost/checkVote")
+    public ResponseEntity checkVote(@RequestParam(name = "userCode") int userCode, @RequestParam(name = "postCode") int postCode ){
+        return ResponseEntity.ok(voteService.checkVote(userCode, postCode));
     }
 
     // 투표 취소
-    @PostMapping("/postVote/vote/{voteCode}/remove")
-    public ResponseEntity removeVote (@PathVariable(name="voteCode") int userCode){
-        voteService.removeVote(userCode);
-        return ResponseEntity.status(HttpStatus.OK).build();
-    }
-
-    // 투표 수정
-    @PutMapping("/postVote/vote")
-    public ResponseEntity updateVote (@RequestBody Vote vo){
-        voteService.updateVote();
+    @DeleteMapping("/removeVote/{voteCode}")
+    public ResponseEntity removeVote (@PathVariable(name="voteCode") int voteCode){
+        voteService.removeVote(voteCode);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 

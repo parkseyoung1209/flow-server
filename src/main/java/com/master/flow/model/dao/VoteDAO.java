@@ -14,19 +14,18 @@ public interface VoteDAO extends JpaRepository<Vote, Integer> {
     Vote check(@Param("userCode") int userCode);
 
     // 투표게시물 전제 투표 수
-    @Query(value = "SELECT count(*) FROM vote WHERE post_code = :post_code" , nativeQuery = true)
-    int count(@Param("post_code") int voteCount);
+    @Query(value = "SELECT count(*) FROM vote WHERE post_code = :postCode" , nativeQuery = true)
+    int count(@Param("postCode") int postCode);
 
     // 투표게시물 찬성 투표 수
-    @Query(value = "SELECT count(*) FROM vote WHERE vote_yn = 'y' and post_code = :post_code", nativeQuery = true)
-    int countY(@Param("post_code") int voteCountY);
+    @Query(value = "SELECT count(*) FROM vote WHERE vote_yn = 'Y' and post_code = :postCode", nativeQuery = true)
+    int countY(@Param("postCode") int postCode);
 
     // 투표게시물 반대 투표 수
-    @Query(value = "SELECT count(*) FROM vote WHERE vote_yn = 'n' and post_code = :post_code", nativeQuery = true)
-    int countN(@Param("post_code") int voteCountN);
+    @Query(value = "SELECT count(*) FROM vote WHERE vote_yn = 'N' and post_code = :postCode", nativeQuery = true)
+    int countN(@Param("postCode") int postCode);
 
-
-    // 투표게시물 반대 투표 수
+    // 투표게시물 삭제
     @Modifying
     @Transactional
     @Query(value = "DELETE FROM vote WHERE post_code = :postCode",nativeQuery = true)

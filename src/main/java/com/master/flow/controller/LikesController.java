@@ -73,8 +73,6 @@ public class LikesController {
                     .build();
         });
 
-        System.err.println(postDTOS);
-
         return ResponseEntity.status(HttpStatus.OK).body(postDTOS);
     }
     //    좋아요 한개 삭제

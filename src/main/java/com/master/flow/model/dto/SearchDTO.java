@@ -20,6 +20,5 @@ public class SearchDTO {
     private Integer userWeightMin;
     private Integer userWeightMax;
     private Integer tagCode;
-    //private List<PostTag> tags;
 
 }

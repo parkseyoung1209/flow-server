@@ -2,6 +2,7 @@ package com.master.flow.model.dto;
 
 import com.master.flow.model.vo.Post;
 import com.master.flow.model.vo.PostImg;
+import com.master.flow.model.vo.Tag;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,4 +21,5 @@ public class PostInfoDTO {
     private int likeCount;
     private int collectionCount;
     private List<PostImg> imageFiles;
+
 }

@@ -214,7 +214,6 @@ public class FollowService {
             }
             userNickNameList.add(initials.toString());
         }
-        System.out.println("220 : " + userNickNameList);
         return userNickNameList; // 한글 닉네임의 초성 문자열이 나옴 홍길동-> ㅎㄱㄷ || 홍ㄱㄷ
     }
 
@@ -227,7 +226,7 @@ public class FollowService {
             int finalIndex = unicode % 28;
             if (key.length() > 1) {
                 if(key.charAt(i)< 0x3131) return 0;
-                if(key.charAt(i+1) >= 0x3131 && key.charAt(i+1) <= 0x314E) return 3;
+                if(key.charAt(key.length()-1) >= 0x3131 && key.charAt(key.length()-1) <= 0x314E) return 3;
                 else if(finalIndex != 0) return 5;
             }
         }
@@ -275,9 +274,8 @@ public class FollowService {
                 String sliceText = sliceTextBuilder.toString();
                 return sliceText;
             } else if (isKoreanConsonant(key) == 5) {
-                System.out.println("281 : " + Arrays.toString(key.toCharArray()));
+                StringBuilder sliceTextBuilder = new StringBuilder();
                 for (char ch : key.toCharArray()) {
-                    StringBuilder sliceTextBuilder = new StringBuilder();
                     int unicode = ch - 0xAC00;
                     int initialIndex = unicode / (21 * 28); // 초성 인덱스 추출
                     int medialIndex = (unicode % (21 * 28)) / 28; // 중성 인덱스 추출
@@ -291,10 +289,9 @@ public class FollowService {
                         sliceTextBuilder.append(firstChar);
                         sliceTextBuilder.append(secondChar);
                     }
-
-                    String sliceText = sliceTextBuilder.toString();
-                    return sliceText;
                 }
+                String sliceText = sliceTextBuilder.toString();
+                return sliceText;
             }
         }
         return key;
@@ -315,9 +312,30 @@ public class FollowService {
         // key와 유저 리스트로 필터링 조건 생성
         // 조건에 맞는 팔로우 유저 리스트 가져오기
         List<User> filteredUsers = followingUserList(followFilter, followingUserCode);
-        switch (isKoreanConsonant(key)) {
+        List<User> initialSearchUser = new ArrayList<>();
+
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(key);
+
+        if(key.length() >= 2) {
+            stringBuilder.setLength(0);
+            for (User filteredUser : filteredUsers) {
+                for (int j = 0; j < key.length(); j++) {
+                    System.out.println(key.charAt(j));
+                    System.out.println(filteredUser.getUserNickname().contains(String.valueOf(key.charAt(j))));
+                    if (filteredUser.getUserNickname().contains(String.valueOf(key.charAt(j)))) {
+                        stringBuilder.append(key.charAt(j));
+                    } else if (key.charAt(j) >= 0xAC00 && key.charAt(j) <= 0xD7A3) {
+                        stringBuilder.append(sliceKorean(String.valueOf(key.charAt(j))));
+                        break;
+                    }
+                }
+                break;
+            }
+        }
+        System.out.println(isKoreanConsonant(stringBuilder.toString()) + stringBuilder.toString());
+        switch (isKoreanConsonant(stringBuilder.toString())) {
             case 1: {
-                List<User> initialSearchUser = new ArrayList<>();
                 List<String> userNickNameList = convertToInitialsFromName(filteredUsers, 1, null);
                 List<String> nickNameList = nickNameList(filteredUsers); // 원본닉네임 리스트// 초성 리스트
                 for (int i = 0; i < userNickNameList.size(); i++) {
@@ -338,7 +356,6 @@ public class FollowService {
                 return new FollowDTO(initialUserDTOList.size(), initialUserDTOList);
             }
             case 2: {
-                List<User> initialSearchUser = new ArrayList<>();
                 List<String> userNickNameList = convertToInitialsFromName(filteredUsers, 2, null);
                 List<String> nickNameList = nickNameList(filteredUsers); // 원본닉네임 리스트// 초성 리스트
                 for (int i = 0; i < userNickNameList.size(); i++) {
@@ -359,7 +376,6 @@ public class FollowService {
                 return new FollowDTO(initialUserDTOList.size(), initialUserDTOList);
             }
             case 3: {
-                List<User> initialSearchUser = new ArrayList<>();
                 List<String> userNickNameList = convertToInitialsFromName(filteredUsers, 3, key);
                 List<String> nickNameList = nickNameList(filteredUsers); // 원본닉네임 리스트
                 for (int i = 0; i < userNickNameList.size(); i++) {
@@ -380,7 +396,6 @@ public class FollowService {
                 return new FollowDTO(initialUserDTOList.size(), initialUserDTOList);
             }
             case 4, 5: {
-                List<User> initialSearchUser = new ArrayList<>();
                 List<String> userNickNameList = convertToInitialsFromName(filteredUsers, 3, sliceKorean(key));
                 List<String> nickNameList = nickNameList(filteredUsers); // 원본닉네임 리스트
 

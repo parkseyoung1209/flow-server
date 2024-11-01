@@ -302,10 +302,7 @@ public class FollowService {
 
     //내가 팔로우한 인간들의 수와 인간들 전체 목록 dto발사
     public FollowDTO viewMyFollower(int followingUserCode, String key) {
-        System.out.println("307 믿겨지지가 않아:" + isKoreanConsonant(key));
-        if (key.contains(" ")) {
-            key = key.replaceAll("\\s", ""); // 모든 공백 제거
-        }
+       
         QUser qUser = QUser.user;  // QueryDSL로 생성된 QUser 객체
         // 먼저 유저 리스트를 가져옴 (필터링에 사용)
         List<User> allUsers = queryFactory
@@ -426,9 +423,7 @@ public class FollowService {
     }
     //위랑 반대
     public FollowDTO followMeUsers (int followerUserCode, String key) {
-        if (key.contains(" ")) {
-            key = key.replaceAll("\\s", ""); // 모든 공백 제거
-        }
+
         QUser qUser = QUser.user;  // QueryDSL로 생성된 QUser 객체
 
         List<User> allUsers = queryFactory

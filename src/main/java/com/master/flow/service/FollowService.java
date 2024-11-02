@@ -16,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 
@@ -170,20 +171,15 @@ public class FollowService {
             StringBuilder initials = new StringBuilder();
             int keyIndex = 0;
             for (char ch : user.getUserNickname().toCharArray()) {
+                int unicode = ch - 0xAC00;
+                int initialIndex = unicode / (21 * 28);
+                int medialIndex = (unicode % (21 * 28)) / 28; // 중성 인덱스 추출
+                char combinedChar = (char) (0xAC00 + (initialIndex * 21 * 28) + (medialIndex * 28));
                 if (ch >= 0xAC00 && ch <= 0xD7A3 && num == 1) { // 한글이냐 여부
-                    int unicode = ch - 0xAC00;
-                    int initialIndex = unicode / (21 * 28);
                     initials.append(INITIALS[initialIndex]);
                 } else if(ch >= 0xAC00 && ch <= 0xD7A3 && num == 2) {
-                    int unicode = ch - 0xAC00;
-                    int initialIndex = unicode / (21 * 28); // 초성 인덱스 추출
-                    int medialIndex = (unicode % (21 * 28)) / 28; // 중성 인덱스 추출
-
-                    char combinedChar = (char) (0xAC00 + (initialIndex * 21 * 28) + (medialIndex * 28));
                     initials.append(combinedChar);
                 } else if(ch >= 0xAC00 && ch <= 0xD7A3 && num == 3) {
-                    int unicode = ch - 0xAC00;
-                    int initialIndex = unicode / (21 * 28);
                     String initialChar = INITIALS[initialIndex];
                     if (key != null && !key.trim().isEmpty()) {
                         if (keyIndex < key.length()) {
@@ -199,9 +195,10 @@ public class FollowService {
                                 initials.append(initialChar);
                                 keyIndex++;
                             }
-                            // 키와 매칭되지 않는 경우, 유저의 초성만 추가
+                            // 키와 매칭되지 않는 경우, 유저의 초성만 추가 // 초중성이 같다면 초중성만 남기기
                             else {
-                                initials.append(initialChar);
+                                if(keyCh == (char) (0xAC00 + (initialIndex * 21 * 28) + (medialIndex * 28))) initials.append(combinedChar);
+                                else initials.append(initialChar);
                             }
                         } else {
                             // 키의 길이를 넘어섰을 때, 남은 닉네임의 글자는 초성만 추가
@@ -226,8 +223,10 @@ public class FollowService {
             int finalIndex = unicode % 28;
             if (key.length() > 1) {
                 if(key.charAt(i)< 0x3131) return 0;
+
                 if(key.charAt(key.length()-1) >= 0x3131 && key.charAt(key.length()-1) <= 0x314E) return 3;
-                else if(finalIndex != 0) return 5;
+                else if(finalIndex == 0) return 3;
+                else return 5;
             }
         }
         if(key.length() == 1 && (key.charAt(0) >= 0x3131 && key.charAt(0) <= 0x314E)) {
@@ -276,18 +275,20 @@ public class FollowService {
             } else if (isKoreanConsonant(key) == 5) {
                 StringBuilder sliceTextBuilder = new StringBuilder();
                 for (char ch : key.toCharArray()) {
-                    int unicode = ch - 0xAC00;
-                    int initialIndex = unicode / (21 * 28); // 초성 인덱스 추출
-                    int medialIndex = (unicode % (21 * 28)) / 28; // 중성 인덱스 추출
-                    int finalIndex = unicode % 28;
+                    if(!(ch < 0xAC00)) {
+                        int unicode = ch - 0xAC00;
+                        int initialIndex = unicode / (21 * 28); // 초성 인덱스 추출
+                        int medialIndex = (unicode % (21 * 28)) / 28; // 중성 인덱스 추출
+                        int finalIndex = unicode % 28;
 
-                    if (finalIndex == 0) {
-                        sliceTextBuilder.append(ch);
-                    } else {
-                        String firstChar = String.valueOf((char) (0xAC00 + (initialIndex * 21 * 28) + (medialIndex * 28)));
-                        String secondChar = FINAL_CONSONANTS[finalIndex];
-                        sliceTextBuilder.append(firstChar);
-                        sliceTextBuilder.append(secondChar);
+                        if (finalIndex == 0) {
+                            sliceTextBuilder.append(ch);
+                        } else {
+                            String firstChar = String.valueOf((char) (0xAC00 + (initialIndex * 21 * 28) + (medialIndex * 28)));
+                            String secondChar = FINAL_CONSONANTS[finalIndex];
+                            sliceTextBuilder.append(firstChar);
+                            sliceTextBuilder.append(secondChar);
+                        }
                     }
                 }
                 String sliceText = sliceTextBuilder.toString();
@@ -296,50 +297,120 @@ public class FollowService {
         }
         return key;
     }
-
-    //내가 팔로우한 인간들의 수와 인간들 전체 목록 dto발사
-    public FollowDTO viewMyFollower(int followingUserCode, String key) {
-       
+    private List<User> filteredUsers(String key, int code) {
         QUser qUser = QUser.user;  // QueryDSL로 생성된 QUser 객체
         // 먼저 유저 리스트를 가져옴 (필터링에 사용)
         List<User> allUsers = queryFactory
                 .selectFrom(qUser)
                 .where(qUser.userHeight.isNotNull())
                 .fetch(); // 모든 유저 목록을 가져옴
-
-        // 필터링 조건을 생성
         BooleanBuilder followFilter = followBuilder(key, allUsers);
-        // key와 유저 리스트로 필터링 조건 생성
-        // 조건에 맞는 팔로우 유저 리스트 가져오기
-        List<User> filteredUsers = followingUserList(followFilter, followingUserCode);
-        List<User> initialSearchUser = new ArrayList<>();
+
+        return followingUserList(followFilter, code);
+    }
+    private List<User> filteredUsers2 (String key, int code) {
+        QUser qUser = QUser.user;  // QueryDSL로 생성된 QUser 객체
+        // 먼저 유저 리스트를 가져옴 (필터링에 사용)
+        List<User> allUsers = queryFactory
+                .selectFrom(qUser)
+                .where(qUser.userHeight.isNotNull())
+                .fetch(); // 모든 유저 목록을 가져옴
+        BooleanBuilder followFilter = followBuilder(key, allUsers);
+        return followerUserList(followFilter,code);
+    }
+    private char extractInitial(char ch) {
+        int unicodeValue = ch - 0xAC00;
+        int initialIndex = unicodeValue / (21 * 28);
+        return (char) (0x1100 + initialIndex); // 초성
+    }
+
+    private char extractMedial(char ch) {
+        int unicodeValue = ch - 0xAC00;
+        int medialIndex = (unicodeValue % (21 * 28)) / 28;
+        return (char) (0x1161 + medialIndex); // 중성
+    }
+    private static char extractFinal(char ch) {
+        int unicodeValue = ch - 0xAC00;
+        int finalIndex = unicodeValue % 28;
+        return finalIndex == 0 ? '\0' : (char) (0x11A7 + finalIndex); // 종성 (없으면 '\0' 반환)
+    }
+    private String createSearchResources(String key, List<User> users) {
+        List<String> nickNameList = nickNameList(users);
+        Map<String, List<Character>> nickNameCharMap = new LinkedHashMap<>();
+
+        Set<String> nickNameSet = new HashSet<>(nickNameList);
 
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(key);
 
-        if(key.length() >= 2) {
-            stringBuilder.setLength(0);
-            for (User filteredUser : filteredUsers) {
-                for (int j = 0; j < key.length(); j++) {
-                    System.out.println(key.charAt(j));
-                    System.out.println(filteredUser.getUserNickname().contains(String.valueOf(key.charAt(j))));
-                    if (filteredUser.getUserNickname().contains(String.valueOf(key.charAt(j)))) {
-                        stringBuilder.append(key.charAt(j));
-                    } else if (key.charAt(j) >= 0xAC00 && key.charAt(j) <= 0xD7A3) {
-                        stringBuilder.append(sliceKorean(String.valueOf(key.charAt(j))));
-                        break;
-                    }
+        if(key != null && key.length() >= 2) {
+            stringBuilder.setLength(stringBuilder.length()-1);
+            for(User user : users) {
+                List<Character> list = new ArrayList<>();
+                if (user.getUserNickname().length() > key.length()) {
+                    list.add(user.getUserNickname().charAt(key.length()-2));
+                    list.add(user.getUserNickname().charAt(key.length()-1));
+                    list.add(user.getUserNickname().charAt(key.length()));
+                    nickNameCharMap.put(user.getUserNickname(), list);
+                } else if(user.getUserNickname().length() == key.length()){
+                    list.add(user.getUserNickname().charAt(key.length()-3));
+                    list.add(user.getUserNickname().charAt(key.length()-2));
+                    list.add(user.getUserNickname().charAt(key.length()-1));
+                    nickNameCharMap.put(user.getUserNickname(), list);
+                } else {
+                    nickNameCharMap.put(user.getUserNickname(), list);
+                    break;
                 }
-                break;
             }
+            String lastLetter = String.valueOf(key.charAt(key.length() - 1));
+            int unicode =  lastLetter.charAt(0) - 0xAC00;
+            int finalIndex = unicode % 28;
+
+            String target = stringBuilder.toString() + lastLetter;
+            String target2 = sliceKorean(lastLetter);
+            String target3 = stringBuilder.toString() + sliceKorean(lastLetter).charAt(0);
+            if(lastLetter.charAt(0) < 0xAC00 ) stringBuilder.append(lastLetter);
+            else if(finalIndex == 0) stringBuilder.append(lastLetter);
+            else if(nickNameSet.stream().anyMatch(s -> s.contains(target))) stringBuilder.append(key.charAt(key.length()-1));
+            else if(
+                    nickNameCharMap.values().stream()
+                            .anyMatch(charArray -> {
+                                for (char c : charArray) {
+                                    if (c == sliceKorean(lastLetter).charAt(0)) {
+                                        return true;
+                                    }
+                                }
+                                return false;
+                            })
+            ) stringBuilder.append(target2);
+            else if (nickNameCharMap.values().stream()
+                    .anyMatch(charArray -> {
+                        if (charArray.isEmpty()) return false; // 빈 배열 처리
+                        // 리스트의 마지막 글자 가져오기
+                        char lastChar = charArray.getLast();
+                        // 입력 문자의 종성과 리스트 마지막 글자의 초성을 비교
+                        return extractFinal(lastLetter.charAt(0)) == extractInitial(lastChar);
+                    })) stringBuilder.append(lastLetter);
+            else if(nickNameSet.stream().anyMatch(s -> s.contains(target3))) stringBuilder.append(target2);
         }
-        System.out.println(isKoreanConsonant(stringBuilder.toString()) + stringBuilder.toString());
-        switch (isKoreanConsonant(stringBuilder.toString())) {
+        return stringBuilder.toString();
+    }
+    //내가 팔로우한 인간들의 수와 인간들 전체 목록 dto발사
+    public FollowDTO viewMyFollower(int followingUserCode, String key) {
+        if(key != null) {
+            key=key.trim();
+        }
+        List<User> filteredUsers = filteredUsers(key, followingUserCode);
+        List<String> nickNameList = nickNameList(filteredUsers);
+        List<User> initialSearchUser = new ArrayList<>();
+
+        String keyword = createSearchResources(key, filteredUsers);
+        System.out.println(isKoreanConsonant(keyword));
+        switch (isKoreanConsonant(keyword)) {
             case 1: {
                 List<String> userNickNameList = convertToInitialsFromName(filteredUsers, 1, null);
-                List<String> nickNameList = nickNameList(filteredUsers); // 원본닉네임 리스트// 초성 리스트
                 for (int i = 0; i < userNickNameList.size(); i++) {
-                    if (userNickNameList.get(i).contains(key)) {
+                    if (userNickNameList.get(i).contains(keyword)) {
                         String matchingName = nickNameList.get(i);
                         filteredUsers.stream()
                                 .filter(user -> user.getUserNickname().contains(matchingName)) // 닉네임 일치 여부 확인
@@ -357,9 +428,8 @@ public class FollowService {
             }
             case 2: {
                 List<String> userNickNameList = convertToInitialsFromName(filteredUsers, 2, null);
-                List<String> nickNameList = nickNameList(filteredUsers); // 원본닉네임 리스트// 초성 리스트
                 for (int i = 0; i < userNickNameList.size(); i++) {
-                    if (userNickNameList.get(i).contains(key)) {
+                    if (userNickNameList.get(i).contains(keyword)) {
                         String matchingName = nickNameList.get(i);
                         filteredUsers.stream()
                                 .filter(user -> user.getUserNickname().contains(matchingName)) // 닉네임 일치 여부 확인
@@ -376,10 +446,9 @@ public class FollowService {
                 return new FollowDTO(initialUserDTOList.size(), initialUserDTOList);
             }
             case 3: {
-                List<String> userNickNameList = convertToInitialsFromName(filteredUsers, 3, key);
-                List<String> nickNameList = nickNameList(filteredUsers); // 원본닉네임 리스트
+                List<String> userNickNameList = convertToInitialsFromName(filteredUsers, 3, keyword);
                 for (int i = 0; i < userNickNameList.size(); i++) {
-                    if (userNickNameList.get(i).contains(key)) {
+                    if (userNickNameList.get(i).contains(keyword)) {
                         String matchingName = nickNameList.get(i);
                         filteredUsers.stream()
                                 .filter(user -> user.getUserNickname().contains(matchingName)) // 닉네임 일치 여부 확인
@@ -395,18 +464,42 @@ public class FollowService {
                         .toList();
                 return new FollowDTO(initialUserDTOList.size(), initialUserDTOList);
             }
-            case 4, 5: {
-                List<String> userNickNameList = convertToInitialsFromName(filteredUsers, 3, sliceKorean(key));
-                List<String> nickNameList = nickNameList(filteredUsers); // 원본닉네임 리스트
-
+            case 4: {
+                List<String> userNickNameList = convertToInitialsFromName(filteredUsers, 3, sliceKorean(keyword));
                 for (int i = 0; i < filteredUsers.size(); i++) {
-                    if (filteredUsers.get(i).getUserNickname().contains(key)) {
+                    if (filteredUsers.get(i).getUserNickname().contains(keyword)) {
+                        String matchingName = nickNameList.get(i);
+                        filteredUsers.stream()
+                                .filter(user -> user.getUserNickname().contains(matchingName))
+                                .findFirst()
+                                .ifPresent(initialSearchUser::add);
+                    } else if (userNickNameList.get(i).contains(sliceKorean(keyword))) {
                         String matchingName = nickNameList.get(i);
                         filteredUsers.stream()
                                 .filter(user -> user.getUserNickname().contains(matchingName)) // 닉네임 일치 여부 확인
                                 .findFirst()
                                 .ifPresent(initialSearchUser::add);
-                    } else if (userNickNameList.get(i).contains(sliceKorean(key))) {
+                    }
+                }
+                List<UserDTO> initialUserDTOList = initialSearchUser.stream()
+                        .map(user -> {
+                            boolean logic = checkLogic(followingUserCode, user.getUserCode());
+                            return new UserDTO(user, logic);
+                        })
+                        .toList();
+                return new FollowDTO(initialUserDTOList.size(), initialUserDTOList);
+            }
+            case 5 : {
+                List<String> userNickNameList = convertToInitialsFromName(filteredUsers, 3, keyword);
+
+                for (int i = 0; i < filteredUsers.size(); i++) {
+                    if (filteredUsers.get(i).getUserNickname().contains(keyword)) {
+                        String matchingName = nickNameList.get(i);
+                        filteredUsers.stream()
+                                .filter(user -> user.getUserNickname().contains(matchingName))
+                                .findFirst()
+                                .ifPresent(initialSearchUser::add);
+                    } else if (userNickNameList.get(i).contains(keyword)) {
                         String matchingName = nickNameList.get(i);
                         filteredUsers.stream()
                                 .filter(user -> user.getUserNickname().contains(matchingName)) // 닉네임 일치 여부 확인
@@ -438,23 +531,19 @@ public class FollowService {
     }
     //위랑 반대
     public FollowDTO followMeUsers (int followerUserCode, String key) {
+        if(key != null) {
+            key=key.trim();
+        }
+        List<User> filteredUsers = filteredUsers2(key, followerUserCode);
+        List<String> nickNameList = nickNameList(filteredUsers);
+        List<User> initialSearchUser = new ArrayList<>();
 
-        QUser qUser = QUser.user;  // QueryDSL로 생성된 QUser 객체
-
-        List<User> allUsers = queryFactory
-                .selectFrom(qUser)
-                .where(qUser.userHeight.isNotNull())
-                .fetch(); // 모든 유저 목록을 가져옴
-        BooleanBuilder followFilter = followBuilder(key, allUsers);
-
-        List<User> filteredUsers = followerUserList(followFilter, followerUserCode);
-        switch (isKoreanConsonant(key)) {
-            case 1 : {
-                List<User> initialSearchUser = new ArrayList<>();
+        String keyword = createSearchResources(key, filteredUsers);
+        switch (isKoreanConsonant(keyword)) {
+            case 1: {
                 List<String> userNickNameList = convertToInitialsFromName(filteredUsers, 1, null);
-                List<String> nickNameList = nickNameList(filteredUsers); // 원본닉네임 리스트// 초성 리스트
-                for(int i = 0; i < userNickNameList.size(); i++) {
-                    if(userNickNameList.get(i).contains(key)) {
+                for (int i = 0; i < userNickNameList.size(); i++) {
+                    if (userNickNameList.get(i).contains(keyword)) {
                         String matchingName = nickNameList.get(i);
                         filteredUsers.stream()
                                 .filter(user -> user.getUserNickname().contains(matchingName)) // 닉네임 일치 여부 확인
@@ -465,17 +554,15 @@ public class FollowService {
                 List<UserDTO> initialUserDTOList = initialSearchUser.stream()
                         .map(user -> {
                             boolean logic = checkLogic(followerUserCode, user.getUserCode());
-                            return new UserDTO(user,logic);
+                            return new UserDTO(user, logic);
                         })
                         .toList();
                 return new FollowDTO(initialUserDTOList.size(), initialUserDTOList);
             }
-            case 2 : {
-                List<User> initialSearchUser = new ArrayList<>();
+            case 2: {
                 List<String> userNickNameList = convertToInitialsFromName(filteredUsers, 2, null);
-                List<String> nickNameList = nickNameList(filteredUsers); // 원본닉네임 리스트// 초성 리스트
-                for(int i = 0; i < userNickNameList.size(); i++) {
-                    if(userNickNameList.get(i).contains(key)) {
+                for (int i = 0; i < userNickNameList.size(); i++) {
+                    if (userNickNameList.get(i).contains(keyword)) {
                         String matchingName = nickNameList.get(i);
                         filteredUsers.stream()
                                 .filter(user -> user.getUserNickname().contains(matchingName)) // 닉네임 일치 여부 확인
@@ -486,17 +573,15 @@ public class FollowService {
                 List<UserDTO> initialUserDTOList = initialSearchUser.stream()
                         .map(user -> {
                             boolean logic = checkLogic(followerUserCode, user.getUserCode());
-                            return new UserDTO(user,logic);
+                            return new UserDTO(user, logic);
                         })
                         .toList();
                 return new FollowDTO(initialUserDTOList.size(), initialUserDTOList);
             }
-            case 3 : {
-                List<User> initialSearchUser = new ArrayList<>();
-                List<String> userNickNameList = convertToInitialsFromName(filteredUsers, 3, key);
-                List<String> nickNameList = nickNameList(filteredUsers); // 원본닉네임 리스트// 초성 리스트
-                for(int i = 0; i < userNickNameList.size(); i++) {
-                    if(userNickNameList.get(i).contains(key)) {
+            case 3: {
+                List<String> userNickNameList = convertToInitialsFromName(filteredUsers, 3, keyword);
+                for (int i = 0; i < userNickNameList.size(); i++) {
+                    if (userNickNameList.get(i).contains(keyword)) {
                         String matchingName = nickNameList.get(i);
                         filteredUsers.stream()
                                 .filter(user -> user.getUserNickname().contains(matchingName)) // 닉네임 일치 여부 확인
@@ -507,24 +592,47 @@ public class FollowService {
                 List<UserDTO> initialUserDTOList = initialSearchUser.stream()
                         .map(user -> {
                             boolean logic = checkLogic(followerUserCode, user.getUserCode());
-                            return new UserDTO(user,logic);
+                            return new UserDTO(user, logic);
                         })
                         .toList();
                 return new FollowDTO(initialUserDTOList.size(), initialUserDTOList);
             }
-            case 4, 5: {
-                List<User> initialSearchUser = new ArrayList<>();
-                List<String> userNickNameList = convertToInitialsFromName(filteredUsers, 3, sliceKorean(key));
-                List<String> nickNameList = nickNameList(filteredUsers); // 원본닉네임 리스트
-
+            case 4: {
+                List<String> userNickNameList = convertToInitialsFromName(filteredUsers, 3, sliceKorean(keyword));
                 for (int i = 0; i < filteredUsers.size(); i++) {
-                    if (filteredUsers.get(i).getUserNickname().contains(key)) {
+                    if (filteredUsers.get(i).getUserNickname().contains(keyword)) {
+                        String matchingName = nickNameList.get(i);
+                        filteredUsers.stream()
+                                .filter(user -> user.getUserNickname().contains(matchingName))
+                                .findFirst()
+                                .ifPresent(initialSearchUser::add);
+                    } else if (userNickNameList.get(i).contains(sliceKorean(keyword))) {
                         String matchingName = nickNameList.get(i);
                         filteredUsers.stream()
                                 .filter(user -> user.getUserNickname().contains(matchingName)) // 닉네임 일치 여부 확인
                                 .findFirst()
                                 .ifPresent(initialSearchUser::add);
-                    } else if (userNickNameList.get(i).contains(sliceKorean(key))) {
+                    }
+                }
+                List<UserDTO> initialUserDTOList = initialSearchUser.stream()
+                        .map(user -> {
+                            boolean logic = checkLogic(followerUserCode, user.getUserCode());
+                            return new UserDTO(user, logic);
+                        })
+                        .toList();
+                return new FollowDTO(initialUserDTOList.size(), initialUserDTOList);
+            }
+            case 5 : {
+                List<String> userNickNameList = convertToInitialsFromName(filteredUsers, 3, keyword);
+                System.out.println(userNickNameList);
+                for (int i = 0; i < filteredUsers.size(); i++) {
+                    if (filteredUsers.get(i).getUserNickname().contains(keyword)) {
+                        String matchingName = nickNameList.get(i);
+                        filteredUsers.stream()
+                                .filter(user -> user.getUserNickname().contains(matchingName))
+                                .findFirst()
+                                .ifPresent(initialSearchUser::add);
+                    } else if (userNickNameList.get(i).contains(keyword)) {
                         String matchingName = nickNameList.get(i);
                         filteredUsers.stream()
                                 .filter(user -> user.getUserNickname().contains(matchingName)) // 닉네임 일치 여부 확인

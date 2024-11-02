@@ -174,6 +174,9 @@ public class FollowService {
                 int unicode = ch - 0xAC00;
                 int initialIndex = unicode / (21 * 28);
                 int medialIndex = (unicode % (21 * 28)) / 28; // 중성 인덱스 추출
+                int finalIndex = unicode % 28;
+
+
                 char combinedChar = (char) (0xAC00 + (initialIndex * 21 * 28) + (medialIndex * 28));
                 if (ch >= 0xAC00 && ch <= 0xD7A3 && num == 1) { // 한글이냐 여부
                     initials.append(INITIALS[initialIndex]);
@@ -184,6 +187,10 @@ public class FollowService {
                     if (key != null && !key.trim().isEmpty()) {
                         if (keyIndex < key.length()) {
                             char keyCh = key.charAt(keyIndex);
+                            int keyUnicode = keyCh - 0xAC00;
+                            int keyInitialIndex = keyUnicode / (21*28);
+                            int keyMedialIndex = (keyUnicode % (21*28)) /28;
+                            int keyFinalIndex = keyUnicode % 28;
 
                             // 키가 온전한 한글 음절인 경우
                             if (keyCh >= 0xAC00 && keyCh <= 0xD7A3 && keyCh == ch) {
@@ -197,7 +204,12 @@ public class FollowService {
                             }
                             // 키와 매칭되지 않는 경우, 유저의 초성만 추가 // 초중성이 같다면 초중성만 남기기
                             else {
-                                if(keyCh == (char) (0xAC00 + (initialIndex * 21 * 28) + (medialIndex * 28))) initials.append(combinedChar);
+                                if(keyCh == (char) (0xAC00 + (initialIndex * 21 * 28) + (medialIndex * 28))) {
+                                    if(keyFinalIndex == 0 || finalIndex == 0) initials.append(combinedChar);
+                                    if(FINAL_CONSONANTS[finalIndex].equals(FINAL_CONSONANTS[keyFinalIndex])) initials.append(ch);
+                                    else if(sliceKorean(String.valueOf(keyCh)).charAt(0) == ch) initials.append(ch);
+                                    else initials.append(initialChar);
+                                }
                                 else initials.append(initialChar);
                             }
                         } else {
@@ -211,6 +223,7 @@ public class FollowService {
             }
             userNickNameList.add(initials.toString());
         }
+        System.out.println(userNickNameList);
         return userNickNameList; // 한글 닉네임의 초성 문자열이 나옴 홍길동-> ㅎㄱㄷ || 홍ㄱㄷ
     }
 
@@ -324,11 +337,6 @@ public class FollowService {
         return (char) (0x1100 + initialIndex); // 초성
     }
 
-    private char extractMedial(char ch) {
-        int unicodeValue = ch - 0xAC00;
-        int medialIndex = (unicodeValue % (21 * 28)) / 28;
-        return (char) (0x1161 + medialIndex); // 중성
-    }
     private static char extractFinal(char ch) {
         int unicodeValue = ch - 0xAC00;
         int finalIndex = unicodeValue % 28;
@@ -465,7 +473,7 @@ public class FollowService {
                 return new FollowDTO(initialUserDTOList.size(), initialUserDTOList);
             }
             case 4: {
-                List<String> userNickNameList = convertToInitialsFromName(filteredUsers, 3, sliceKorean(keyword));
+                List<String> userNickNameList = convertToInitialsFromName(filteredUsers, 3, keyword);
                 for (int i = 0; i < filteredUsers.size(); i++) {
                     if (filteredUsers.get(i).getUserNickname().contains(keyword)) {
                         String matchingName = nickNameList.get(i);
@@ -624,7 +632,6 @@ public class FollowService {
             }
             case 5 : {
                 List<String> userNickNameList = convertToInitialsFromName(filteredUsers, 3, keyword);
-                System.out.println(userNickNameList);
                 for (int i = 0; i < filteredUsers.size(); i++) {
                     if (filteredUsers.get(i).getUserNickname().contains(keyword)) {
                         String matchingName = nickNameList.get(i);

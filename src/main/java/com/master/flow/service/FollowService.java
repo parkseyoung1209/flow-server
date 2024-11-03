@@ -413,7 +413,7 @@ public class FollowService {
         List<User> initialSearchUser = new ArrayList<>();
 
         String keyword = createSearchResources(key, filteredUsers);
-        System.out.println(isKoreanConsonant(keyword));
+        System.out.println(keyword);
         switch (isKoreanConsonant(keyword)) {
             case 1: {
                 List<String> userNickNameList = convertToInitialsFromName(filteredUsers, 1, null);
@@ -473,7 +473,7 @@ public class FollowService {
                 return new FollowDTO(initialUserDTOList.size(), initialUserDTOList);
             }
             case 4: {
-                List<String> userNickNameList = convertToInitialsFromName(filteredUsers, 3, keyword);
+                List<String> userNickNameList = convertToInitialsFromName(filteredUsers, 3,sliceKorean(keyword));
                 for (int i = 0; i < filteredUsers.size(); i++) {
                     if (filteredUsers.get(i).getUserNickname().contains(keyword)) {
                         String matchingName = nickNameList.get(i);

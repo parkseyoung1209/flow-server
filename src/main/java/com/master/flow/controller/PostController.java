@@ -89,6 +89,9 @@ public class PostController {
             builder.and(expression);
         }
 
+        // postType이 "vote"가 아닌 게시물만 조회
+        builder.and(qPost.postType.ne("vote"));
+
         // 페이징 처리
         Page<Post> posts = postService.viewAll(builder, PageRequest.of(page, size, sortCondition));
 

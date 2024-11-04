@@ -164,8 +164,9 @@ public class FollowService {
             Map.entry(FINAL_CONSONANTS[18], "ㅂㅅ")
     );
 
-
     public List<String> convertToInitialsFromName(List<User> users, int num, String key) {
+        List<String> nickNameList = nickNameList(users);
+        Set<String> nickNameSet = new HashSet<>(nickNameList);
         List<String> userNickNameList = new ArrayList<>();
         for(User user : users) {
             StringBuilder initials = new StringBuilder();
@@ -193,7 +194,7 @@ public class FollowService {
                             int keyFinalIndex = keyUnicode % 28;
 
                             // 키가 온전한 한글 음절인 경우
-                            if (keyCh >= 0xAC00 && keyCh <= 0xD7A3 && keyCh == ch) {
+                            if (keyCh >= 0xAC00 && keyCh <= 0xD7A3 && (nickNameSet.stream().anyMatch(s -> s.contains(String.valueOf(keyCh)))) && (keyCh == ch)) {
                                 initials.append(ch);
                                 keyIndex++;
                             }
@@ -203,18 +204,31 @@ public class FollowService {
                                 keyIndex++;
                             }
                             // 키와 매칭되지 않는 경우, 유저의 초성만 추가 // 초중성이 같다면 초중성만 남기기
-                            else {
-                                if(keyCh == (char) (0xAC00 + (initialIndex * 21 * 28) + (medialIndex * 28))) {
-                                    if(keyFinalIndex == 0 || finalIndex == 0) initials.append(combinedChar);
-                                    if(FINAL_CONSONANTS[finalIndex].equals(FINAL_CONSONANTS[keyFinalIndex])) initials.append(ch);
-                                    else if(sliceKorean(String.valueOf(keyCh)).charAt(0) == ch) initials.append(ch);
-                                    else initials.append(initialChar);
+                            else if((0xAC00 + (keyInitialIndex *21 *28) + (keyMedialIndex *28)) == (0xAC00 + (initialIndex * 21 * 28) + (medialIndex * 28))){
+                                if(keyFinalIndex == 0 || finalIndex == 0) initials.append(combinedChar);
+                                else if(FINAL_CONSONANTS[finalIndex].equals(FINAL_CONSONANTS[keyFinalIndex])) initials.append(ch);
+                                else if(sliceKorean(String.valueOf(keyCh)).charAt(0) == ch) {
+                                    if(key.length() > 1) {
+                                        if(sliceKorean(String.valueOf(key.charAt(key.length()-1))).charAt(0) == ch) initials.append(keyCh);
+                                        else initials.append(ch);
+                                    }
+                                    else initials.append(keyCh);
+                                }
+                                else if(sliceKorean(String.valueOf(ch)).charAt(0) == keyCh) {
+                                    if(key.length() > 1) {
+                                        if(sliceKorean(String.valueOf(ch)).charAt(0) == key.charAt(key.length()-1)) initials.append(keyCh);
+                                        else initials.append(ch);
+                                    }
+                                    else initials.append(keyCh);
                                 }
                                 else initials.append(initialChar);
+                                keyIndex++;
+                            } else if(nickNameSet.stream().anyMatch(s -> s.contains(String.valueOf(keyCh)))) {
+
                             }
                         } else {
-                            // 키의 길이를 넘어섰을 때, 남은 닉네임의 글자는 초성만 추가
-                            initials.append(initialChar);
+                            if(nickNameSet.stream().anyMatch(s -> s.contains(key))) initials.append(ch);
+                            else initials.append(initialChar);
                         }
                     } else {
                         initials.append(ch);  // 한글이 아닌 경우 그대로 추가
@@ -232,7 +246,7 @@ public class FollowService {
             return 0;
         }
         for(int i=0; i<key.length(); i++) {
-            int unicode = key.charAt(i) - 0xAC00;
+            int unicode = key.charAt(key.length()-1) - 0xAC00;
             int finalIndex = unicode % 28;
             if (key.length() > 1) {
                 if(key.charAt(i)< 0x3131) return 0;
@@ -342,67 +356,7 @@ public class FollowService {
         int finalIndex = unicodeValue % 28;
         return finalIndex == 0 ? '\0' : (char) (0x11A7 + finalIndex); // 종성 (없으면 '\0' 반환)
     }
-    private String createSearchResources(String key, List<User> users) {
-        List<String> nickNameList = nickNameList(users);
-        Map<String, List<Character>> nickNameCharMap = new LinkedHashMap<>();
 
-        Set<String> nickNameSet = new HashSet<>(nickNameList);
-
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(key);
-
-        if(key != null && key.length() >= 2) {
-            stringBuilder.setLength(stringBuilder.length()-1);
-            for(User user : users) {
-                List<Character> list = new ArrayList<>();
-                if (user.getUserNickname().length() > key.length()) {
-                    list.add(user.getUserNickname().charAt(key.length()-2));
-                    list.add(user.getUserNickname().charAt(key.length()-1));
-                    list.add(user.getUserNickname().charAt(key.length()));
-                    nickNameCharMap.put(user.getUserNickname(), list);
-                } else if(user.getUserNickname().length() == key.length()){
-                    list.add(user.getUserNickname().charAt(key.length()-3));
-                    list.add(user.getUserNickname().charAt(key.length()-2));
-                    list.add(user.getUserNickname().charAt(key.length()-1));
-                    nickNameCharMap.put(user.getUserNickname(), list);
-                } else {
-                    nickNameCharMap.put(user.getUserNickname(), list);
-                    break;
-                }
-            }
-            String lastLetter = String.valueOf(key.charAt(key.length() - 1));
-            int unicode =  lastLetter.charAt(0) - 0xAC00;
-            int finalIndex = unicode % 28;
-
-            String target = stringBuilder.toString() + lastLetter;
-            String target2 = sliceKorean(lastLetter);
-            String target3 = stringBuilder.toString() + sliceKorean(lastLetter).charAt(0);
-            if(lastLetter.charAt(0) < 0xAC00 ) stringBuilder.append(lastLetter);
-            else if(finalIndex == 0) stringBuilder.append(lastLetter);
-            else if(nickNameSet.stream().anyMatch(s -> s.contains(target))) stringBuilder.append(key.charAt(key.length()-1));
-            else if(
-                    nickNameCharMap.values().stream()
-                            .anyMatch(charArray -> {
-                                for (char c : charArray) {
-                                    if (c == sliceKorean(lastLetter).charAt(0)) {
-                                        return true;
-                                    }
-                                }
-                                return false;
-                            })
-            ) stringBuilder.append(target2);
-            else if (nickNameCharMap.values().stream()
-                    .anyMatch(charArray -> {
-                        if (charArray.isEmpty()) return false; // 빈 배열 처리
-                        // 리스트의 마지막 글자 가져오기
-                        char lastChar = charArray.getLast();
-                        // 입력 문자의 종성과 리스트 마지막 글자의 초성을 비교
-                        return extractFinal(lastLetter.charAt(0)) == extractInitial(lastChar);
-                    })) stringBuilder.append(lastLetter);
-            else if(nickNameSet.stream().anyMatch(s -> s.contains(target3))) stringBuilder.append(target2);
-        }
-        return stringBuilder.toString();
-    }
     //내가 팔로우한 인간들의 수와 인간들 전체 목록 dto발사
     public FollowDTO viewMyFollower(int followingUserCode, String key) {
         if(key != null) {
@@ -412,8 +366,8 @@ public class FollowService {
         List<String> nickNameList = nickNameList(filteredUsers);
         List<User> initialSearchUser = new ArrayList<>();
 
-        String keyword = createSearchResources(key, filteredUsers);
-        System.out.println(keyword);
+        String keyword = key;
+        System.out.println(isKoreanConsonant(keyword) + "대체뭘까요");
         switch (isKoreanConsonant(keyword)) {
             case 1: {
                 List<String> userNickNameList = convertToInitialsFromName(filteredUsers, 1, null);
@@ -473,7 +427,7 @@ public class FollowService {
                 return new FollowDTO(initialUserDTOList.size(), initialUserDTOList);
             }
             case 4: {
-                List<String> userNickNameList = convertToInitialsFromName(filteredUsers, 3,sliceKorean(keyword));
+                List<String> userNickNameList = convertToInitialsFromName(filteredUsers, 3, keyword);
                 for (int i = 0; i < filteredUsers.size(); i++) {
                     if (filteredUsers.get(i).getUserNickname().contains(keyword)) {
                         String matchingName = nickNameList.get(i);
@@ -481,7 +435,7 @@ public class FollowService {
                                 .filter(user -> user.getUserNickname().contains(matchingName))
                                 .findFirst()
                                 .ifPresent(initialSearchUser::add);
-                    } else if (userNickNameList.get(i).contains(sliceKorean(keyword))) {
+                    } else if (userNickNameList.get(i).contains(String.valueOf(sliceKorean(keyword).charAt(0))) || userNickNameList.get(i).contains(keyword)) {
                         String matchingName = nickNameList.get(i);
                         filteredUsers.stream()
                                 .filter(user -> user.getUserNickname().contains(matchingName)) // 닉네임 일치 여부 확인
@@ -507,7 +461,10 @@ public class FollowService {
                                 .filter(user -> user.getUserNickname().contains(matchingName))
                                 .findFirst()
                                 .ifPresent(initialSearchUser::add);
-                    } else if (userNickNameList.get(i).contains(keyword)) {
+
+                    } else if (userNickNameList.get(i).contains(keyword) || (
+                            userNickNameList.get(i).contains(String.valueOf(keyword.charAt(0)))
+                            && userNickNameList.get(i).contains(String.valueOf(sliceKorean(String.valueOf(keyword.charAt(key.length()-1))).charAt(0))))) {
                         String matchingName = nickNameList.get(i);
                         filteredUsers.stream()
                                 .filter(user -> user.getUserNickname().contains(matchingName)) // 닉네임 일치 여부 확인
@@ -546,7 +503,7 @@ public class FollowService {
         List<String> nickNameList = nickNameList(filteredUsers);
         List<User> initialSearchUser = new ArrayList<>();
 
-        String keyword = createSearchResources(key, filteredUsers);
+        String keyword = key;
         switch (isKoreanConsonant(keyword)) {
             case 1: {
                 List<String> userNickNameList = convertToInitialsFromName(filteredUsers, 1, null);

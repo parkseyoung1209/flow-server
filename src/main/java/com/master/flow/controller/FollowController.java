@@ -20,6 +20,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
@@ -74,12 +77,14 @@ public class FollowController {
     // 내가 팔로우한 팔로워들
     @GetMapping("private/follow/myFollower/{followingUserCode}")
     public ResponseEntity viewMyFollower(@PathVariable(name = "followingUserCode") int followingUserCode, @RequestParam(name = "key", required = false) String key) {
+        if(key!= null) key = URLDecoder.decode(key, StandardCharsets.UTF_8);
         return ResponseEntity.status(HttpStatus.OK).body(followService.viewMyFollower(followingUserCode, key));
     }
 
     // 나를 팔로우한 유저들
     @GetMapping("private/follow/toMe/{followerUserCode}")
     public ResponseEntity followMeUsers(@PathVariable(name= "followerUserCode") int followerUserCode, @RequestParam(name = "key", required = false) String key) {
+        if(key!= null) key = URLDecoder.decode(key, StandardCharsets.UTF_8);
         return ResponseEntity.status(HttpStatus.OK).body(followService.followMeUsers(followerUserCode, key));
     }
 

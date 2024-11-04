@@ -15,8 +15,11 @@ public interface PostDAO extends JpaRepository<Post, Integer>, QuerydslPredicate
     @Query(value = "SELECT * FROM post WHERE post_type = 'vote' and post_public_yn = 'Y'", nativeQuery = true)
     List<Post> findByPostTypesVote();
 
-    @Query(value = "SELECT * FROM post WHERE user_code = :userCode ORDER BY post_code desc", nativeQuery = true)
+    @Query(value = "SELECT * FROM post WHERE user_code = :userCode AND post_type = 'post' ORDER BY post_code desc", nativeQuery = true)
     List<Post> findByUser_UserCode(@Param("userCode") int userCode); // 유저 코드로 게시글 목록 조회
+
+    @Query(value = "SELECT * FROM post WHERE user_code = :userCode AND post_type = 'vote' ORDER BY post_code desc", nativeQuery = true)
+    List<Post> findByUser_UserVote(@Param("userCode") int userCode);
 
     List<Post> findByUser_UserCodeIn(List<Integer> userCodes);
 

@@ -89,6 +89,25 @@ public class PostService {
         return new UserPostSummaryDTO(postInfoList, totalSavedPost);
 
     }
+    // 유저가 만든 투표 조회
+    public UserPostSummaryDTO getVoteListByUser (int userCode){
+        Optional<User> user = userDAO.findById(userCode);
+
+        List<Post> post = postDAO.findByUser_UserVote(userCode);
+
+        List<PostInfoDTO> postInfoList = post.stream().map(posts -> {
+            List<PostImg> postImgs = postImgDao.findByPost_PostCode(posts.getPostCode());
+            int likeCount = likesDAO.countByPost(posts);
+            int collectionCount = collectionDAO.countByPost(posts);
+
+            return new PostInfoDTO(posts, likeCount, collectionCount, postImgs);
+        }).collect(Collectors.toList());
+
+        int totalSavedPost = postInfoList.size();
+
+        return new UserPostSummaryDTO(postInfoList, totalSavedPost);
+
+    }
 
 }
 

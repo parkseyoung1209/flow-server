@@ -221,6 +221,12 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK).body(userPostSummaryDTO);
     }
 
+    @GetMapping("/{userCode}/getUserVote")
+    public ResponseEntity<UserPostSummaryDTO> getUserVote(@PathVariable("userCode") int userCode){
+        UserPostSummaryDTO userPostSummaryDTO = postService.getVoteListByUser(userCode);
+        return ResponseEntity.status(HttpStatus.OK).body(userPostSummaryDTO);
+    }
+
     // 업로드 경로
     private String path = "\\\\192.168.10.51\\flow\\postImg";
 

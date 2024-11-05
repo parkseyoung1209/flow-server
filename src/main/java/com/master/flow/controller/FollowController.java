@@ -4,9 +4,11 @@ import com.master.flow.model.dto.PostDTO;
 import com.master.flow.model.dto.PostInfoDTO;
 import com.master.flow.model.vo.Follow;
 import com.master.flow.model.vo.PostImg;
+import com.master.flow.model.vo.QPost;
 import com.master.flow.service.FollowService;
 import com.master.flow.service.PostImgService;
 import com.master.flow.service.UserService;
+import com.querydsl.core.BooleanBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -20,7 +22,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -102,7 +103,15 @@ public class FollowController {
             @RequestParam(value = "size", defaultValue = "10") int size) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("postDate").descending());
-        Page<PostInfoDTO> postInfoList = followService.getPostsFromFollowingUsers(userCode, pageable);
+
+        // BooleanBuilder를 사용하여 'vote' 게시물 제외 조건 추가
+        BooleanBuilder builder = new BooleanBuilder();
+        QPost qPost = QPost.post;
+
+        builder.and(qPost.postType.ne("vote")); // 'vote' 게시물 제외
+
+        // Following posts 조회 (followService에서 해당 조건을 반영해야 할 경우 수정)
+        Page<PostInfoDTO> postInfoList = followService.getPostsFromFollowingUsers(userCode, pageable, builder);
 
         Page<PostDTO> postDTOS = postInfoList.map(postInfo -> {
             List<PostImg> postImgs = postImgService.findByPost_PostCode(postInfo.getPost().getPostCode());
@@ -123,4 +132,5 @@ public class FollowController {
 
         return ResponseEntity.ok(response);
     }
+
 }

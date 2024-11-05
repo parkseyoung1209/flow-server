@@ -15,6 +15,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -84,18 +86,26 @@ public class PostController {
         BooleanBuilder builder = new BooleanBuilder();
         QPost qPost = QPost.post;
 
+        // 키워드 검색 조건
         if (keyword != null) {
             BooleanExpression expression = qPost.postDesc.like("%" + keyword + "%");
             builder.and(expression);
         }
 
-        // postType이 "vote"가 아닌 게시물만 조회
+        // "vote" 타입 게시물 제외
         builder.and(qPost.postType.ne("vote"));
 
-        // 페이징 처리
+        // 인증된 사용자가 없으면 공개 게시물만 조회 (post_public_yn == 'Y')
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            // 인증되지 않은 경우 (로그아웃 상태)에는 공개 게시물만 조회
+            builder.and(qPost.postPublicYn.eq("Y"));
+        }
+
+        // 로그인된 사용자에 맞는 추가 필터링 조건을 여기에 넣을 수 있음
         Page<Post> posts = postService.viewAll(builder, PageRequest.of(page, size, sortCondition));
 
-        // 각 게시물에 대한 이미지 URL 추가
+        // 게시물 DTO로 변환
         Page<PostDTO> postDTOS = posts.map(post -> {
             List<PostImg> postImgs = postImgService.findByPost_PostCode(post.getPostCode());
             return PostDTO.builder()
@@ -106,8 +116,6 @@ public class PostController {
                     .imageUrls(postImgs.stream().map(PostImg::getPostImgUrl).collect(Collectors.toList()))
                     .build();
         });
-
-        System.err.println(postDTOS);
 
         return ResponseEntity.status(HttpStatus.OK).body(postDTOS);
     }

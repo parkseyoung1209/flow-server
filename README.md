@@ -163,7 +163,7 @@ public interface FollowDAO extends JpaRepository<Follow, FollowId>, QuerydslPred
       
 2. 커스텀 쿼리와 `QueryDSL` 사용:
 
-    * `@Query("SELECT f FROM Follow f")`를 사용하여 모든 팔로우 관계를 `HashSe`t으로 반환하는 메서드를 정의했습니다. 이 메서드는 이후 다양한 비즈니스 로직에서 팔로우 관계를 빠르게 검색하기 위해 만들었습니다.
+    * `@Query("SELECT f FROM Follow f")`를 사용하여 모든 팔로우 관계를 `HashSet`으로 반환하는 메서드를 정의했습니다. 이 메서드는 이후 다양한 비즈니스 로직에서 팔로우 관계를 빠르게 검색하기 위해 만들었습니다.
       
     * `QuerydslPredicateExecutor<Follow>` 인터페이스를 상속하여 동적 쿼리를 작성할 수 있는 기능을 제공합니다.
   
@@ -171,7 +171,7 @@ public interface FollowDAO extends JpaRepository<Follow, FollowId>, QuerydslPred
 ### (3) 서비스 구현
 - **팔로우에 관한 기능이 실질적으로 처리되는 비즈니스 로직들이 담긴 서비스 코드입니다.**
 
-1. 기본적인 `CRUD` 로직
+#### 1. 기본적인 `CREATE/DELETE` 로직
 ```java
 package com.master.flow.service;
 
@@ -256,4 +256,109 @@ public class FollowService {
 이후 코드는 후술...*/
 }
 ```
+**주요 구현 설명**
+
+1. **`findAllFollowSet`** 메서드
+   * `FollowDAO`를 이용하여 커스텀 쿼리로 모든 팔로우 관계를 가져옵니다. `HashSet`의 특성을 이용해 특정 데이터를 효율적으로 비교하기 위해 사용하였습니다.
+
+2. **`existFollow`** 메서드
+   * `User` 테이블을 매핑하기 위해 만든 `userDAO` 인터페이스를 이용하여 각 **로그인 한 유저 코드** 와 **팔로우할 유저 코드** 에 해당하는 `User` 객체를 추출하고 이 두 객체를 `Follow` 객체의 요소로 빌드합니다.
       
+3. **`checkLogic`** 메서드
+   * `findAllFollowSet`으로 가져온 팔로우 테이블과 `existFollow` 메서드로 만든 `Follow 객체`를 포함여부를 판단하여 true/false를 리턴합니다.
+  
+4. **`addFollowRelative/unfollow`** 메서드
+   * `checkLogic` 메서드로 리턴 된 true/false 값에 따라 JPA 인터페이스의 `save/delete` 메서드를 사용하여 팔로우/언팔로우를 구현했습니다.
+
+
+#### 2. 팔로워/팔로위 목록 가져오기 및 검색 기능
+##### (1) 개요
+
+팔로워 및 팔로잉 목록을 불러오고, 검색어를 기준으로 특정 조건에 맞는 사용자 목록을 가져오는 기능을 구현한 서비스 코드입니다.  이 기능은 다음과 같은 주요 로직을 포함합니다.
+
+- 특정 사용자가 팔로우하고 있는 다른 사용자 목록을 가져오기 (`followingUserList`)
+  
+- 특정 사용자를 팔로우하고 있는 사용자 목록을 가져오기 (`followerUserList`)
+  
+- 주어진 키워드를 기반으로 영문자 키워드면 그대로, 한글 키워드라면 초성 또는 완성된 단어를 통해 유저 검색 기능 구현 (`convertToInitialsFromName`)
+
+##### (2) 팔로워/팔로위 목록 가져오기
+```java
+package com.master.flow.service;
+
+import ... // 위와 동일
+
+
+@Service
+public class FollowService {
+  ... // 동일
+
+    private BooleanBuilder followBuilder(String key, List<User> list) {
+        QUser qUser = QUser.user;  // QueryDSL로 생성된 QUser 객체
+
+        BooleanBuilder booleanBuilder = new BooleanBuilder();
+
+        if (key != null && !key.trim().isEmpty()) {
+            if (isKoreanConsonant(key) == 0) {
+                booleanBuilder.and(qUser.userEmail.contains(key).or(qUser.userNickname.contains(key)));
+            }
+            return booleanBuilder;
+        }
+        return booleanBuilder;
+    }
+
+    private List<User> followingUserList(BooleanBuilder booleanBuilder, int code) {
+        QUser qUser = QUser.user;  // QueryDSL로 생성된 QUser 객체
+        QFollow qFollow = QFollow.follow;
+        List<User> users;
+        if (booleanBuilder.hasValue()) {  // booleanBuilder에 조건이 있을 때만 포함
+            users = queryFactory
+                    .select(qUser)
+                    .from(qFollow)
+                    .join(qUser).on(qFollow.followerUser.userCode.eq(qUser.userCode))
+                    .where(qFollow.followingUser.userCode.eq(code)
+                            .and(booleanBuilder))
+                    .fetch();
+        } else {  // key 조건이 없을 때는 기본 조건으로만 조회
+            users = queryFactory
+                    .select(qUser)
+                    .from(qFollow)
+                    .join(qUser).on(qFollow.followerUser.userCode.eq(qUser.userCode))
+                    .where(qFollow.followingUser.userCode.eq(code))  // 기본 조건만 적용
+                    .fetch();
+        }
+        return users;
+    }
+
+    private List<User> followerUserList(BooleanBuilder booleanBuilder, int code) {
+        QUser qUser = QUser.user;  // QueryDSL로 생성된 QUser 객체
+        QFollow qFollow = QFollow.follow;
+        List<User> users;
+        if (booleanBuilder.hasValue()) {  // booleanBuilder에 조건이 있을 때만 포함
+            users = queryFactory
+                    .select(qUser)
+                    .from(qFollow)
+                    .join(qUser).on(qFollow.followingUser.userCode.eq(qUser.userCode))
+                    .where(qFollow.followerUser.userCode.eq(code)
+                            .and(booleanBuilder))
+                    .fetch();
+        } else {  // key 조건이 없을 때는 기본 조건으로만 조회
+            users = queryFactory
+                    .select(qUser)
+                    .from(qFollow)
+                    .join(qUser).on(qFollow.followingUser.userCode.eq(qUser.userCode))
+                    .where(qFollow.followerUser.userCode.eq(code))  // 기본 조건만 적용
+                    .fetch();
+        }
+        return users;
+    }
+/*
+.
+.
+.
+아래에 후술... */
+}
+```
+
+##### (3) 
+  

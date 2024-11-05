@@ -15,7 +15,6 @@ import java.util.Optional;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 
 @Service
 public class LikesService {
@@ -68,7 +67,8 @@ public class LikesService {
 
     // 좋아요 수 높은 순으로 게시물 조회
     public Page<Post> viewAllOrderByLikes(Pageable pageable) {
-        return likesDAO.findAllOrderByLikes(pageable);
+        // 좋아요 수 높은 순으로 게시물을 조회하면서, postType이 'vote'인 게시물 제외
+        return likesDAO.findAllOrderByLikesAndPostTypeNotVote(pageable);
     }
 
     // 좋아요 수 카운트

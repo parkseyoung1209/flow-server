@@ -13,7 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
@@ -60,6 +59,7 @@ public class LikesController {
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size) {
 
+        // 좋아요 수 높은 순으로 게시물 조회
         Page<Post> likedPosts = likesService.viewAllOrderByLikes(PageRequest.of(page, size));
 
         Page<PostDTO> postDTOS = likedPosts.map(post -> {
@@ -75,6 +75,7 @@ public class LikesController {
 
         return ResponseEntity.status(HttpStatus.OK).body(postDTOS);
     }
+
     //    좋아요 한개 삭제
     @DeleteMapping("/delLike")
     public ResponseEntity delLike(@RequestParam("postCode") int postCode) {

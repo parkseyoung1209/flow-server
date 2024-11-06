@@ -1,5 +1,6 @@
 package com.master.flow.service;
 
+import com.master.flow.follow.helperClass.ConvertToInitialsFromNameList;
 import com.master.flow.model.dao.FollowDAO;
 import com.master.flow.model.dao.PostDAO;
 import com.master.flow.model.dao.PostImgDAO;
@@ -8,6 +9,7 @@ import com.master.flow.model.dto.FollowDTO;
 import com.master.flow.model.dto.PostInfoDTO;
 import com.master.flow.model.dto.UserDTO;
 import com.master.flow.model.vo.*;
+import com.master.flow.follow.util.KoreanStringUtil;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -22,6 +24,12 @@ import java.util.stream.Collectors;
 
 @Service
 public class FollowService {
+    @Autowired
+    private ConvertToInitialsFromNameList ciList;
+
+    @Autowired
+    private KoreanStringUtil krUtil;
+
     @Autowired
     private FollowDAO followDAO;
 
@@ -75,14 +83,13 @@ public class FollowService {
         }
     }
 
-
-    private BooleanBuilder followBuilder(String key, List<User> list) {
+    private BooleanBuilder followBuilder(String key) {
         QUser qUser = QUser.user;  // QueryDSL로 생성된 QUser 객체
 
         BooleanBuilder booleanBuilder = new BooleanBuilder();
 
         if (key != null && !key.trim().isEmpty()) {
-            if (isKoreanConsonant(key) == 0) {
+            if (krUtil.isKoreanConsonant(key) == 0) {
                 booleanBuilder.and(qUser.userEmail.contains(key).or(qUser.userNickname.contains(key)));
             }
             return booleanBuilder;
@@ -135,204 +142,12 @@ public class FollowService {
         }
         return users;
     }
-    private List<String> nickNameList (List<User> users) {
-        return users.stream()
-                .map(User::getUserNickname)
-                .toList();
-    }
-    private static final String[] INITIALS = {
-            "ㄱ", "ㄲ", "ㄴ", "ㄷ", "ㄸ", "ㄹ", "ㅁ", "ㅂ", "ㅃ", "ㅅ", "ㅆ",
-            "ㅇ", "ㅈ", "ㅉ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ"
-    };
-    private static final String[] FINAL_CONSONANTS = {
-            "",   "ㄱ", "ㄲ", "ㄳ", "ㄴ", "ㄵ", "ㄶ", "ㄷ", "ㄹ", "ㄺ", "ㄻ", "ㄼ", "ㄽ",
-            "ㄾ", "ㄿ", "ㅀ", "ㅁ", "ㅂ", "ㅄ", "ㅅ", "ㅆ", "ㅇ", "ㅈ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ"
-    };
-
-    private static final Map<String, String> COMPLEX_CONSONANTS = Map.ofEntries(
-            Map.entry(FINAL_CONSONANTS[3], "ㄱㅅ"),
-            Map.entry(FINAL_CONSONANTS[5], "ㄴㅈ"),
-            Map.entry(FINAL_CONSONANTS[6], "ㄴㅎ"),
-            Map.entry(FINAL_CONSONANTS[9], "ㄹㄱ"),
-            Map.entry(FINAL_CONSONANTS[10], "ㄹㅁ"),
-            Map.entry(FINAL_CONSONANTS[11], "ㄹㅂ"),
-            Map.entry(FINAL_CONSONANTS[12], "ㄹㅅ"),
-            Map.entry(FINAL_CONSONANTS[13], "ㄹㅌ"),
-            Map.entry(FINAL_CONSONANTS[14], "ㄹㅍ"),
-            Map.entry(FINAL_CONSONANTS[15], "ㄹㅎ"),
-            Map.entry(FINAL_CONSONANTS[18], "ㅂㅅ")
-    );
-
-    private List<String> convertToInitialsFromName(List<User> users, int num, String key) {
-        List<String> nickNameList = nickNameList(users);
-        Set<String> nickNameSet = new HashSet<>(nickNameList);
-        List<String> userNickNameList = new ArrayList<>();
-        for(User user : users) {
-            StringBuilder initials = new StringBuilder();
-            int keyIndex = 0;
-            for (char ch : user.getUserNickname().toCharArray()) {
-                int unicode = ch - 0xAC00;
-                int initialIndex = unicode / (21 * 28);
-                int medialIndex = (unicode % (21 * 28)) / 28; // 중성 인덱스 추출
-                int finalIndex = unicode % 28;
-
-
-                char combinedChar = (char) (0xAC00 + (initialIndex * 21 * 28) + (medialIndex * 28));
-                if (ch >= 0xAC00 && ch <= 0xD7A3 && num == 1) { // 한글이냐 여부
-                    initials.append(INITIALS[initialIndex]);
-                } else if(ch >= 0xAC00 && ch <= 0xD7A3 && num == 2) {
-                    initials.append(combinedChar);
-                } else if(ch >= 0xAC00 && ch <= 0xD7A3 && num == 3) {
-                    String initialChar = INITIALS[initialIndex];
-                    if (key != null && !key.trim().isEmpty()) {
-                        if (keyIndex < key.length()) {
-                            char keyCh = key.charAt(keyIndex);
-                            int keyUnicode = keyCh - 0xAC00;
-                            int keyInitialIndex = keyUnicode / (21*28);
-                            int keyMedialIndex = (keyUnicode % (21*28)) /28;
-                            int keyFinalIndex = keyUnicode % 28;
-
-                            // 키가 온전한 한글 음절인 경우
-                            if (keyCh >= 0xAC00 && keyCh <= 0xD7A3 && (nickNameSet.stream().anyMatch(s -> s.contains(String.valueOf(keyCh)))) && (keyCh == ch)) {
-                                initials.append(ch);
-                                keyIndex++;
-                            }
-                            // 키가 초성인 경우, 유저 닉네임의 초성과 비교
-                            else if ((keyCh >= 0x3131 && keyCh <= 0x314E) && initialChar.charAt(0) == keyCh) {
-                                initials.append(initialChar);
-                                keyIndex++;
-                            }
-                            // 키와 매칭되지 않는 경우, 유저의 초성만 추가 // 초중성이 같다면 초중성만 남기기
-                            else if((0xAC00 + (keyInitialIndex *21 *28) + (keyMedialIndex *28)) == (0xAC00 + (initialIndex * 21 * 28) + (medialIndex * 28))){
-                                if(keyFinalIndex == 0 || finalIndex == 0) initials.append(combinedChar);
-                                else if(FINAL_CONSONANTS[finalIndex].equals(FINAL_CONSONANTS[keyFinalIndex])) initials.append(ch);
-                                else if(sliceKorean(String.valueOf(keyCh)).charAt(0) == ch) {
-                                    if(key.length() > 1) {
-                                        if(sliceKorean(String.valueOf(key.charAt(key.length()-1))).charAt(0) == ch) initials.append(keyCh);
-                                        else initials.append(ch);
-                                    }
-                                    else initials.append(keyCh);
-                                }
-                                else if(sliceKorean(String.valueOf(ch)).charAt(0) == keyCh) {
-                                    if(key.length() > 1) {
-                                        if(sliceKorean(String.valueOf(ch)).charAt(0) == key.charAt(key.length()-1)) initials.append(keyCh);
-                                        else initials.append(ch);
-                                    }
-                                    else initials.append(keyCh);
-                                }
-                                else initials.append(initialChar);
-                                keyIndex++;
-                            }
-                        } else {
-                            if(nickNameSet.stream().anyMatch(s -> s.contains(key))) initials.append(ch);
-                            else initials.append(initialChar);
-                        }
-                    } else {
-                        initials.append(ch);  // 한글이 아닌 경우 그대로 추가
-                    }
-                }
-            }
-            userNickNameList.add(initials.toString());
-        }
-        return userNickNameList; // 한글 닉네임의 초성 문자열이 나옴 홍길동-> ㅎㄱㄷ || 홍ㄱㄷ
-    }
-
-    private int isKoreanConsonant(String key) {
-        if (key == null || key.trim().isEmpty()) {
-            return 0;
-        }
-        for(int i=0; i<key.length(); i++) {
-            int unicode = key.charAt(key.length()-1) - 0xAC00;
-            int finalIndex = unicode % 28;
-            if (key.length() > 1) {
-                if(key.charAt(i)< 0x3131) return 0;
-
-                if(key.charAt(key.length()-1) >= 0x3131 && key.charAt(key.length()-1) <= 0x314E) return 3;
-                else if(finalIndex == 0) return 3;
-                else return 5;
-            }
-        }
-        if(key.length() == 1 && (key.charAt(0) >= 0x3131 && key.charAt(0) <= 0x314E)) {
-            return 1;
-        }
-        if (key.length() == 1 && key.charAt(0) >= 0xAC00 && key.charAt(0) <= 0xD7A3) {
-            int unicode = key.charAt(0) - 0xAC00;
-            int finalIndex = unicode % 28;
-                if (finalIndex == 0) {
-                    return 2;
-                } else return 4;
-        }
-        return 0;
-    }
-
-    private String sliceKorean(String key) {
-        if(!key.matches(".*\\s.*")) {
-            if (isKoreanConsonant(key) == 4) {
-                int unicode = key.charAt(0) - 0xAC00;
-                int initialIndex = unicode / (21 * 28); // 초성 인덱스 추출
-                int medialIndex = (unicode % (21 * 28)) / 28; // 중성 인덱스 추출
-                int finalIndex = unicode % 28;
-
-                StringBuilder sliceTextBuilder = new StringBuilder();
-                String firstChar = String.valueOf((char) (0xAC00 + (initialIndex * 21 * 28) + (medialIndex * 28)));
-                String secondChar = FINAL_CONSONANTS[finalIndex];
-                if (COMPLEX_CONSONANTS.containsKey(secondChar)) {
-                    secondChar = COMPLEX_CONSONANTS.get(secondChar);
-                    // secondChar 을 잘라서 배열의 무언가와 비교를 하고 그 배열에 맞는 인덱스를 저기 더해줘야함
-                    String secondCharBefore = secondChar.substring(0, 1);
-                    int secondCharIndex = 0;
-                    for (int i = 0; i < FINAL_CONSONANTS.length; i++) {
-                        if (secondCharBefore.equals(FINAL_CONSONANTS[i])) {
-                            secondCharIndex = i;
-                            break;
-                        }
-                    }
-                    firstChar = String.valueOf((char) (firstChar.charAt(0) + secondCharIndex));
-                    secondChar = secondChar.substring(1, 2);
-                }
-                sliceTextBuilder.append(firstChar);
-                sliceTextBuilder.append(secondChar);
-
-                String sliceText = sliceTextBuilder.toString();
-                return sliceText;
-            } else if (isKoreanConsonant(key) == 5) {
-                StringBuilder sliceTextBuilder = new StringBuilder();
-                for (char ch : key.toCharArray()) {
-                    if(!(ch < 0xAC00)) {
-                        int unicode = ch - 0xAC00;
-                        int initialIndex = unicode / (21 * 28); // 초성 인덱스 추출
-                        int medialIndex = (unicode % (21 * 28)) / 28; // 중성 인덱스 추출
-                        int finalIndex = unicode % 28;
-
-                        if (finalIndex == 0) {
-                            sliceTextBuilder.append(ch);
-                        } else {
-                            String firstChar = String.valueOf((char) (0xAC00 + (initialIndex * 21 * 28) + (medialIndex * 28)));
-                            String secondChar = FINAL_CONSONANTS[finalIndex];
-                            sliceTextBuilder.append(firstChar);
-                            sliceTextBuilder.append(secondChar);
-                        }
-                    }
-                }
-                String sliceText = sliceTextBuilder.toString();
-                return sliceText;
-            }
-        }
-        return key;
-    }
-    private List<User> allUsers() {
-        QUser qUser = QUser.user;  // QueryDSL로 생성된 QUser 객체
-        return queryFactory
-                .selectFrom(qUser)
-                .where(qUser.userHeight.isNotNull())
-                .fetch();
-    }
     private List<User> filteredUsers(String key, int code) {
-        BooleanBuilder followFilter = followBuilder(key, allUsers());
+        BooleanBuilder followFilter = followBuilder(key);
         return followingUserList(followFilter, code);
     }
     private List<User> filteredUsers2 (String key, int code) {
-        BooleanBuilder followFilter = followBuilder(key, allUsers());
+        BooleanBuilder followFilter = followBuilder(key);
         return followerUserList(followFilter,code);
     }
     private List<UserDTO> initialUserDTOList(List<User> initialSearchUser, int code) {
@@ -352,7 +167,7 @@ public class FollowService {
     }
 
     private void initialSearchUser(List<User> filteredUsers, int num, String keyword, String keywordOrNull, List<String> nickNameList, List<User> initialSearchUser) {
-        List<String> userNickNameList = convertToInitialsFromName(filteredUsers, num, keywordOrNull);
+        List<String> userNickNameList = ciList.convertToInitialsFromName(filteredUsers, num, keywordOrNull);
         for (int i = 0; i < userNickNameList.size(); i++) {
             if (userNickNameList.get(i).contains(keyword)) {
                 containsKeyword(i, nickNameList, filteredUsers, initialSearchUser);
@@ -360,7 +175,7 @@ public class FollowService {
         }
     }
     private void finalConsonantSearchCompletedUser(List<User> filteredUsers, String keyword, List<String> nickNameList, List<User> initialSearchUser, String filteringChar) {
-        List<String> userNickNameList = convertToInitialsFromName(filteredUsers, 3, keyword);
+        List<String> userNickNameList = ciList.convertToInitialsFromName(filteredUsers, 3, keyword);
         for (int i = 0; i < filteredUsers.size(); i++) {
             if (filteredUsers.get(i).getUserNickname().contains(keyword)) {
                 containsKeyword(i, nickNameList, filteredUsers, initialSearchUser);
@@ -370,19 +185,19 @@ public class FollowService {
         }
     }
     private void doubleDigitSearchCompletedUser(List<User> filteredUsers, String keyword, List<String> nickNameList, List<User> initialSearchUser) {
-        List<String> userNickNameList = convertToInitialsFromName(filteredUsers, 3, keyword);
+        List<String> userNickNameList = ciList.convertToInitialsFromName(filteredUsers, 3, keyword);
         for (int i = 0; i < filteredUsers.size(); i++) {
             if (filteredUsers.get(i).getUserNickname().contains(keyword)) {
                 containsKeyword(i, nickNameList, filteredUsers, initialSearchUser);
             } else if (userNickNameList.get(i).contains(keyword) || (
                     userNickNameList.get(i).contains(String.valueOf(keyword.charAt(0)))
-                            && userNickNameList.get(i).contains(String.valueOf(sliceKorean(String.valueOf(keyword.charAt(keyword.length()-1))).charAt(0))))) {
+                            && userNickNameList.get(i).contains(String.valueOf(krUtil.sliceKorean(String.valueOf(keyword.charAt(keyword.length()-1))).charAt(0))))) {
                 containsKeyword(i, nickNameList, filteredUsers, initialSearchUser);
             }
         }
     }
     private FollowDTO switchOfFollowDto(List<User> filteredUsers, String keyword, List<String> nickNameList, List<User> initialSearchUser, int code) {
-        switch (isKoreanConsonant(keyword)) {
+        switch (krUtil.isKoreanConsonant(keyword)) {
             case 1: {
                 // keyornull = null, keyword는 keyword num=1
                 initialSearchUser(filteredUsers, 1, keyword, null, nickNameList, initialSearchUser);
@@ -402,7 +217,7 @@ public class FollowService {
                 return new FollowDTO(initialUserDTOList.size(), initialUserDTOList);
             }
             case 4: {
-                finalConsonantSearchCompletedUser(filteredUsers, keyword, nickNameList, initialSearchUser, String.valueOf(sliceKorean(keyword).charAt(0)));
+                finalConsonantSearchCompletedUser(filteredUsers, keyword, nickNameList, initialSearchUser, String.valueOf(krUtil.sliceKorean(keyword).charAt(0)));
                 List<UserDTO> initialUserDTOList = initialUserDTOList(initialSearchUser, code);
                 return new FollowDTO(initialUserDTOList.size(), initialUserDTOList);
             }
@@ -423,7 +238,7 @@ public class FollowService {
             key=key.trim();
         }
         List<User> filteredUsers = filteredUsers(key, followingUserCode);
-        List<String> nickNameList = nickNameList(filteredUsers);
+        List<String> nickNameList = ciList.nickNameList(filteredUsers);
         List<User> initialSearchUser = new ArrayList<>();
 
         String keyword = key;
@@ -435,7 +250,7 @@ public class FollowService {
             key=key.trim();
         }
         List<User> filteredUsers = filteredUsers2(key, followerUserCode);
-        List<String> nickNameList = nickNameList(filteredUsers);
+        List<String> nickNameList = ciList.nickNameList(filteredUsers);
         List<User> initialSearchUser = new ArrayList<>();
 
         String keyword = key;

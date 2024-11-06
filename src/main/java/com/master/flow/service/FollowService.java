@@ -11,7 +11,6 @@ import com.master.flow.model.dto.UserDTO;
 import com.master.flow.model.vo.*;
 import com.master.flow.follow.util.KoreanStringUtil;
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -269,23 +268,23 @@ public class FollowService {
 
     // 내가 팔로우하는 유저의 게시글 조회
     public Page<PostInfoDTO> getPostsFromFollowingUsers(int userCode, Pageable pageable, BooleanBuilder builder) {
-        // 팔로우한 유저의 userCode 가져오기
+
         List<Follow> followers = followDAO.findAllByFollowingUser_UserCode(userCode);
         List<Integer> followerUserCodes = followers.stream()
                 .map(follow -> follow.getFollowerUser().getUserCode())
                 .collect(Collectors.toList());
 
+        QPost qPost = QPost.post;
+
         // 팔로우한 유저의 게시물 중에서 postType이 'vote'인 게시물을 제외
-        // BooleanBuilder를 사용하여 조건을 추가
-        Predicate predicate = builder.and(QPost.post.user.userCode.in(followerUserCodes));
+        builder.and(qPost.user.userCode.in(followerUserCodes))
+                .and(qPost.postType.ne("vote"));
 
-        // QuerydslPredicateExecutor를 사용하여 조건을 적용한 페이지 조회
-        Page<Post> posts = postDAO.findAll(predicate, pageable);
+        Page<Post> posts = postDAO.findAll(builder, pageable);
 
-        // Post를 PostInfoDTO로 변환
         return posts.map(post -> {
             List<PostImg> postImgs = postImgDAO.findByPost_PostCode(post.getPostCode());
-            return new PostInfoDTO(post, 0, 0, postImgs);
+            return new PostInfoDTO(post, 0, 0, postImgs); // PostInfoDTO로 변환
         });
     }
     // 추천 팔로워를 해봅시다...

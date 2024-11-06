@@ -4,7 +4,6 @@ import com.master.flow.model.dto.PostDTO;
 import com.master.flow.model.dto.PostInfoDTO;
 import com.master.flow.model.vo.Follow;
 import com.master.flow.model.vo.PostImg;
-import com.master.flow.model.vo.QPost;
 import com.master.flow.service.FollowService;
 import com.master.flow.service.PostImgService;
 import com.master.flow.service.UserService;
@@ -104,13 +103,9 @@ public class FollowController {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("postDate").descending());
 
-        // BooleanBuilder를 사용하여 'vote' 게시물 제외 조건 추가
         BooleanBuilder builder = new BooleanBuilder();
-        QPost qPost = QPost.post;
 
-        builder.and(qPost.postType.ne("vote")); // 'vote' 게시물 제외
-
-        // Following posts 조회 (followService에서 해당 조건을 반영해야 할 경우 수정)
+        // 서비스에서 게시물 조회 (팔로우한 유저의 게시물만, 'vote' 제외)
         Page<PostInfoDTO> postInfoList = followService.getPostsFromFollowingUsers(userCode, pageable, builder);
 
         Page<PostDTO> postDTOS = postInfoList.map(postInfo -> {
@@ -125,7 +120,7 @@ public class FollowController {
         });
 
         Map<String, Object> response = new HashMap<>();
-        response.put("content", postDTOS.getContent());    // Add postDTO content
+        response.put("content", postDTOS.getContent());
         response.put("totalPages", postDTOS.getTotalPages());
         response.put("totalElements", postDTOS.getTotalElements());
         response.put("currentPage", postDTOS.getNumber());

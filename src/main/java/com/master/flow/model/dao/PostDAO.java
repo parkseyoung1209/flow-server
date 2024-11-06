@@ -11,7 +11,8 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface PostDAO extends JpaRepository<Post, Integer>, QuerydslPredicateExecutor<Post> {
-    // post_public_yn = "Y" 인 경우 게시글(post)에서 투표게시물(vote)만 조회
+
+    // post_public_yn = "Y"인 경우 게시글(post)에서 투표게시물(vote)만 조회
     @Query(value = "SELECT * FROM post WHERE post_type = 'vote' and post_public_yn = 'Y'", nativeQuery = true)
     List<Post> findByPostTypesVote();
 
@@ -21,17 +22,20 @@ public interface PostDAO extends JpaRepository<Post, Integer>, QuerydslPredicate
     @Query(value = "SELECT * FROM post WHERE user_code = :userCode AND post_type = 'vote' ORDER BY post_code desc", nativeQuery = true)
     List<Post> findByUser_UserVote(@Param("userCode") int userCode);
 
-    List<Post> findByUser_UserCodeIn(List<Integer> userCodes);
-
     // 카테고리별 게시물 조회
-    @Query("SELECT p FROM Post p JOIN p.user u LEFT JOIN PostTag pt ON (p.postCode = pt.postCode) WHERE "
+    @Query("SELECT p FROM Post p "
+            + "JOIN p.user u "
+            + "LEFT JOIN PostTag pt ON p.postCode = pt.postCode "
+            + "WHERE "
             + "(:userJob IS NULL OR u.userJob IN :userJob) "
             + "AND (:userGender IS NULL OR u.userGender = :userGender) "
             + "AND (:userHeightMin IS NULL OR u.userHeight >= :userHeightMin) "
             + "AND (:userHeightMax IS NULL OR u.userHeight <= :userHeightMax) "
             + "AND (:userWeightMin IS NULL OR u.userWeight >= :userWeightMin) "
             + "AND (:userWeightMax IS NULL OR u.userWeight <= :userWeightMax) "
-            + "AND (:tagCode IS NULL OR pt.tagCode = :tagCode)")
+            + "AND (:tagCode IS NULL OR pt.tagCode IN :tagCode) "
+            + "GROUP BY p "
+            + "HAVING COUNT(DISTINCT pt.tagCode) = :tagCodeSize")
     List<Post> findPostsByFilters(
             @Param("userJob") List<String> userJob,
             @Param("userGender") String userGender,
@@ -39,9 +43,9 @@ public interface PostDAO extends JpaRepository<Post, Integer>, QuerydslPredicate
             @Param("userHeightMax") Integer userHeightMax,
             @Param("userWeightMin") Integer userWeightMin,
             @Param("userWeightMax") Integer userWeightMax,
-            @Param("tagCode") Integer tagCode
-    );
+            @Param("tagCode") List<Integer> tagCode,
+            @Param("tagCodeSize") long tagCodeSize);
 
+    // 게시물 페이징 조회
     Page<Post> findByUser_UserCodeIn(List<Integer> userCodes, Pageable pageable);
-
 }

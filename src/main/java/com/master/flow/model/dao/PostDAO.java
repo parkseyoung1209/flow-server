@@ -34,7 +34,7 @@ public interface PostDAO extends JpaRepository<Post, Integer>, QuerydslPredicate
             + "AND (:userWeightMax IS NULL OR u.userWeight <= :userWeightMax) "
             + "AND (:tagCode IS NULL OR pt.tagCode IN :tagCode) "
             + "GROUP BY p "
-            + "HAVING COUNT(DISTINCT pt.tagCode) = :tagCodeSize")
+            + "HAVING (:tagCodeSize = 0 OR COUNT(DISTINCT pt.tagCode) = :tagCodeSize)")
     List<Post> findPostsByFilters(
             @Param("userJob") List<String> userJob,
             @Param("userGender") String userGender,

@@ -3,6 +3,7 @@ package com.master.flow.service;
 import com.master.flow.model.dao.*;
 import com.master.flow.model.dto.PostInfoDTO;
 import com.master.flow.model.dto.UserPostSummaryDTO;
+import com.master.flow.model.vo.Comment;
 import com.master.flow.model.vo.Post;
 import com.master.flow.model.vo.PostImg;
 import com.master.flow.model.vo.User;
@@ -24,21 +25,24 @@ public class PostService {
 
     @Autowired
     private PostDAO postDAO;
-
     @Autowired
     private UserDAO userDAO;
-
     @Autowired
     private LikesDAO likesDAO;
-
     @Autowired
     private CollectionDAO collectionDAO;
-
     @Autowired
     private PostImgDAO postImgDao;
-
     @Autowired
     private ProductDAO productDao;
+    @Autowired
+    private CommentDAO commentDAO;
+    @Autowired
+    private PostReportDAO postReportDAO;
+    @Autowired
+    private PostTagDAO postTagDAO;
+    @Autowired
+    private VoteDAO voteDAO;
 
     // 서비스 계층에서 페이징 처리
     public Page<Post> viewAll(BooleanBuilder builder, Pageable pageable) {
@@ -107,6 +111,32 @@ public class PostService {
 
         return new UserPostSummaryDTO(postInfoList, totalSavedPost);
 
+    }
+
+    public List<Comment> delPostReportAndComment(int postCode){
+        // 이미 글이 신고되어있는 상태일때
+        postReportDAO.deletePostReportByPostCode(postCode);
+        // 그 글에 있는 댓글들 중 신고된 댓글
+        return commentDAO.findByPostCode(postCode);
+    }
+
+    public void delCommentAndLikes(int postCode){
+        // 그 글에 있는 댓글들 삭제
+        commentDAO.deleteCommentByPostCode(postCode);
+        // 좋아요가 되어있을때
+        likesDAO.deleteLikesByPostCode(postCode);
+    }
+
+    public void delPostOther(int postCode){
+        postImgDao.deletePostImgByPostCode(postCode);
+        // 글에 등록된 상품들 삭제
+        productDao.deleteProductByPostCode(postCode);
+        // 그 글이 유저가 저장한 글일 경우
+        collectionDAO.deleteCollectionByPostCode(postCode);
+        // 글에 적용된 태그들 삭제
+        postTagDAO.deletePostTagByPostCode(postCode);
+        // 투표 글인 경우
+        voteDAO.deleteVoteByPostCode(postCode);
     }
 
 }

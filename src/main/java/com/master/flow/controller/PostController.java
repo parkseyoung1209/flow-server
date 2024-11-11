@@ -1,6 +1,5 @@
 package com.master.flow.controller;
 
-import com.master.flow.model.dao.*;
 import com.master.flow.model.dto.PostDTO;
 import com.master.flow.model.dto.PostImgDTO;
 import com.master.flow.model.dto.UserPostSummaryDTO;
@@ -50,24 +49,6 @@ public class PostController {
     private CollectionService collectionService;
     @Autowired
     private TagService tagService;
-    @Autowired
-    private PostReportDAO postReportDAO;
-    @Autowired
-    private CommentDAO commentDAO;
-    @Autowired
-    private LikesDAO likesDAO;
-    @Autowired
-    private CommentReportDAO commentReportDAO;
-    @Autowired
-    private PostImgDAO postImgDAO;
-    @Autowired
-    private ProductDAO productDAO;
-    @Autowired
-    private CollectionDAO collectionDAO;
-    @Autowired
-    private PostTagDAO postTagDAO;
-    @Autowired
-    private VoteDAO voteDAO;
     @Autowired
     private CommentReportService commentReportService;
     @Autowired
@@ -498,11 +479,8 @@ public class PostController {
     // 게시물 삭제
     @DeleteMapping("/post/{postCode}")
     public ResponseEntity delPost(@PathVariable("postCode") int postCode) {
-        // 이미 글이 신고되어있는 상태일때
-        postReportDAO.deletePostReportByPostCode(postCode);
-
         // 그 글에 있는 댓글들 중 신고된 댓글
-        List<Comment> comments = commentDAO.findByPostCode(postCode);
+        List<Comment> comments = postService.delPostReportAndComment(postCode);
         List<CommentReport> commentsReport = commentReportService.showAllCommentReport();
         for(Comment comment : comments) {
             for(CommentReport commentReport : commentsReport) {
@@ -512,11 +490,7 @@ public class PostController {
             }
         }
 
-        // 그 글에 있는 댓글들 삭제
-        commentDAO.deleteCommentByPostCode(postCode);
-
-        // 좋아요가 되어있을때
-        likesDAO.deleteLikesByPostCode(postCode);
+        postService.delCommentAndLikes(postCode);
 
         // 글에 있는 사진들 삭제
         List<PostImg> postImgs = postImgService.findByPost_PostCode(postCode);
@@ -530,20 +504,7 @@ public class PostController {
 //            System.out.println("삭제 경로" + file);
             file.delete();
         }
-
-        postImgDAO.deletePostImgByPostCode(postCode);
-
-        // 글에 등록된 상품들 삭제
-        productDAO.deleteProductByPostCode(postCode);
-
-        // 그 글이 유저가 저장한 글일 경우
-        collectionDAO.deleteCollectionByPostCode(postCode);
-
-        // 글에 적용된 태그들 삭제
-        postTagDAO.deletePostTagByPostCode(postCode);
-
-        // 투표 글인 경우
-        voteDAO.deleteVoteByPostCode(postCode);
+        postService.delPostOther(postCode);
 
         postService.delPost(postCode);
 

@@ -22,6 +22,7 @@ public class CommentDTO {
     private String commentDelYn;
     private int postCode;
     private int userCode;
+    private String userNickname;
     private int parentCommentCode;
     private List<Comment> replies = new ArrayList<>(); // 자식댓글리스트!
 }

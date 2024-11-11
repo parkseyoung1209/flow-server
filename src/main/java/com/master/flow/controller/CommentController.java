@@ -43,6 +43,7 @@ public class CommentController {
                     .postCode(comment.getPostCode())
                     .commentImgUrl(comment.getUserCode().getUserProfileUrl())
                     .userCode(comment.getUserCode().getUserCode())
+                    .userNickname(comment.getUserCode().getUserNickname())
                     .build();
             List<Comment> replies = commentService.getParentCommentCode(comment.getCommentCode());
             result.setReplies(replies);

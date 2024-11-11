@@ -9,6 +9,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.Id;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -26,6 +27,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class CommentService {
 
@@ -50,11 +52,6 @@ public class CommentService {
         return null;
     }
 
-    // 댓글 작성
-    public void addComment(CommentDTO dto) {
-        commentDao.saveComment(dto.getCommentDesc(), dto.getPostCode(), dto.getUserCode(), 0);
-    }
-
 //    // 댓글 사진 첨부
 //    public String uploadImg(MultipartFile file) throws IOException {
 //        // 저장 경로
@@ -68,7 +65,7 @@ public class CommentService {
 //        return "http://192.168.10.51:8081/comment" + file.getOriginalFilename();
 //    }
 
-    // 댓글 조회
+    // 댓글 조회 - 상위 댓글 조회
     public List<Comment> getAllComment(int postCode) {
         return queryFactory
                 .selectFrom(qComment)
@@ -78,11 +75,6 @@ public class CommentService {
                 .fetch();
     }
 
-    // 대댓글 작성
-    public void addParentCommentCode(CommentDTO dto) {
-        commentDao.saveComment(dto.getCommentDesc(), dto.getPostCode(), dto.getUserCode(), dto.getParentCommentCode());
-    }
-
     // 대댓글 조회
     public List<Comment> getParentCommentCode(int parentCommentCode) {
         return queryFactory
@@ -90,6 +82,12 @@ public class CommentService {
                 .where(qComment.parentCommentCode.eq(parentCommentCode))
                 .orderBy(qComment.commentDate.asc())
                 .fetch();
+    }
+
+    // 댓글 작성
+    public void addComment(CommentDTO dto) {
+        log.info("parent : " + dto.getParentCommentCode());
+        commentDao.saveComment(dto.getCommentDesc(), dto.getPostCode(), dto.getUserCode(), dto.getParentCommentCode());
     }
 
     // 댓글 수정

@@ -25,56 +25,38 @@ public class CommentController {
     @Autowired
     private CommentService commentService;
 
-    // 댓글 작성
-    @PostMapping("/addcomment")
-    public ResponseEntity addComment(@RequestBody CommentDTO dto) {
-        System.out.println(dto);
-        commentService.addComment(dto);
-//        return ResponseEntity.ok(commentService.addComment(vo));
-        return ResponseEntity.status(HttpStatus.OK).build();
-    }
+
 
 
     // 댓글 조회
     @GetMapping("/{postCode}/comment")
     public ResponseEntity getComments(@PathVariable(name = "postCode") int postCode) {
         List<Comment> comments = commentService.getAllComment(postCode);
-//        List<CommentDTO> response = commentList(comments);
-        System.err.println(comments);
-        return ResponseEntity.ok(comments);
-    }
-
-//     무한 댓글 추가
-    public List<CommentDTO> commentList(List<Comment> comments) {
         List<CommentDTO> response = new ArrayList<>();
 
-        for (Comment comment : comments) {
-            List<Comment> replies = commentService.getAllComment(comment.getCommentCode());
-            List<CommentDTO> repliesDTO = new ArrayList<>();
-            CommentDTO dto = new CommentDTO();
-            dto.setReplies(repliesDTO);
-            response.add(dto);
+        for(Comment comment : comments) {
+            CommentDTO result = CommentDTO.builder()
+                    .commentCode(comment.getCommentCode())
+                    .commentDate(comment.getCommentDate())
+                    .commentDesc(comment.getCommentDesc())
+                    .commentDelYn(comment.getCommentDelYn())
+                    .postCode(comment.getPostCode())
+                    .commentImgUrl(comment.getUserCode().getUserProfileUrl())
+                    .build();
+            List<Comment> replies = commentService.getParentCommentCode(comment.getCommentCode());
+            result.setReplies(replies);
+            response.add(result);
         }
-        return response;
+
+        System.err.println(comments);
+        return ResponseEntity.ok(response);
     }
 
-    // 대댓글 조회
-    public CommentDTO getParentCommentCode(Comment comment) {
-        return CommentDTO.builder()
-                .commentCode(comment.getCommentCode())
-                .commentDesc(comment.getCommentDesc())
-                .commentImgUrl(comment.getCommentImgUrl())
-                .commentDate(comment.getCommentDate())
-                .commentDelYn(comment.getCommentDelYn())
-                .postCode(comment.getPostCode())
-//                .user(comment.getUser()
-                .build();
-    }
-
-    // 대댓글 작성
-    @PostMapping("/parentCommentCode")
-    public ResponseEntity<Void> addParentCommentCode(@RequestBody CommentDTO dto) {
-        commentService.addParentCommentCode(dto);
+    // 댓글 작성
+    @PostMapping("/addcomment")
+    public ResponseEntity addComment(@RequestBody CommentDTO dto) {
+        commentService.addComment(dto);
+//        return ResponseEntity.ok(commentService.addComment(vo));
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 

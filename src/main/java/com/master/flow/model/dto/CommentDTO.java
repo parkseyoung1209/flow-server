@@ -1,5 +1,6 @@
 package com.master.flow.model.dto;
 
+import com.master.flow.model.vo.Comment;
 import com.master.flow.model.vo.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,5 +23,5 @@ public class CommentDTO {
     private int postCode;
     private int userCode;
     private int parentCommentCode;
-    private List<CommentDTO> replies = new ArrayList<>();
+    private List<Comment> replies = new ArrayList<>(); // 자식댓글리스트!
 }

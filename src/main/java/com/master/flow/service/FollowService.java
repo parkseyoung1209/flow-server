@@ -287,6 +287,4 @@ public class FollowService {
             return new PostInfoDTO(post, 0, 0, postImgs); // PostInfoDTO로 변환
         });
     }
-    // 추천 팔로워를 해봅시다...
-//    public
 }

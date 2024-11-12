@@ -278,7 +278,8 @@ public class FollowService {
 
         // 팔로우한 유저의 게시물 중에서 postType이 'vote'인 게시물을 제외
         builder.and(qPost.user.userCode.in(followerUserCodes))
-                .and(qPost.postType.ne("vote"));
+                .and(qPost.postType.ne("vote"))
+                .and(qPost.postPublicYn.eq("Y"));
 
         Page<Post> posts = postDAO.findAll(builder, pageable);
 

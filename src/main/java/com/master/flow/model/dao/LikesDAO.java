@@ -32,6 +32,7 @@ public interface LikesDAO extends JpaRepository<Likes, Integer> {
     @Query("SELECT post FROM Post post " +
             "INNER JOIN Likes likes ON post.postCode = likes.post.postCode " +
             "WHERE post.postType != 'vote' " +  // 'vote' 타입 제외
+            "AND post.postPublicYn = 'Y' " +
             "GROUP BY post.postCode " +
             "ORDER BY COUNT(likes) DESC")
     Page<Post> findAllOrderByLikesAndPostTypeNotVote(Pageable pageable);  // 좋아요 수 높은 순으로, 'vote' 타입 제외

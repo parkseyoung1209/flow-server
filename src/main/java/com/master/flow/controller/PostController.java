@@ -77,11 +77,13 @@ public class PostController {
         builder.and(qPost.postType.ne("vote"));
 
         // 인증된 사용자가 없으면 공개 게시물만 조회 (post_public_yn == 'Y')
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()) {
-            // 인증되지 않은 경우 (로그아웃 상태)에는 공개 게시물만 조회
-            builder.and(qPost.postPublicYn.eq("Y"));
-        }
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        if (authentication == null || !authentication.isAuthenticated()) {
+//            // 인증되지 않은 경우 (로그아웃 상태)에는 공개 게시물만 조회
+//            builder.and(qPost.postPublicYn.eq("Y"));
+//        }
+
+        builder.and(qPost.postPublicYn.eq("Y"));
 
         // 로그인된 사용자에 맞는 추가 필터링 조건을 여기에 넣을 수 있음
         Page<Post> posts = postService.viewAll(builder, PageRequest.of(page, size, sortCondition));

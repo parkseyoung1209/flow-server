@@ -40,7 +40,7 @@ public class CommentController {
                     .commentDate(comment.getCommentDate())
                     .commentDesc(comment.getCommentDesc())
                     .commentDelYn(comment.getCommentDelYn())
-                    .postCode(comment.getPostCode())
+                    .postCode(comment.getPost().getPostCode())
                     .commentImgUrl(comment.getUserCode().getUserProfileUrl())
                     .userCode(comment.getUserCode().getUserCode())
                     .userNickname(comment.getUserCode().getUserNickname())

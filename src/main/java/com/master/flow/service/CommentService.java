@@ -69,7 +69,7 @@ public class CommentService {
     public List<Comment> getAllComment(int postCode) {
         return queryFactory
                 .selectFrom(qComment)
-                .where(qComment.postCode.eq(postCode))
+                .where(qComment.post.postCode.eq(postCode))
                 .where(qComment.parentCommentCode.eq(0))
                 .orderBy(qComment.commentDate.asc())
                 .fetch();

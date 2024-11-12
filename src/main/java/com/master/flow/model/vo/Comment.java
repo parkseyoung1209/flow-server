@@ -35,8 +35,9 @@ public class Comment {
     private String commentDelYn;
 
 //    게시물 번호
-    @Column(name="POST_CODE")
-    private int postCode;
+    @ManyToOne
+    @JoinColumn(name="POST_CODE",insertable = false,updatable = false)
+    private Post post;
 
 //    유저 코드
     @ManyToOne

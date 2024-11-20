@@ -104,3 +104,42 @@ public class FollowService {
     }
 }
 ```
+
+```java
+    // 나를 팔로우한 인간들과 내가 팔로우한 인간들 나누는 메서드
+    public BooleanBuilder selectFollowingOrFollower(int code, boolean check) {
+        BooleanBuilder booleanBuilder = new BooleanBuilder();
+
+        QFollow qFollow = QFollow.follow;
+        BooleanExpression expression1 = qFollow.followingUser.userCode.eq(code);
+        BooleanExpression expression2 = qFollow.followerUser.userCode.eq(code);
+        if(check) {
+            booleanBuilder.and(expression1);
+        } else {
+            booleanBuilder.and(expression2);
+        }
+        return booleanBuilder;
+    }
+
+        BooleanExpression expression = qFollow.followingUser.userCode.eq(followingUserCode);
+        booleanBuilder.and(expression);
+
+        List<Follow> follows = (List<Follow>) followDAO.findAll(booleanBuilder);
+
+    //내가 팔로우한 인간들의 수와 인간들 전체 목록 dto발사
+    public FollowDTO viewMyFollower(int followingUserCode) {
+        List<Follow> follows = (List<Follow>) followDAO.findAll(selectFollowingOrFollower(followingUserCode, true));
+        List<User> list = follows.stream()
+                .map(Follow :: getFollowerUser)
+                .collect(Collectors.toList());
+        return new FollowDTO(list.size(), list);
+    }
+ //위랑 반대
+    public FollowDTO followMeUsers (int followerUserCode) {
+        List<Follow> follows = (List<Follow>) followDAO.findAll(selectFollowingOrFollower(followerUserCode, false));
+        List<User> list = follows.stream()
+                .map(Follow :: getFollowingUser)
+                .collect(Collectors.toList());
+        return new FollowDTO(list.size(), list);
+    }
+```
